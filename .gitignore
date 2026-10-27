@@ -1,5 +1,6 @@
 __pycache__/
 *.py[cod]
 .local-tests/
+/.internal/
 /docs/workflow-trials.md
 /tests/blender/workflow_trials.py
