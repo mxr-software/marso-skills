@@ -1,0 +1,4 @@
+interface:
+  display_name: "Marso"
+  short_description: "Choose Marso generation, modelling and style workflows"
+  default_prompt: "Use $marso to choose the right workflow for my asset and available tools."

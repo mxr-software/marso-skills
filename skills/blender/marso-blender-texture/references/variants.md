@@ -1,0 +1,23 @@
+# Style variants from one source
+
+Use for "make N looks", colourways, alternative finishes or material versions of an existing asset. A style variant preserves geometry and UVs; changing the silhouette, opening a lid or breaking a part needs a geometry workflow. Honour an explicit request to refine a particular returned version, recording that version as the chosen source.
+
+## Preserve and branch
+
+1. Identify and save the original source geometry, UVs, material assignments and base appearance. If preparation is required, make one prepared baseline from it and preserve that too. Record the source revision in the [appearance brief](appearance.md). A current Restyle output is not automatically the original; if the original cannot be found, disclose that before claiming source-based variants.
+2. Use the requested count and looks. If only a count is specified, state a concise set of distinct proposed looks and proceed within the authorized request; ask only if the missing direction materially prevents a useful choice. Do not expand a request into an automatic refinement or model-comparison loop.
+3. Create each variant's working copy from the same prepared baseline, including its original base-colour input. Do not duplicate variant A after its generated material was applied to make B. Give working objects unique names; isolate mesh/UV data and material datablocks from the source and other variants. For an assembly, preserve intended material sharing within each copy while separating it between variants; resolve copied assembly tags and verify `assembly_state` returns only that variant's root/parts.
+4. Submit each copy explicitly with its prompt and intended reference. Clear stale reference/enhancement values when unused. Follow the installed job/concurrency rules; the inspected add-on runs one Retexture at a time. Record IDs per variant. Never target the hidden source or rely on the active selection.
+5. Verify unchanged geometry/UV correspondence, successful map application and independent bindings. Inspect variants side by side under matched lighting. Save the original plus the requested results, retaining warnings and reporting failed variants accurately. Only transfer a selected look back to the master when that is the requested delivery; preserve the other material sets with real users or a fake user so saving does not discard them.
+
+Blender material copies can still reference shared source images. That is acceptable while those images remain read-only; duplicate image data before any destructive image edit. Shared mesh data also shares mesh-linked material slots. A swap must not change every instance unintentionally: use independent mesh data or deliberately verified object-linked slots.
+
+With Studio tools, make independent edit branches from the same original mesh node/asset, each with its own result and PBR node. Do not chain one `3d-edit` output into the next for sibling styles. Verify the current builder's source/count schema rather than inventing a variant endpoint.
+
+## Name materials after successful application
+
+The inspected add-on applies maps to existing materials and matches returned slot keys against material names. Preserve submission-time names until the job has finished and its maps are wired. Do not rename materials while generation or download/application is in flight. This workflow assigns readable local names afterwards; it does not assume the server creates them or that local renaming updates library metadata.
+
+Follow the user's established naming convention. Otherwise use a compact form such as `<asset>__<style>__<role>__v01`, with an explicit source/result mapping. Examples: `Stool__DarkOak__Frame__v01` or `WallA__AgedOakLime__Atlas__v01`. An atlas covering several physical materials should be called an atlas or mixed surface, not falsely presented as a separately editable wood material. Use meaningful variant labels; Blender's automatic `.001` suffix is not the variant identity.
+
+Before renaming, inspect all users and make the datablock independent if a rename/reassignment would affect unrelated assets. Record the actual final name, not just the requested string, because Blender can disambiguate collisions. Keep object names, slot indices, UV layer, generated asset ID and returned map-role association in the brief. Preserve downloaded cache filenames/paths, image dependencies and the add-on's `Marso_` node names; these are not artist-facing style labels. For another run, the current material names become the new submission-time names and must again remain stable until application finishes.
