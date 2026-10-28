@@ -1,0 +1,6 @@
+Copyright (c) 2026 M-XR. All rights reserved.
+
+This skill folder is proprietary. You may copy it as needed to install and
+use it with your AI assistant for your own work with Marso. All other copying,
+modification, redistribution or sublicensing requires written permission
+from M-XR.

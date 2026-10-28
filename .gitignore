@@ -1,0 +1,8 @@
+__pycache__/
+*.py[cod]
+.local-tests/
+/.internal/
+/HANDOFF.md
+/grep.exe.stackdump
+/docs/workflow-trials.md
+/tests/blender/workflow_trials.py

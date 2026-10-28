@@ -1,0 +1,11 @@
+Copyright (c) 2026 M-XR. All rights reserved.
+
+This skill folder (its instructions, references, scripts and viewer template) is
+proprietary software of M-XR and is not covered by the Apache-2.0 licence that
+applies to the rest of the Marso skills repository.
+
+You may copy this skill as needed to install and use it with your AI assistant
+for your own work with Marso. You may not redistribute, sublicense, sell, or
+publish modified copies of it without written permission from M-XR.
+
+It is provided "as is", without warranty of any kind.

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Marso Scene Decompose"
+  short_description: "Turn photographs of a room into a scene graph and viewer"
+  default_prompt: "Use $marso-scene-decompose on the photographs in this folder and show me the scene graph."

@@ -1,0 +1,1032 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>__TITLE__</title>
+<style>
+  :root {
+    --bg:#0a0c11; --panel:#0f1218; --line:#1d222d; --ink:#dfe5f0; --dim:#79839a;
+    --faint:#4a5468; --accent:#45d6d0; --warn:#f0a85c; --anchor:#8be0a8;
+    --mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+  }
+  * { box-sizing:border-box; }
+  /* A flex shell rather than calc(100vh - 42px): the header wraps to two rows when the
+     window narrows, and a hard-coded height pushed the whole layout off the screen. */
+  body { margin:0; background:var(--bg); color:var(--ink); font:12px/1.55 var(--mono);
+         height:100vh; display:flex; flex-direction:column; overflow:hidden; }
+  header { flex:none; }
+  h1 { margin:0; font-weight:600; }
+  .up { text-transform:uppercase; letter-spacing:.14em; font-size:10px; color:var(--dim); }
+  header {
+    display:flex; align-items:baseline; gap:18px; flex-wrap:wrap;
+    padding:10px 16px 9px; border-bottom:1px solid var(--line); background:var(--panel);
+  }
+  header h1 { font-size:17px; letter-spacing:.06em; text-transform:uppercase; }
+  header .m { color:var(--dim); font-size:10px; letter-spacing:.08em; text-transform:uppercase; }
+  header .m b { color:var(--ink); font-weight:600; }
+  header .right { margin-left:auto; display:flex; gap:12px; align-items:center; }
+  input[type=search] {
+    background:var(--bg); border:1px solid var(--line); color:var(--ink);
+    border-radius:3px; padding:4px 8px; width:180px; font:inherit;
+  }
+  label.t { color:var(--dim); cursor:pointer; user-select:none; font-size:10px;
+            letter-spacing:.08em; text-transform:uppercase; }
+  main { display:grid; grid-template-columns:272px minmax(0,1fr) 392px; flex:1; min-height:0; }
+  body.noleft main { grid-template-columns:0 minmax(0,1fr) 392px; }
+  body.noright main { grid-template-columns:272px minmax(0,1fr) 0; }
+  body.noleft.noright main { grid-template-columns:0 minmax(0,1fr) 0; }
+  /* Collapse to zero width rather than display:none: a hidden grid item leaves its
+     track behind, and the middle pane then lands in the 0-width one. */
+  body.noleft .col.l, body.noright .col.r { width:0; padding:0; border:0; overflow:hidden; }
+  .col { overflow-y:auto; overflow-x:hidden; }
+  .col.l { border-right:1px solid var(--line); }
+  .col.r { border-left:1px solid var(--line); }
+  .pad { padding:12px 14px; }
+  .sec { border-bottom:1px solid var(--line); }
+  .tier { display:grid; grid-template-columns:14px 1fr 54px 30px; gap:8px; align-items:center;
+          padding:2px 0; font-size:11px; cursor:pointer; }
+  .tier:hover .tname { color:var(--ink); }
+  .tier .tn { color:var(--faint); }
+  .tname { color:var(--dim); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .bar { height:3px; background:#1a1f29; border-radius:2px; overflow:hidden; }
+  .bar i { display:block; height:100%; background:var(--accent); }
+  .tval { color:var(--dim); text-align:right; }
+  .lin { padding:2px 0 16px; }
+  .row { display:flex; align-items:center; gap:6px; padding:1px 10px 1px 0; cursor:pointer;
+         white-space:nowrap; }
+  .row:hover { background:#141924; }
+  .row.sel { background:#14343288; }
+  .row .sw { width:7px; height:7px; border-radius:2px; flex:none; }
+  .row .nm { overflow:hidden; text-overflow:ellipsis; }
+  .row .tw { color:var(--faint); font-size:10px; margin-left:auto; flex:none; padding-left:6px; }
+  .row.anchor .nm { color:var(--anchor); }
+  .row.multi .nm { color:var(--accent); }
+  .row.flag .nm { color:var(--warn); }
+  .row.hovered { background:#1a2030; }
+  .row .car { width:11px; color:var(--faint); flex:none; text-align:center; }
+  .row .car:hover { color:var(--accent); }
+  #gw { position:relative; overflow:hidden; }
+  #g { width:100%; height:100%; display:block; cursor:grab; }
+  #g.grab { cursor:grabbing; }
+  .ring { fill:none; stroke:#1b2130; stroke-width:1; }
+  .ringLbl { fill:var(--faint); font-size:9px; letter-spacing:.1em; }
+  .area { fill:#45d6d006; stroke:#45d6d026; stroke-dasharray:3 7; }
+  .areaL { fill:#45d6d070; font-size:9px; text-anchor:middle; letter-spacing:.12em; }
+  .lk { fill:none; stroke:#56607a; stroke-width:1; opacity:.5; }
+  .lk.on { stroke:var(--accent); stroke-width:2.6; opacity:1; }
+  .lk.warm { stroke:#9fb4d8; stroke-width:1.9; opacity:.95; }
+  .nd { cursor:pointer; }
+  .nd .inner { transition:transform .12s ease-out; transform-box:fill-box;
+               transform-origin:center; pointer-events:none; }
+  .nd .hit { fill:transparent; stroke:none; }
+  .nd text { pointer-events:none; }
+  .nd .hal { fill:none; stroke-width:1.6; }
+  .nd.sel .inner { transform:scale(1.42); }
+  .nd.hov .inner { transform:scale(1.26); }
+  .nd.sel .hal, .nd.hov .hal { stroke-width:3.2; }
+  .nd .lbl { fill:var(--dim); font-size:9px; letter-spacing:.06em; }
+
+  .nd.sel .lbl, .nd.kin .lbl { fill:var(--ink); }
+  .nd.fade { opacity:.2; }
+  .hint { position:absolute; left:12px; bottom:10px; color:var(--faint); font-size:10px;
+          letter-spacing:.08em; text-transform:uppercase; pointer-events:none; }
+  .big { width:100%; aspect-ratio:1/1; border:1px solid var(--line); background:#05070a;
+         position:relative; overflow:hidden; }
+  img.cp { position:absolute; max-width:none; image-rendering:auto; }
+  .cpbox { position:absolute; border:1px solid; pointer-events:none; }
+  .big .cpbox { border-width:2px; box-shadow:0 0 0 1px #0009; }
+  .cpnote { position:absolute; left:5px; bottom:4px; font-size:9px; letter-spacing:.08em;
+            color:var(--dim); background:#05070acc; padding:0 5px; line-height:1.7; }
+  .ttl { font-size:14px; font-weight:600; margin:9px 0 1px; }
+  .gid { color:var(--faint); font-size:10px; }
+  .kv { display:grid; grid-template-columns:76px 1fr; gap:3px 10px; font-size:11px; margin-top:10px; }
+  .kv dt { color:var(--faint); text-transform:uppercase; letter-spacing:.08em; font-size:10px; }
+  .kv dd { margin:0; }
+  .chip { display:inline-flex; align-items:center; gap:5px; border:1px solid var(--line);
+          border-radius:3px; padding:1px 6px; margin:2px 3px 2px 0; color:var(--dim);
+          cursor:pointer; font-size:10px; }
+  .chip:hover { border-color:var(--accent); color:var(--ink); }
+  .chip .sw { width:6px; height:6px; border-radius:1px; }
+  .thumbs { display:flex; gap:6px; margin-top:8px; flex-wrap:wrap; }
+  .th .w { width:58px; height:58px; overflow:hidden; border:1px solid var(--line);
+           background:#05070a; position:relative; }
+  .th.best .w { border-color:var(--accent); }
+  .th .c { font-size:9px; color:var(--faint); margin-top:2px; letter-spacing:.06em; }
+  .note { border-left:2px solid var(--warn); padding:5px 8px; margin-top:9px;
+          background:#f0a85c0c; font-size:10.5px; color:#e8c79a; }
+  .shot { position:relative; margin-top:8px; border:1px solid var(--line); line-height:0; }
+  .shot img { width:100%; display:block; }
+  .shot .id { position:absolute; top:4px; left:5px; font-size:9px; letter-spacing:.1em;
+              background:#05070acc; padding:0 5px; color:var(--dim); line-height:1.7; }
+  .bx { position:absolute; border:1px solid; cursor:pointer; }
+  .bx.on { border-width:2px; }
+  .vtile .bx { z-index:4; }
+  ul.pl { list-style:none; margin:0; padding:0; }
+  ul.pl li { padding:4px 0; border-bottom:1px solid #1d222d88; font-size:11px; }
+  ul.pl li:last-child { border:0; }
+  .warn { color:var(--warn); } .dim { color:var(--dim); }
+  .tabs { display:flex; gap:4px; }
+  .tab { background:transparent; border:1px solid var(--line); color:var(--dim); font:inherit;
+         font-size:10px; letter-spacing:.1em; text-transform:uppercase; padding:3px 9px;
+         border-radius:3px; cursor:pointer; }
+  .tab:hover { color:var(--ink); border-color:#2b3444; }
+  .tab.on { color:#06201f; background:var(--accent); border-color:var(--accent); font-weight:600; }
+  #views, #gallery { position:absolute; inset:0; background:var(--bg);
+                     display:flex; flex-direction:column; }
+  #views[hidden], #gallery[hidden] { display:none; }  /* the attribute loses to display:flex */
+  #gallery { display:block; overflow-y:auto; padding:10px 12px 30px; }
+  .vhead { display:flex; align-items:center; gap:12px; padding:7px 14px;
+           border-bottom:1px solid var(--line); font-size:11px; }
+  .vhead b { letter-spacing:.1em; text-transform:uppercase; }
+  .vspace { margin-left:auto; }
+  .vgrid { flex:1; display:grid; gap:6px; padding:6px; overflow:auto; }
+  .vtile { position:relative; background:#05070a; border:1px solid var(--line);
+           overflow:hidden; line-height:0; }
+  .vtile.none { opacity:.32; }
+  /* Filling the screen hides the others rather than spanning over them. */
+  .vgrid.focused { grid-template-columns:1fr !important; grid-template-rows:1fr !important; }
+  .vgrid.focused .vtile:not(.full) { display:none; }
+  .vtile img { width:100%; height:100%; object-fit:contain; display:block; }
+  .vtile .cap { position:absolute; left:6px; bottom:5px; font-size:9px; letter-spacing:.1em;
+                background:#05070acc; padding:1px 6px; color:var(--dim); line-height:1.7; }
+  .vtile .miss { position:absolute; inset:auto 0 50% 0; text-align:center; font-size:10px;
+                 letter-spacing:.1em; color:var(--faint); text-transform:uppercase; }
+  .bx.hov { border-width:3px; box-shadow:0 0 0 1px #000a; }
+  /* The spotlight is four panes around the box, so the box itself stays untouched
+     while everything else is blurred, desaturated and darkened. */
+  .spot { position:absolute; pointer-events:none; z-index:3;
+          backdrop-filter:blur(3px) saturate(.35) brightness(.42);
+          -webkit-backdrop-filter:blur(3px) saturate(.35) brightness(.42);
+          transition:opacity .09s linear; }
+  .gsec { margin:14px 0 7px; border-bottom:1px solid var(--line); padding-bottom:5px; }
+  .gsec b { color:var(--ink); }
+  .gsec:first-child { margin-top:2px; }
+  .ggrid { display:grid; grid-template-columns:repeat(auto-fill, minmax(118px, 1fr)); gap:9px; }
+  .gt { margin:0; cursor:pointer; }
+  .gt .gw { width:100%; aspect-ratio:1/1; overflow:hidden; position:relative;
+            background:#05070a; border:1px solid var(--line); border-left:3px solid var(--c); }
+  .gt:hover .gw { border-color:var(--accent); }
+  .gt.sel .gw { border-color:#fff; }
+  .gt figcaption { font-size:10px; color:var(--dim); margin-top:3px; overflow:hidden;
+                   text-overflow:ellipsis; white-space:nowrap; }
+  .gt.sel figcaption { color:var(--ink); }
+  /* Narrow windows: the graph needs room, so drop the side rails to a stacked layout. */
+  @media (max-width: 1180px) {
+    main { grid-template-columns:minmax(0,1fr) 340px; }
+    .col.l { display:none; }
+  }
+  @media (max-width: 820px) {
+    body { height:auto; overflow:visible; }
+    main { grid-template-columns:1fr; grid-template-rows:56vh auto; flex:none; }
+    .col.r { border-left:0; border-top:1px solid var(--line); }
+    header { gap:8px 12px; padding:8px 12px; }
+    header h1 { font-size:13px; width:100%; }
+    header .m { font-size:9px; }
+    .tabs { width:100%; }
+    .tab { flex:1; padding:5px 4px; }
+    input[type=search] { width:100%; }
+    header .right { width:100%; gap:10px; }
+    #hint { display:none; }
+    .ggrid { grid-template-columns:repeat(auto-fill, minmax(96px, 1fr)); gap:7px; }
+    .vgrid { grid-template-columns:1fr !important; grid-template-rows:none !important; }
+    .kv { grid-template-columns:68px 1fr; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1 id="hTitle">Scene graph</h1>
+  <span class="m">inventory <b id="mObj">0</b> objects</span>
+  <span class="m">distinct <b id="mDist">0</b></span>
+  <span class="m">edges <b id="mEdge">0</b>, depth <b id="mDepth">0</b></span>
+  <span class="m">views <b id="mImg">0</b></span>
+  <span class="m">flagged <b id="mFlag">0</b></span>
+  <span class="tabs" id="tabs">
+    <button class="tab on" data-mode="tree">II Tree</button>
+    <button class="tab" data-mode="orbit">III Orbit</button>
+    <button class="tab" data-mode="views">Views</button>
+    <button class="tab" data-mode="gallery">Gallery</button>
+  </span>
+  <span class="tabs">
+    <button class="tab on" id="tLeft" title="lineage panel">&#9664;</button>
+    <button class="tab on" id="tRight" title="detail panel">&#9654;</button>
+  </span>
+  <span class="right">
+    <label class="t"><input type="checkbox" id="tAreas" checked> areas</label>
+    <label class="t"><input type="checkbox" id="tAll"> all boxes</label>
+    <input type="search" id="q" placeholder="filter objects">
+  </span>
+</header>
+<main>
+  <div class="col l">
+    <div class="sec pad">
+      <p class="up" style="margin:0 0 7px">Depth of the support tree</p>
+      <div id="tiers"></div>
+    </div>
+    <div class="sec pad" style="padding-bottom:6px"><p class="up" style="margin:0">Lineage</p></div>
+    <div class="lin" id="lineage"></div>
+  </div>
+  <div id="gw">
+    <svg id="g"></svg>
+    <div id="views" hidden>
+      <div class="vhead">
+        <b id="vTitle">Views</b><span class="dim" id="vSub"></span>
+        <span class="vspace"></span>
+        <span class="dim">hover a box · double-click a view to fill it</span>
+      </div>
+      <div class="vgrid" id="vGrid"></div>
+    </div>
+    <div id="gallery" hidden></div>
+    <div class="hint" id="hint">scroll to zoom · drag to pan · double-click to fit</div>
+  </div>
+  <div class="col r">
+    <div class="sec pad" id="detail"></div>
+    <div class="sec pad"><p class="up" style="margin:0 0 2px">Source images</p><div id="shots"></div></div>
+    <div class="pad" id="issues"></div>
+  </div>
+</main>
+<script>
+const DATA = __DATA__;
+// Declared first: the link geometry is built before the orbit section runs, so every
+// constant it touches has to exist by then.
+let MODE = 'tree', azim = 0, tilt = 1.0;
+const ARC_STEPS = 14;        // samples per link
+const WEDGE_GAP = 0.05;      // radians of clear air between sibling branches, at most
+let FOCAL = 1150;            // set from the scene size once the rings are known
+const ORBIT_SPREAD = 1.45;   // rings sit further apart once there is depth
+const N = DATA.nodes, byId = new Map(N.map(n => [n.global_id, n]));
+const kids = new Map();
+for (const n of N) { if (!kids.has(n.parent)) kids.set(n.parent, []); kids.get(n.parent).push(n); }
+const roots = kids.get(null) || [];
+const imgOf = new Map(DATA.images.map(i => [i.image_id, i]));
+const push = (map, k, v) => { if (!map.has(k)) map.set(k, []); map.get(k).push(v); };
+const clusterOf = new Map(); for (const c of DATA.clusters || []) for (const m of c.members) clusterOf.set(m, c);
+const areasOf = new Map(); for (const a of DATA.areas || []) for (const m of a.members) push(areasOf, m, a);
+const groupOf = new Map(); for (const gp of DATA.identity_groups || []) for (const m of gp.members) groupOf.set(m, gp);
+const scoreOf = new Map((DATA.view_scores || []).map(s => [s.global_id, s]));
+
+/* a stable colour per object, used on its node, its lineage swatch and its boxes */
+function hue(id) { let h = 0; for (const c of id) h = (h * 31 + c.charCodeAt(0)) % 360; return h; }
+const colour = n => n.parent === null ? '#8be0a8' : `hsl(${hue(n.global_id)} 62% 62%)`;
+
+/* the view that shows an object best; its crop becomes the node */
+function bestView(n) {
+  const s = scoreOf.get(n.global_id);
+  if (s && s.best_local_id) { const v = n.views.find(v => v.local_id === s.best_local_id); if (v) return v; }
+  const area = v => (v.bbox[2] - v.bbox[0]) * (v.bbox[3] - v.bbox[1]);
+  return [...n.views].sort((a, b) => area(b) - area(a))[0];
+}
+
+/* ---------- layout: a ring per depth, angle by leaf share ---------- */
+const pos = new Map(); let maxDepth = 0;
+const leafCache = new Map();
+function leaves(n) {
+  if (leafCache.has(n.global_id)) return leafCache.get(n.global_id);
+  const c = kids.get(n.global_id) || [];
+  const v = c.length ? c.reduce((s, k) => s + leaves(k), 0) : 1;
+  leafCache.set(n.global_id, v); return v;
+}
+const total = roots.reduce((s, r) => s + leaves(r), 0) || 1;
+const RING = Math.max(78, Math.min(132, 60 + N.length * 0.95));
+// Only a slight funnel: the steep-near-the-hub, flat-further-out look comes from the
+// perspective of a tilted disc, not from stacking the tiers vertically.
+const DROP = RING * 0.62;   // tiers sit at their own height, so the tree reads as a funnel
+function place(n, a0, a1, d) {
+  maxDepth = Math.max(maxDepth, d);
+  const mid = (a0 + a1) / 2, r = d * RING;
+  pos.set(n.global_id, { x: Math.cos(mid) * r, y: Math.sin(mid) * r, a: mid, d });
+  let cur = a0; const span = a1 - a0, L = leaves(n);
+  for (const k of kids.get(n.global_id) || []) {
+    const w = (leaves(k) / L) * span;
+    // A small gap between sibling branches, capped so it does not compound: taking a
+    // fixed share at every level shrank a five-deep branch to under half its wedge.
+    const pad = Math.min(w * 0.14, WEDGE_GAP) / 2;
+    place(k, cur + pad, cur + w - pad, d + 1);
+    cur += w;
+  }
+}
+let cur = -Math.PI / 2;
+for (const r of roots) { const w = (leaves(r) / total) * Math.PI * 2; place(r, cur, cur + w, 1); cur += w; }
+// Anchors sit close to the middle rather than out on ring 1. Out there a root is at one
+// angle while its children fill most of the circle, so the links to the far ones swept
+// right round — the long curves in the graph.
+const ROOT_R = RING * 0.34;
+for (const r of roots) {
+  const q = pos.get(r.global_id);
+  if (!q) continue;
+  const a = Math.atan2(q.y, q.x);
+  pos.set(r.global_id, { x: Math.cos(a) * (roots.length > 1 ? ROOT_R : 0),
+                         y: Math.sin(a) * (roots.length > 1 ? ROOT_R : 0), a, d: 0 });
+}
+// Focal length proportional to how big the model actually is: a fixed one either
+// flattened a small scene or drove a large one into the near-plane clamp, which is what
+// made the orbit feel stuck in places.
+FOCAL = Math.max(520, maxDepth * RING * ORBIT_SPREAD * 1.35);   // a wider lens, so the taper shows
+
+/* ---------- svg ---------- */
+const NS = 'http://www.w3.org/2000/svg', svg = document.getElementById('g');
+const el = (t, a, p) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); if (p) p.append(e); return e; };
+const href = (e, v) => { e.setAttributeNS('http://www.w3.org/1999/xlink', 'href', v); e.setAttribute('href', v); };
+const defs = el('defs', {}, svg), root = el('g', {}, svg);
+const gRings = el('g', {}, root), gAreas = el('g', {}, root), gLinks = el('g', {}, root), gNodes = el('g', {}, root);
+
+/* one <image> per photograph, reused by every node, so a data URI is never repeated */
+for (const im of DATA.images) {
+  href(el('image', { id: 'src-' + im.image_id, width: im.width, height: im.height,
+                     preserveAspectRatio: 'none' }, defs), im.src);
+}
+
+const ROOT_DEPTH = roots.length > 1 ? 1 : 0;
+const TIER_NAME = d => d <= ROOT_DEPTH ? 'roots' : d === ROOT_DEPTH + 1 ? 'structures'
+  : d === ROOT_DEPTH + 2 ? 'objects' : 'members';
+const perDepth = new Map();
+for (const n of N) { const p = pos.get(n.global_id); if (p) perDepth.set(p.d, (perDepth.get(p.d) || 0) + 1); }
+function drawRings() {
+  gRings.innerHTML = '';
+  for (const [d] of [...perDepth].sort((a, b) => a[0] - b[0])) {
+    if (!d) continue;
+    let path = '';
+    for (let i = 0; i <= 72; i++) {
+      const q = project3(polar(d * RING, i / 72 * Math.PI * 2), d);
+      path += (i ? 'L' : 'M') + q.x.toFixed(1) + ',' + q.y.toFixed(1);
+    }
+    el('path', { d: path + 'Z', class: 'ring' }, gRings);
+    const lab = project3(polar(d * RING, -Math.PI / 2), d);
+    el('text', { x: lab.x + 6, y: lab.y - 5, class: 'ringLbl' }, gRings)
+      .textContent = `${d} ${TIER_NAME(d)} ${perDepth.get(d)}`;
+  }
+}
+drawRings();
+
+for (const a of DATA.areas || []) {
+  const pts = a.members.map(m => pos.get(m)).filter(Boolean);
+  if (pts.length < 2) continue;
+  const cx = pts.reduce((s, p) => s + p.x, 0) / pts.length, cy = pts.reduce((s, p) => s + p.y, 0) / pts.length;
+  const r = Math.min(Math.max(...pts.map(p => Math.hypot(p.x - cx, p.y - cy))) + 26, RING * 3);
+  el('circle', { cx, cy, r, class: 'area' }, gAreas);
+  el('text', { x: cx, y: cy - r - 5, class: 'areaL' }, gAreas).textContent = a.label.toUpperCase();
+}
+
+const linkEls = new Map();
+for (const n of N) {
+  if (!n.parent) continue;
+  const p = pos.get(n.parent), c = pos.get(n.global_id);
+  if (!p || !c) continue;
+  linkEls.set(n.global_id, el('path', { class: 'lk', d: arc(p, c) }, gLinks));
+}
+
+const nodeEls = new Map(), RADII = new Set();
+const clipId = r => 'cp-' + String(r).replace('.', '_');
+for (const n of N) {
+  const p = pos.get(n.global_id); if (!p) continue;
+  const r = n.parent === null ? 26 : Math.max(12, 24 - p.d * 2.2);
+  RADII.add(r);
+  const g = el('g', { class: 'nd', transform: `translate(${p.x},${p.y})` }, gNodes);
+  // The picture and its ring live in an inner group so they can grow on hover without
+  // fighting the transform the camera puts on the node.
+  const inner = el('g', { class: 'inner' }, g);
+  const v = bestView(n), im = v && imgOf.get(v.image_id);
+  if (im && im.width > 1) {
+    const [x0, y0, x1, y1] = v.bbox;
+    const bw = Math.max((x1 - x0) * im.width, 1), bh = Math.max((y1 - y0) * im.height, 1);
+    const k = (2 * r) / Math.max(bw, bh) * 1.12;
+    const cx = (x0 + x1) / 2 * im.width, cy = (y0 + y1) / 2 * im.height;
+    const holder = el('g', { 'clip-path': `url(#${clipId(r)})` }, inner);
+    href(el('use', { transform: `translate(${-cx * k},${-cy * k}) scale(${k})` }, holder), '#src-' + v.image_id);
+  } else {
+    el('circle', { r, fill: '#1a2029' }, inner);
+  }
+  el('circle', { r, class: 'hal', stroke: colour(n) }, inner);
+  // A hit area that never changes size. Pointer events live here only: when the picture
+  // grew on hover it moved out from under the cursor, which fired leave, which shrank
+  // it, which fired enter — a flicker loop.
+  el('circle', { r: r + 4, class: 'hit' }, g);
+  const flip = Math.cos(p.a) < 0;
+  el('text', { class: 'lbl', x: flip ? -(r + 5) : r + 5, y: 3, 'text-anchor': flip ? 'end' : 'start',
+    transform: `rotate(${p.a * 180 / Math.PI + (flip ? 180 : 0)} 0 0)` }, g).textContent = n.label;
+  g.addEventListener('click', e => { e.stopPropagation(); select(n.global_id); });
+  g.addEventListener('pointerenter', () => hover(n.global_id));
+  g.addEventListener('pointerleave', () => hover(null));
+  g.addEventListener('dblclick', e => { e.stopPropagation(); centreOn(n.global_id); });
+  nodeEls.set(n.global_id, g);
+}
+for (const r of RADII) {
+  const cp = el('clipPath', { id: clipId(r), clipPathUnits: 'userSpaceOnUse' }, defs);
+  el('circle', { cx: 0, cy: 0, r }, cp);
+}
+
+/* ---------- orbit: the same tree on a tilted cone, drag to turn it ----------
+   Each ring keeps its radius and its angle; depth also pushes the ring down the cone,
+   so the hierarchy reads as a funnel rather than a flat disc. Only positions are
+   projected, so every node stays a circle facing the reader. */
+
+function camera(r, a, d) {
+  const th = a + azim;
+  const X = Math.cos(th) * r, Z = Math.sin(th) * r, Y = -d * DROP;
+  // tilt the whole model about the horizontal axis, then divide by distance
+  // Near is down. Rotating the other way put the near half of the ring at the top of
+  // the screen while it also drew largest, which read as an inverted model.
+  const Yr = Y * Math.cos(tilt) + Z * Math.sin(tilt);
+  const Zr = Z * Math.cos(tilt) - Y * Math.sin(tilt);
+  const k = FOCAL / Math.max(FOCAL * 0.35, FOCAL - Zr);
+  return { x: X * k, y: Yr * k, s: k, depth: Zr };
+}
+function project(p) {
+  if (MODE !== 'orbit') return { x: p.x, y: p.y, s: 1 };
+  return camera(Math.hypot(p.x, p.y) * ORBIT_SPREAD, Math.atan2(p.y, p.x), p.d);
+}
+/* A link leaves its parent along the parent's own angle, sweeps round, then reaches out
+   to the child. Control points sit between the two radii at interpolated angles, which
+   bundles siblings into a fan instead of a star of straight spokes. */
+function polar(r, a) { return { x: Math.cos(a) * r, y: Math.sin(a) * r }; }
+/* The link is sampled along the surface the nodes sit on, rather than drawn with guessed
+   control points: radius opens early so the link leaves its parent along the parent's own
+   radius, and the angle closes late so it flattens into the child's ring. Sampling means
+   the curve bends with the camera instead of being a flat shape laid over a turned model. */
+function arc(p, c) {
+  const r0 = Math.hypot(p.x, p.y), r1 = Math.hypot(c.x, c.y);
+  let a0 = Math.atan2(p.y, p.x), a1 = Math.atan2(c.y, c.x);
+  while (a1 - a0 > Math.PI) a1 -= Math.PI * 2;
+  while (a0 - a1 > Math.PI) a1 += Math.PI * 2;
+  const d0 = p.d ?? 0, d1 = c.d ?? 0;
+  let out = '';
+  for (let i = 0; i <= ARC_STEPS; i++) {
+    const t = i / ARC_STEPS;
+    // Sweep first, then run out. The sweep happens near the parent where the arc is
+    // short, and the rest of the link is almost radial, so links fan rather than cross.
+    const r = r0 + (r1 - r0) * Math.pow(t, 1.45);
+    const a = a0 + (a1 - a0) * Math.pow(t, 0.5);
+    const d = d0 + (d1 - d0) * t;
+    const q = project3(polar(r, a), d);
+    out += (i ? 'L' : 'M') + q.x.toFixed(1) + ',' + q.y.toFixed(1);
+  }
+  return out;
+}
+
+/* the orbit projection, applied to a bare point rather than a placed node */
+function project3(q, d) {
+  if (MODE !== 'orbit') return q;
+  return camera(Math.hypot(q.x, q.y) * ORBIT_SPREAD, Math.atan2(q.y, q.x), d ?? 0);
+}
+
+function layout() {
+  const order = [];
+  for (const [id, g] of nodeEls) {
+    const p = pos.get(id); if (!p) continue;
+    const q = project(p);
+    g.setAttribute('transform', `translate(${q.x},${q.y}) scale(${MODE === 'orbit' ? q.s.toFixed(3) : 1})`);
+    order.push([q.depth ?? 0, g]);
+  }
+  if (MODE === 'orbit') { order.sort((a, b) => a[0] - b[0]); for (const [, g] of order) gNodes.append(g); }
+  for (const [id, l] of linkEls) {
+    const n = byId.get(id), a = pos.get(n.parent), b = pos.get(id);
+    if (!a || !b) continue;
+    const p0 = project(a), p1 = project(b);
+    l.setAttribute('d', arc(a, b));
+  }
+  // The depth rings are redrawn through the camera so they keep saying which objects
+  // share a tier; the area circles are flat shapes and are hidden once the model turns.
+  drawRings();
+  gAreas.style.display = MODE !== 'orbit' && document.getElementById('tAreas').checked ? '' : 'none';
+}
+
+function setMode(m) {
+  MODE = m;
+  for (const b of document.querySelectorAll('#tabs .tab')) b.classList.toggle('on', b.dataset.mode === m);
+  document.getElementById('views').hidden = m !== 'views';
+  document.getElementById('gallery').hidden = m !== 'gallery';
+  document.getElementById('hint').style.display = (m === 'tree' || m === 'orbit') ? '' : 'none';
+  // Paint straight away rather than on the next frame: requestAnimationFrame never runs
+  // while the window is not being painted, which left Views empty. The tiles' own
+  // ResizeObserver places the boxes once the grid has a size.
+  if (m === 'views') { paintViews(); return; }
+  if (m === 'gallery') { paintGallery(); return; }
+  layout(); fit();
+}
+for (const [id, cls] of [['tLeft', 'noleft'], ['tRight', 'noright']]) {
+  document.getElementById(id).addEventListener('click', e => {
+    const on = document.body.classList.toggle(cls);
+    e.currentTarget.classList.toggle('on', !on);
+    if (MODE === 'views') paintViews(); else { layout(); fit(); }
+  });
+}
+document.getElementById('tabs').addEventListener('click', e => {
+  const b = e.target.closest('.tab'); if (b) setMode(b.dataset.mode);
+});
+
+/* ---------- pan, zoom, labels ---------- */
+let vx = 0, vy = 0, vk = 1;
+const apply = () => root.setAttribute('transform', `translate(${vx},${vy}) scale(${vk})`);
+function labels() {
+  const all = vk >= .66;
+  for (const [id, g] of nodeEls) {
+    const n = byId.get(id), p = pos.get(id) || {};
+    const keep = all || n.parent === null || p.d <= 1 || g.classList.contains('sel') || g.classList.contains('kin');
+    g.querySelector('.lbl').style.display = keep ? '' : 'none';
+  }
+}
+function centreOn(id) {
+  const p = pos.get(id); if (!p) return;
+  const q = project(p);
+  vx = svg.clientWidth / 2 - q.x * vk; vy = svg.clientHeight / 2 - q.y * vk; apply();
+}
+function fit() {
+  // Measure the node centres, not getBBox: the labels are long and rotated outward, so
+  // fitting the drawing fitted the text and left the graph tiny in the middle.
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  for (const id of nodeEls.keys()) {
+    const q = project(pos.get(id)); if (!q) continue;
+    x0 = Math.min(x0, q.x); x1 = Math.max(x1, q.x);
+    y0 = Math.min(y0, q.y); y1 = Math.max(y1, q.y);
+  }
+  if (!isFinite(x0)) return;
+  const pad = 70;
+  const w = svg.clientWidth || 900, h = svg.clientHeight || 700;
+  vk = Math.min(w / (x1 - x0 + pad * 2), h / (y1 - y0 + pad * 2), 1.5);
+  vx = w / 2 - (x0 + x1) / 2 * vk; vy = h / 2 - (y0 + y1) / 2 * vk;
+  apply(); labels();
+}
+svg.addEventListener('wheel', e => {
+  e.preventDefault();
+  const r = svg.getBoundingClientRect(), mx = e.clientX - r.left, my = e.clientY - r.top;
+  const f = e.deltaY < 0 ? 1.13 : 1 / 1.13;
+  vx = mx - (mx - vx) * f; vy = my - (my - vy) * f; vk *= f; apply(); labels();
+}, { passive: false });
+let drag = null;
+svg.addEventListener('pointerdown', e => {
+  drag = { x: e.clientX - vx, y: e.clientY - vy, px: e.clientX, py: e.clientY };
+  svg.classList.add('grab'); svg.setPointerCapture(e.pointerId);
+});
+svg.addEventListener('pointermove', e => {
+  if (!drag) return;
+  if (MODE === 'orbit' && !e.shiftKey) {
+    azim += (e.clientX - drag.px) * 0.006;
+    tilt = Math.max(0.05, Math.min(1.52, tilt + (e.clientY - drag.py) * 0.0035));
+    drag.px = e.clientX; drag.py = e.clientY; layout();
+  } else { vx = e.clientX - drag.x; vy = e.clientY - drag.y; apply(); }
+});
+svg.addEventListener('pointerup', () => { drag = null; svg.classList.remove('grab'); });
+svg.addEventListener('dblclick', e => { e.preventDefault(); fit(); });
+window.addEventListener('resize', fit);
+
+/* ---------- lineage list ---------- */
+const lineage = document.getElementById('lineage'), rowEls = new Map();
+const collapsed = new Set();
+/* A row is hidden when any ancestor is folded. Filtering by the search box wins over
+   folds, so a hit is always reachable. */
+let filtered = null;
+function applyFolds() {
+  for (const [id, row] of rowEls) {
+    const car = row.querySelector('.car');
+    if (car && car.textContent.trim()) car.textContent = collapsed.has(id) ? '▸' : '▾';
+    let hidden = false;
+    for (const a of chain(id)) if (collapsed.has(a.global_id)) { hidden = true; break; }
+    if (filtered) hidden = !filtered.has(id);
+    row.style.display = hidden ? 'none' : '';
+  }
+}
+(function build(list, depth) {
+  const ordered = [...list].sort((a, b) =>
+    (kids.get(b.global_id) || []).length - (kids.get(a.global_id) || []).length ||
+    a.label.localeCompare(b.label));
+  for (const n of ordered) {
+    const ch = kids.get(n.global_id) || [];
+    const row = document.createElement('div');
+    row.className = 'row' + (n.parent === null ? ' anchor' : '') + (n.seen_in > 1 ? ' multi' : '') +
+                    (groupOf.has(n.global_id) ? ' flag' : '');
+    row.style.paddingLeft = (6 + depth * 11) + 'px';
+    row.dataset.id = n.global_id;
+    row.innerHTML = `<span class="car">${ch.length ? '▾' : ''}</span>
+      <span class="sw" style="background:${colour(n)}"></span>
+      <span class="nm">${n.label}</span>
+      <span class="tw">${n.seen_in > 1 ? n.seen_in + '◉' : ''}${ch.length ? ' ' + ch.length : ''}</span>`;
+    if (ch.length) {
+      row.querySelector('.car').addEventListener('click', e => {
+        e.stopPropagation();              // the caret folds; the row still selects
+        collapsed.has(n.global_id) ? collapsed.delete(n.global_id) : collapsed.add(n.global_id);
+        applyFolds();
+      });
+    }
+    row.addEventListener('click', () => select(n.global_id));
+    row.addEventListener('pointerenter', () => hover(n.global_id));
+    row.addEventListener('pointerleave', () => hover(null));
+    lineage.append(row); rowEls.set(n.global_id, row);
+    build(ch, depth + 1);
+  }
+})(roots, 0);
+
+/* ---------- source images ---------- */
+const shots = document.getElementById('shots'), boxEls = new Map();
+for (const im of DATA.images) {
+  const w = document.createElement('div');
+  w.className = 'shot';
+  w.innerHTML = `<img src="${im.src}" alt="${im.image_id}"><span class="id">${im.image_id}</span>`;
+  // Biggest first, so a small box inside a large one ends up on top and can be hit.
+  const ordered = N.flatMap(n => n.views.filter(v => v.image_id === im.image_id).map(v => ({ n, v })))
+    .sort((p, q) => ((q.v.bbox[2] - q.v.bbox[0]) * (q.v.bbox[3] - q.v.bbox[1]))
+                  - ((p.v.bbox[2] - p.v.bbox[0]) * (p.v.bbox[3] - p.v.bbox[1])));
+  for (const { n, v } of ordered) {
+    const b = document.createElement('div');
+    b.className = 'bx'; b.style.borderColor = colour(n); b.title = n.label;
+    const [x0, y0, x1, y1] = v.bbox;
+    b.style.left = x0 * 100 + '%'; b.style.top = y0 * 100 + '%';
+    b.style.width = (x1 - x0) * 100 + '%'; b.style.height = (y1 - y0) * 100 + '%';
+    b.addEventListener('click', e => { e.stopPropagation(); select(n.global_id); });
+    b.addEventListener('pointerenter', () => hover(n.global_id));
+    b.addEventListener('pointerleave', () => hover(null));
+    w.append(b); push(boxEls, n.global_id, b);
+  }
+  shots.append(w);
+}
+
+/* ---------- hover preview ---------- */
+let hovered = null;
+function hover(id) {
+  hovered = id;
+  const showAll = document.getElementById('tAll').checked;
+  const kin = sel ? new Set([sel, ...(kids.get(sel) || []).map(k => k.global_id),
+                             ...chain(sel).map(x => x.global_id)]) : null;
+  for (const [gid, list] of boxEls) for (const b of list) {
+    const on = gid === id;
+    b.classList.toggle('hov', on && gid !== sel);
+    // A hovered object's box is always shown, even when something else is selected:
+    // otherwise sweeping the tree told you nothing about the photographs.
+    b.style.display = (on || showAll || (kin && kin.has(gid))) ? '' : 'none';
+    if (on && gid !== sel) b.style.opacity = 1;
+    else if (gid !== sel) b.style.opacity = sel ? .5 : .8;
+  }
+  for (const [gid, g] of nodeEls) {
+    g.classList.toggle('hov', gid === id && gid !== sel);
+    g.classList.toggle('kin', gid === id && gid !== sel);
+  }
+  const touching = new Set();
+  if (id) {
+    touching.add(id);                                    // the link to its parent
+    for (const k of kids.get(id) || []) touching.add(k.global_id);
+  }
+  for (const [gid, l] of linkEls) l.classList.toggle('warm', touching.has(gid) && !l.classList.contains('on'));
+  for (const [gid, r] of rowEls) r.classList.toggle('hovered', gid === id);
+  if (MODE === 'views') spotlight(id || sel);
+  if (id) detail(byId.get(id));
+  else if (sel) detail(byId.get(sel));
+  else blank();
+}
+
+/* ---------- selection ---------- */
+let sel = null;
+const chain = id => { const o = []; let n = byId.get(id); while (n && n.parent) { n = byId.get(n.parent); if (n) o.unshift(n); } return o; };
+/* A crop, as an <img> sized and offset in percentages of a square container.
+   Percentages need no measuring, so the crop cannot be framed against the wrong size,
+   and a single uniform scale keeps the object's shape: scaling width and height
+   separately to fill the box stretched everything. The margin is a share of the box,
+   because a share of the whole picture swamps a small object. */
+function cropImg(box, im, pad, cls, outline) {
+  const [x0, y0, x1, y1] = box;
+  const bw = Math.max(x1 - x0, 1e-4), bh = Math.max(y1 - y0, 1e-4);
+  const mx = Math.max(bw * pad, 0.004), my = Math.max(bh * pad, 0.004);
+  const rx0 = x0 - mx, ry0 = y0 - my, rw = bw + mx * 2, rh = bh + my * 2;
+  // Fit the region inside a square: match its longer side in displayed pixels.
+  const wide = rw * im.width >= rh * im.height;
+  const wPct = wide ? 100 / rw : 100 * im.width / (im.height * rh);
+  const hPct = wPct * im.height / im.width;
+  const left = (100 - rw * wPct) / 2 - rx0 * wPct;
+  const top = (100 - rh * hPct) / 2 - ry0 * hPct;
+  // No src here: an embedded photograph is megabytes of data URI, and copying it into the
+  // markup once per crop overflows the browser's string limit on a large gallery. fillCrops()
+  // points every crop at the one shared string after the markup is in the page.
+  const img = `<img class="${cls}" data-im="${im.image_id}" style="width:${wPct.toFixed(3)}%;` +
+              `left:${left.toFixed(3)}%;top:${top.toFixed(3)}%">`;
+  if (!outline) return img;
+  // The box itself, drawn on the crop. The container is square, so a percentage of its
+  // width and of its height are the same number of pixels and wPct/hPct can be reused.
+  const bx = left + x0 * wPct, by = top + y0 * hPct;
+  return img + `<span class="cpbox" style="border-color:${outline};` +
+    `left:${bx.toFixed(3)}%;top:${by.toFixed(3)}%;` +
+    `width:${(bw * wPct).toFixed(3)}%;height:${(bh * hPct).toFixed(3)}%"></span>`;
+}
+
+function fillCrops(root) {
+  for (const img of root.querySelectorAll('img[data-im]')) {
+    const im = imgOf.get(img.dataset.im);
+    if (im) img.src = im.src;
+  }
+}
+
+function select(id) {
+  sel = id; const n = byId.get(id);
+  const kin = new Set([id, ...(kids.get(id) || []).map(k => k.global_id), ...chain(id).map(x => x.global_id)]);
+  for (const [gid, g] of nodeEls) {
+    g.classList.toggle('sel', gid === id); g.classList.toggle('kin', kin.has(gid) && gid !== id);
+    g.classList.toggle('fade', !kin.has(gid));
+  }
+  for (const [gid, l] of linkEls) l.classList.toggle('on', kin.has(gid));
+  // Lift the lit chain above the rest. Links are drawn in the order the nodes are
+  // listed, so an ancestor's link could sit under dozens of dim ones crossing the same
+  // fan, and the lineage looked as though it stopped short of the anchor.
+  for (const a of chain(id)) { const l = linkEls.get(a.global_id); if (l) gLinks.append(l); }
+  const own = linkEls.get(id); if (own) gLinks.append(own);
+  for (const k of kids.get(id) || []) { const l = linkEls.get(k.global_id); if (l) gLinks.append(l); }
+  const showAll = document.getElementById('tAll').checked;
+  for (const [gid, list] of boxEls) for (const b of list) {
+    b.classList.toggle('on', gid === id);
+    b.style.display = (showAll || kin.has(gid)) ? '' : 'none';
+    b.style.opacity = gid === id ? 1 : .5;
+  }
+  for (const [gid, r] of rowEls) r.classList.toggle('sel', gid === id);
+  for (const a of chain(id)) collapsed.delete(a.global_id);   // unfold the way to it
+  applyFolds();
+  const row = rowEls.get(id); if (row) row.scrollIntoView({ block: 'nearest' });
+  detail(n); labels();
+  if (MODE === 'views') paintViews();
+  if (MODE === 'gallery') markGallery();
+  // The camera stays where the reader put it: selecting traces the lineage, it does not
+  // fly the view somewhere else. Double-click a node to centre on it deliberately.
+}
+window.select = select;
+
+function detail(n) {
+  if (!n) return;
+  const v = bestView(n), im = v && imgOf.get(v.image_id), s = scoreOf.get(n.global_id);
+  const cl = clusterOf.get(n.global_id), ar = areasOf.get(n.global_id) || [], gp = groupOf.get(n.global_id);
+  const ch = kids.get(n.global_id) || [], up = chain(n.global_id);
+  const link = id => { const m = byId.get(id); return m ? `<span class="chip" onclick="select('${id}')"><span class="sw" style="background:${colour(m)}"></span>${m.label}</span>` : id; };
+
+  let big = '';
+  if (im) big = `<div class="big" style="border-color:${colour(n)}">` +
+                `${cropImg(v.bbox, im, .3, 'cp', colour(n))}` +
+                `<span class="cpnote">${v.image_id} · box drawn</span></div>`;
+  const thumbs = n.views.map(vv => {
+    const i2 = imgOf.get(vv.image_id); if (!i2) return '';
+    const sv = s && s.views.find(x => x.image_id === vv.image_id);
+    return `<div class="th ${s && s.best_view === vv.image_id ? 'best' : ''}">
+      <div class="w">${cropImg(vv.bbox, i2, .3, 'cp')}</div>
+      <div class="c">${vv.image_id}${sv ? '<br>' + sv.score.toFixed(4) : ''}</div></div>`;
+  }).join('');
+
+  const rows = [];
+  rows.push(['support', n.parent ? `${link(n.parent)}<br><span class="dim">${n.relation || ''}</span>` : '<span class="dim">anchor — nothing holds it</span>']);
+  rows.push(['tier', 'level ' + ((pos.get(n.global_id) || {}).d ?? '?')]);
+  rows.push(['category', n.category || '—']);
+  if (n.size_m) rows.push(['size', `${n.size_m} m · ${n.size_confidence}<br><span class="dim">${n.size_basis || ''}</span>`]);
+  if (im && v && im.width > 1) rows.push(['box px', `x${Math.round(v.bbox[0] * im.width)} y${Math.round(v.bbox[1] * im.height)} · ${Math.round((v.bbox[2] - v.bbox[0]) * im.width)}×${Math.round((v.bbox[3] - v.bbox[1]) * im.height)}`]);
+  if (v) {
+    const state = [v.occluded ? 'occluded' : 'unoccluded',
+                   (v.truncated || []).length ? 'truncated ' + v.truncated.join('/') : '',
+                   v.id_confidence && v.id_confidence !== 'high' ? 'id ' + v.id_confidence : ''].filter(Boolean);
+    rows.push(['state', state.join(' · ')]);
+    rows.push(['area', ((v.bbox[2] - v.bbox[0]) * (v.bbox[3] - v.bbox[1]) * 100).toFixed(2) + '% of frame']);
+  }
+  rows.push(['seen in', n.views.map(x => x.image_id).join(', ')]);
+
+  document.getElementById('detail').innerHTML = `
+    ${big}
+    <p class="ttl">${n.label}</p>
+    <p class="gid">${n.global_id}${s && s.best_view ? ' · reference image · ' + s.best_view : ''}</p>
+    <p class="dim" style="margin:6px 0 0">${n.description || ''}</p>
+    <div class="thumbs">${thumbs}</div>
+    <dl class="kv">${rows.map(([k, val]) => `<dt>${k}</dt><dd>${val}</dd>`).join('')}</dl>
+    ${n.inferred_whole ? `<div class="note"><b>Mostly hidden.</b> Seen: ${n.inferred_whole.visible || '—'}.<br>Inferred whole: ${n.inferred_whole.whole_description}</div>` : ''}
+    ${n.support_inferred ? '<div class="note">Support inferred, not seen.</div>' : ''}
+    ${s && s.decisive === false ? '<div class="note">Two views score closely; the best is not clear-cut.</div>' : ''}
+    ${up.length ? `<p class="up" style="margin:11px 0 3px">Lineage</p><p>${up.map(p => link(p.global_id)).join('')}</p>` : ''}
+    ${ch.length ? `<p class="up" style="margin:11px 0 3px">Descendants · ${ch.length} direct</p>${ch.map(c => link(c.global_id)).join('')}` : ''}
+    ${cl ? `<p class="up" style="margin:11px 0 3px">Collection · ${cl.kind}</p><p class="dim" style="font-size:10.5px">${cl.label}${cl.note ? ' — ' + cl.note : ''}</p>${cl.members.filter(m => m !== n.global_id).map(link).join('')}` : ''}
+    ${ar.length ? `<p class="up" style="margin:11px 0 3px">Areas</p>${ar.map(a => `<span class="chip">${a.label}</span>`).join('')}` : ''}
+    ${gp ? `<div class="note" style="margin-top:11px"><b>Unresolved identity.</b> These ${gp.members.length} objects are ${gp.distinct} real thing${gp.distinct === 1 ? '' : 's'}. ${gp.basis || ''}</div>${gp.members.filter(m => m !== n.global_id).map(link).join('')}` : ''}`;
+  fillCrops(document.getElementById('detail'));
+}
+
+/* ---------- views: every photograph large, with the selection boxed in each ---------- */
+const vGrid = document.getElementById('vGrid');
+let focusedImage = null;        // kept outside the tiles, which are rebuilt on every paint
+/* Dim everything in the Views grid except the given object's box in each tile. */
+function spotlight(id) {
+  for (const tile of vGrid.children) {
+    for (const s of tile.querySelectorAll('.spot')) s.remove();
+    const box = id ? tile.querySelector(`.bx[data-id="${id}"]`) : null;
+    if (!box) continue;
+    const L = box.offsetLeft, T = box.offsetTop, W = box.offsetWidth, H = box.offsetHeight;
+    const panes = [
+      { left: 0, top: 0, width: '100%', height: T + 'px' },
+      { left: 0, top: (T + H) + 'px', width: '100%', bottom: 0 },
+      { left: 0, top: T + 'px', width: L + 'px', height: H + 'px' },
+      { left: (L + W) + 'px', top: T + 'px', right: 0, height: H + 'px' },
+    ];
+    for (const p of panes) {
+      const d = document.createElement('div');
+      d.className = 'spot';
+      for (const k in p) d.style[k] = typeof p[k] === 'number' ? p[k] + 'px' : p[k];
+      tile.append(d);
+    }
+  }
+}
+
+function paintViews() {
+  const n = byId.get(sel);
+  const cols = Math.ceil(Math.sqrt(DATA.images.length));
+  vGrid.style.gridTemplateColumns = `repeat(${cols}, minmax(0,1fr))`;
+  vGrid.style.gridTemplateRows = `repeat(${Math.ceil(DATA.images.length / cols)}, minmax(0,1fr))`;
+  vGrid.innerHTML = '';
+  vGrid.classList.toggle('focused', focusedImage !== null);
+  const seen = n ? new Set(n.views.map(v => v.image_id)) : null;
+  document.getElementById('vTitle').textContent = n ? n.label : 'All views';
+  document.getElementById('vSub').textContent = n
+    ? `${n.views.length} of ${DATA.images.length} views` : `${DATA.images.length} views`;
+
+  for (const im of DATA.images) {
+    const tile = document.createElement('div');
+    tile.className = 'vtile' + (seen && !seen.has(im.image_id) ? ' none' : '')
+                   + (focusedImage === im.image_id ? ' full' : '');
+    tile.innerHTML = `<img src="${im.src}" alt="${im.image_id}">
+      <span class="cap">${im.image_id}${seen && !seen.has(im.image_id) ? ' · not in this view' : ''}</span>`;
+    const img = tile.querySelector('img');
+    // Boxes sit on the letterboxed picture, so they follow object-fit: contain.
+    const place = () => {
+      for (const b of tile.querySelectorAll('.bx')) b.remove();
+      const rw = tile.clientWidth, rh = tile.clientHeight;
+      if (!rw || !rh) return;
+      const k = Math.min(rw / im.width, rh / im.height);
+      const dw = im.width * k, dh = im.height * k, ox = (rw - dw) / 2, oy = (rh - dh) / 2;
+      const order = N.flatMap(node => node.views.filter(v => v.image_id === im.image_id)
+          .map(v => ({ node, v })))
+        .sort((p, q) => ((q.v.bbox[2] - q.v.bbox[0]) * (q.v.bbox[3] - q.v.bbox[1]))
+                      - ((p.v.bbox[2] - p.v.bbox[0]) * (p.v.bbox[3] - p.v.bbox[1])));
+      for (const { node, v } of order) {
+        if (!document.getElementById('tAll').checked && sel && node.global_id !== sel &&
+            !(kids.get(sel) || []).some(c => c.global_id === node.global_id)) continue;
+        const [x0, y0, x1, y1] = v.bbox;
+        const b = document.createElement('div');
+        b.className = 'bx' + (node.global_id === sel ? ' on' : '');
+        b.dataset.id = node.global_id;
+        b.style.borderColor = colour(node);
+        b.style.left = ox + x0 * dw + 'px'; b.style.top = oy + y0 * dh + 'px';
+        b.style.width = (x1 - x0) * dw + 'px'; b.style.height = (y1 - y0) * dh + 'px';
+        b.style.opacity = node.global_id === sel ? 1 : .5;
+        b.title = node.label;
+        b.addEventListener('pointerenter', () => hover(node.global_id));
+        b.addEventListener('pointerleave', () => hover(null));
+        b.addEventListener('click', e => { e.stopPropagation(); select(node.global_id); });
+        tile.append(b);
+      }
+    };
+    let z = 1, px = 0, py = 0;
+    const applyZoom = () => {
+      const s = `scale(${z}) translate(${px}px, ${py}px)`;
+      img.style.transform = s; img.style.transformOrigin = 'center center';
+      for (const b of tile.querySelectorAll('.bx, .spot')) {
+        b.style.transform = s; b.style.transformOrigin = 'center center';
+      }
+    };
+    tile.addEventListener('wheel', e => {
+      e.preventDefault();
+      z = Math.max(1, Math.min(8, z * (e.deltaY < 0 ? 1.18 : 1 / 1.18)));
+      if (z === 1) { px = py = 0; }
+      applyZoom();
+    }, { passive: false });
+    let tdrag = null;
+    tile.addEventListener('pointerdown', e => {
+      if (z === 1) return;
+      tdrag = { x: e.clientX, y: e.clientY }; tile.setPointerCapture(e.pointerId);
+    });
+    tile.addEventListener('pointermove', e => {
+      if (!tdrag) return;
+      px += (e.clientX - tdrag.x) / z; py += (e.clientY - tdrag.y) / z;
+      tdrag = { x: e.clientX, y: e.clientY }; applyZoom();
+    });
+    tile.addEventListener('pointerup', () => { tdrag = null; });
+    const paint = () => { place(); spotlight(hovered || sel); applyZoom(); };
+    if (img.complete) requestAnimationFrame(paint); else img.addEventListener('load', paint);
+    tile.addEventListener('dblclick', () => {
+      focusedImage = focusedImage === im.image_id ? null : im.image_id;
+      paintViews();
+    });
+    new ResizeObserver(paint).observe(tile);
+    vGrid.append(tile);
+  }
+}
+window.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && MODE !== 'tree') setMode('tree');
+});
+/* clicking a photograph in the right column opens it large */
+for (const shot of document.querySelectorAll('.shot')) {
+  shot.addEventListener('dblclick', () => setMode('views'));
+}
+
+/* ---------- gallery: every object as a picture, grouped the way the ontology groups them
+   ---------- */
+const galleryEl = document.getElementById('gallery');
+function paintGallery() {
+  if (galleryEl.dataset.built) { markGallery(); return; }
+  const placed = new Set();
+  const groups = (DATA.ontology || []).map(o => ({ label: o.label, count: o.count,
+    listed: o.listed, members: o.members || [] }));
+  for (const g of groups) for (const m of g.members) placed.add(m);
+  const rest = N.filter(n => !placed.has(n.global_id)).map(n => n.global_id);
+  if (rest.length) groups.push({ label: 'everything else', count: rest.length, members: rest });
+
+  galleryEl.innerHTML = groups.map(g => `
+    <p class="up gsec">${g.label} <b>${g.count}</b>${g.listed && g.listed !== g.count
+      ? ` <span class="warn">${g.listed} listed</span>` : ''}</p>
+    <div class="ggrid">${g.members.map(id => {
+      const n = byId.get(id); if (!n) return '';
+      const v = bestView(n), im = v && imgOf.get(v.image_id);
+      const inner = im ? `<div class="gw">${cropImg(v.bbox, im, .25, 'cp', colour(n))}</div>`
+                       : '<div class="gw"></div>';
+      return `<figure class="gt" data-id="${id}" style="--c:${colour(n)}">
+        ${inner}<figcaption>${n.label}${n.seen_in > 1 ? ` <span class="dim">${n.seen_in}◉</span>` : ''}</figcaption></figure>`;
+    }).join('')}</div>`).join('');
+  fillCrops(galleryEl);
+
+  for (const fig of galleryEl.querySelectorAll('.gt')) {
+    fig.addEventListener('click', () => select(fig.dataset.id));
+    fig.addEventListener('pointerenter', () => hover(fig.dataset.id));
+    fig.addEventListener('pointerleave', () => hover(null));
+  }
+  galleryEl.dataset.built = '1';
+  markGallery();
+}
+function markGallery() {
+  for (const fig of galleryEl.querySelectorAll('.gt')) fig.classList.toggle('sel', fig.dataset.id === sel);
+}
+
+/* ---------- panels ---------- */
+const tiers = document.getElementById('tiers');
+const depths = [...perDepth].sort((a, b) => a[0] - b[0]);
+const maxCount = Math.max(...depths.map(d => d[1]), 1);
+for (const [d, count] of depths) {
+  const row = document.createElement('div');
+  row.className = 'tier';
+  row.innerHTML = `<span class="tn">${d}</span><span class="tname">${TIER_NAME(d)}</span>
+    <span class="bar"><i style="width:${count / maxCount * 100}%"></i></span><span class="tval">${count}</span>`;
+  row.addEventListener('click', () => {
+    for (const [id, g] of nodeEls) g.classList.toggle('fade', (pos.get(id) || {}).d !== d);
+  });
+  tiers.append(row);
+}
+
+const C = DATA.confusion || {}, bits = [];
+const ref = id => byId.has(id) ? `<span class="chip" onclick="select('${id}')"><span class="sw" style="background:${colour(byId.get(id))}"></span>${byId.get(id).label}</span>` : id;
+if ((DATA.ontology || []).length) bits.push('<p class="up" style="margin:0 0 5px">Ontology</p><ul class="pl">' +
+  DATA.ontology.map(o => `<li><b>${o.count}</b> ${o.label}${o.listed && o.listed !== o.count ? ` <span class="warn">· ${o.listed} listed, ${o.may_be_duplicates} may be a duplicate</span>` : ''}<br><span class="dim">${(o.variants || []).map(v => v.label + ' ×' + v.count).join(', ')}</span></li>`).join('') + '</ul>');
+if ((C.unresolved || []).length) bits.push(`<p class="up" style="margin:13px 0 5px">Refused to merge · ${C.unresolved.length}</p><ul class="pl">` +
+  C.unresolved.map(u => `<li><b>${u.label}</b>${u.distinct_objects ? ` <span class="warn">${(u.candidates || []).length} objects, ${u.distinct_objects} real</span>` : ''}<br><span class="dim">${(u.against || [])[0] || ''}</span><br>${(u.global_ids || []).map(ref).join('')}</li>`).join('') + '</ul>');
+if ((C.corrections || []).length) bits.push(`<p class="up" style="margin:13px 0 5px">Corrections · ${C.corrections.length}</p><ul class="pl">` +
+  C.corrections.map(c => `<li><b>${c.problem}</b><br><span class="dim">better view shows ${c.shows}</span><br><span class="dim">→ ${c.stage}</span></li>`).join('') + '</ul>');
+if ((C.inferred_supports || []).length) bits.push(`<p class="up" style="margin:13px 0 5px">Inferred supports · ${C.inferred_supports.length}</p>` + C.inferred_supports.map(s => ref(s.global_id)).join(''));
+if ((DATA.parent_conflicts || []).length) bits.push(`<p class="up" style="margin:13px 0 5px">Parent disagreements · ${DATA.parent_conflicts.length}</p>` + DATA.parent_conflicts.map(p => ref(p.global_id)).join(''));
+document.getElementById('issues').innerHTML = bits.join('');
+
+document.getElementById('hTitle').textContent = DATA.title || 'Scene graph';
+document.getElementById('mObj').textContent = N.length;
+document.getElementById('mDist').textContent = DATA.distinct_objects ?? N.length;
+document.getElementById('mEdge').textContent = N.filter(n => n.parent).length;
+document.getElementById('mDepth').textContent = maxDepth;
+document.getElementById('mImg').textContent = DATA.images.length;
+document.getElementById('mFlag').textContent =
+  (C.unresolved || []).length + (C.corrections || []).length + (DATA.parent_conflicts || []).length;
+
+document.getElementById('tAreas').addEventListener('change', layout);
+document.getElementById('tAll').addEventListener('change', () => sel ? select(sel) : clear());
+document.getElementById('q').addEventListener('input', e => {
+  const q = e.target.value.trim().toLowerCase();
+  const hits = new Set();
+  for (const [id, g] of nodeEls) {
+    const n = byId.get(id);
+    const hit = !q || (n.label + ' ' + (n.description || '') + ' ' + (n.category || '')).toLowerCase().includes(q);
+    g.classList.toggle('fade', !hit);
+    if (hit) hits.add(id);
+  }
+  filtered = q ? hits : null;
+  applyFolds();
+});
+function blank() {
+  document.getElementById('detail').innerHTML =
+    `<p class="up" style="margin:0 0 6px">Run</p>
+     <p class="ttl" style="margin-top:0">${N.length} objects · ${DATA.distinct_objects ?? N.length} distinct</p>
+     <p class="dim">Hover a box or a row to preview it; click to keep it. Tree, Orbit and Views
+     show the same selection. Each object keeps one colour everywhere; green rings are anchors.</p>
+     <dl class="kv">
+       <dt>anchors</dt><dd>${roots.map(r => r.label).join(', ') || '—'}</dd>
+       <dt>areas</dt><dd>${(DATA.areas || []).map(a => a.label).join(', ') || '—'}</dd>
+       <dt>in 2+ views</dt><dd>${N.filter(n => n.seen_in > 1).length}</dd>
+     </dl>`;
+}
+function clear() {
+  sel = null;
+  for (const [, g] of nodeEls) g.classList.remove('sel', 'kin', 'fade');
+  for (const [, l] of linkEls) l.classList.remove('on');
+  for (const [, r] of rowEls) r.classList.remove('sel');
+  const showAll = document.getElementById('tAll').checked;
+  for (const [, list] of boxEls) for (const b of list) { b.classList.remove('on'); b.style.display = showAll ? '' : 'none'; b.style.opacity = .8; }
+  blank();
+  labels();
+  if (MODE === 'views') paintViews();
+}
+svg.addEventListener('click', () => { if (sel) clear(); });
+clear();
+layout();
+fit();
+</script>
+</body>
+</html>

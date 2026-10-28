@@ -1,0 +1,3 @@
+interface:
+  display_name: "Marso Blender Setup"
+  short_description: "Install, configure, update, and repair Marso in Blender"
