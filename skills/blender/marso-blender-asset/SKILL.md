@@ -1,6 +1,6 @@
 ---
 name: marso-blender-asset
-description: Model or refine an editable 3D asset in Blender from a brief, dimensions, or reference images. Use for agent-built furniture, props, and building components, including geometry intended for later Marso texturing. Texture-only requests belong to marso-blender-texture; reusable component families belong to marso-blender-kit.
+description: "Model or refine editable Blender assets from briefs, dimensions or reference images. Use for structured props and furniture; route texture-only work to texture and reusable component families to kit."
 license: Apache-2.0
 ---
 

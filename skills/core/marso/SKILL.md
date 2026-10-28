@@ -1,6 +1,6 @@
 ---
 name: marso
-description: Choose a Marso workflow when the user wants to make a 3D asset, model or generate an object, restyle an asset, create appearance variants, use a modular kit, or find an asset already in their library, and the route is not yet clear. Distinguish generative 3D from agent modelling, discover the working connection, and select supported generation options. Let an already selected specialist skill handle its task directly.
+description: "Choose a Marso workflow for making, finding or restyling 3D assets, building modular kits or reconstructing scenes. Use when the route is unclear; respect explicit modelling or generation requests."
 license: Apache-2.0
 ---
 

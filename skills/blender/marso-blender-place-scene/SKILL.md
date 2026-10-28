@@ -1,6 +1,6 @@
 ---
 name: marso-blender-place-scene
-description: Import a photographed scene's minted Marso assets into Blender and place them like the photographs, with the Blender hierarchy matching the scene graph and repeated objects as linked duplicates. Use when a scene graph and a generation record (assets.json) exist and the user wants the room rebuilt in Blender. Landmarks go first, a camera matches the establishing photograph, and a review loop compares the two.
+description: "Import minted Marso scene assets into Blender and place them from photographs and a scene graph. Preserve editable entity and geometry groups; check scale and support. Requires scene import commands."
 license: Proprietary. See LICENSE.txt in this skill folder.
 ---
 

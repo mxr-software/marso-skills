@@ -1,6 +1,6 @@
 ---
 name: marso-blender-kit
-description: Design and build modular Blender component kits for furniture, buildings, and reusable structures. Decompose an existing asset or reference image into reusable parts, establish matching dimensions and connection points, and prepare components for Marso texturing. Use for creating the kit; use marso-blender-compose to assemble an existing kit.
+description: "Design modular Blender kits from briefs, images or existing assets. Build reusable parts with matching dimensions, joins and Marso-ready UVs. Use compose to assemble an existing kit."
 license: Apache-2.0
 ---
 

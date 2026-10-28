@@ -1,6 +1,6 @@
 ---
 name: marso-scene-graph
-description: Plan Marso asset work from a finished scene graph. Use when a scene_graph.json already exists and the user wants the list of unique assets and instance counts, a cropped reference and brief for each object, or a decision on what to generate, model in the application, or reuse from the library. Produces the plan and briefs; marso-blender-scene-assets or the marso entry skill performs any generation.
+description: "Plan assets from an existing scene graph: unique objects, counts, reference crops and per-object briefs. Choose generation or modelling for each asset; use scene-decompose for raw photographs."
 license: Proprietary. See LICENSE.txt in this skill folder.
 ---
 

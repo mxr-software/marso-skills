@@ -11,13 +11,15 @@ Describe what you want to create. Marso skills guide your agent through the work
 
 ## Install all Marso skills
 
-For **Codex, Claude Code and other local agents supported by the installer**, run:
+**Claude on the web or desktop:** [Download the Claude skill ZIPs](https://github.com/mxr-software/marso-skills/releases/latest/download/marso-skills-claude.zip), unzip the download, then upload each inner skill ZIP through **Customize → Skills → + → Create skill → Upload a skill** and enable it. [Step-by-step guide](docs/installation.md#claude-desktop).
+
+**Codex or Claude Code on your computer:** run this in **PowerShell or Terminal**, not in a Claude web chat:
 
 ```bash
 npx skills add mxr-software/marso-skills --skill '*'
 ```
 
-Requires **Node.js and Git**. Run it in your project folder and choose your agent when prompted. Add `--global` to use the skills across projects. The command installs all ten skills from `main`, the repository's default branch.
+Requires **Node.js and Git**. Run it in your project folder and choose your agent when prompted. Add `--global` to use the skills across projects. The command installs all ten skills from `main`. It does not upload skills to your Claude account; choose the account ZIP route above for that.
 
 [Installation, updates and other clients](docs/installation.md#install-the-complete-collection) · [Your first Marso project](docs/getting-started.md) · [Compatibility](docs/compatibility.md)
 

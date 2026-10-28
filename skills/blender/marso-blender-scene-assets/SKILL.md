@@ -1,6 +1,6 @@
 ---
 name: marso-blender-scene-assets
-description: Generate every planned asset of a photographed scene through Marso from Blender, reusing what the account's library already holds. Use when an asset_plan.json and its reference crops exist and the user wants the objects made in a Marso Studio project - an object-mode reference image per asset, a 3D mesh, PBR, and a minted, real-scale result ready to import. Stops for review after the plan and after the reference images. Placing the results in Blender belongs to marso-blender-place-scene.
+description: "Generate planned scene assets with the Marso Blender add-on: check library reuse, create references and meshes, then PBR and mint. Use a scene asset plan; requires supporting scene commands."
 license: Proprietary. See LICENSE.txt in this skill folder.
 ---
 

@@ -8,6 +8,8 @@ All ten packages use the [Agent Skills format](https://agentskills.io/specificat
 
 The repository's `skills/core/` and `skills/blender/` directories organise source. They are not themselves installable skills. Follow [installation](installation.md) to place each leaf folder in the client's discovery directory or attach it through its API. No published marketplace/plugin bundle is included.
 
+Claude account downloads contain one complete ZIP per skill, plus an outer ZIP for downloading the collection. Descriptions are limited to 200 characters for the account upload guidance. Archive contents and package-local resources are checked before publication; actual account upload and execution still need verification in the user's Claude environment. Terminal installation and account upload are distinct routes.
+
 | Host | Loading route | Verification boundary |
 | --- | --- | --- |
 | Codex | `.agents/skills/<skill-name>/SKILL.md` | Format/package and isolated installation checks passed; fresh-client Blender workflow not yet verified. |

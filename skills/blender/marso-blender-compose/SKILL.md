@@ -1,6 +1,6 @@
 ---
 name: marso-blender-compose
-description: Assemble an existing modular kit into furniture, building sections, or more complex Blender structures. Use compatible connection frames, preserve reusable masters, and validate fit, repetition and appearance. Missing components or kit design belong to marso-blender-kit; general scene dressing is outside this workflow.
+description: "Assemble an existing modular Blender kit into furniture, rooms or larger structures. Use connection frames and check fit and appearance. Missing parts or a new kit belong to the kit skill."
 license: Apache-2.0
 ---
 

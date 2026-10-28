@@ -1,6 +1,6 @@
 ---
 name: marso-blender-setup
-description: Install, configure, update, or troubleshoot the Marso Blender add-on and its agent connection. Use for first-time setup, missing Marso panels, API-key or storage configuration, online-access problems, Blender MCP connection issues, and add-on updates. Covers desktop-assisted setup and guided setup without desktop control. Asset modelling and texturing are separate workflows.
+description: "Install, configure, update or troubleshoot the Marso Blender add-on and agent connection. Use for first-time setup, account or project settings, missing panels and connection problems."
 license: Apache-2.0
 ---
 

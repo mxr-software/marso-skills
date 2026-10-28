@@ -1,6 +1,6 @@
 ---
 name: marso-scene-decompose
-description: Turn one or more photographs of a room or environment into a scene graph of every object, with boxes in each view, a support hierarchy, repeated-object clusters and cross-view identities, plus a self-contained interactive viewer. Use when someone wants photos decomposed into objects, an object inventory or scene graph from images, or object references for a 3D pipeline. Use marso-scene-graph to plan assets from the finished graph.
+description: "Decompose room or environment photographs into an object scene graph and interactive viewer. Identify objects, match them across views and review relationships before planning assets."
 license: Proprietary. See LICENSE.txt in this skill folder.
 ---
 

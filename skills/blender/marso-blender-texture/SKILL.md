@@ -1,6 +1,6 @@
 ---
 name: marso-blender-texture
-description: Add textures, change textures, restyle, make style variants, or generate PBR for existing Blender assets using Marso. Includes UV preparation, reusable appearance briefs, named materials and variants from the original source. Use for appearance changes rather than rebuilding geometry.
+description: "Texture, retexture or restyle Blender assets with Marso, create finish variants, or add PBR. Includes UV preparation and material checks. Preserve geometry; use asset modelling for new shapes."
 license: Apache-2.0
 ---
 

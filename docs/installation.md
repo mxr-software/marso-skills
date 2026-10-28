@@ -10,9 +10,11 @@ The public collection is on the [`main` branch](https://github.com/mxr-software/
 
 ## Install the complete collection
 
+**Choose by where you use the assistant.** For skills in your Claude account, use the [Claude ZIP upload route](#claude-desktop). For a local Codex or Claude Code installation, use the terminal command below. You do not need both. Running that command in a cloud chat's sandbox does not install skills on your computer or upload them to your Claude account.
+
 ### Codex and Claude Code
 
-With Node.js and Git installed, run this in the project folder where you will use your assistant:
+With Node.js and Git installed, open PowerShell or Terminal on your computer and run this in the project folder where you will use your assistant:
 
 ```bash
 npx skills add mxr-software/marso-skills --skill '*'
@@ -38,7 +40,7 @@ The command installs all ten skills on `main`: the Marso entry point, five Blend
 
 | Assistant | How to install the collection |
 | --- | --- |
-| Claude desktop | Upload and enable a ZIP of each complete skill folder through Customize > Skills. The CLI command above targets Claude Code, not these account uploads. |
+| Claude web / desktop account | [Download the skill ZIPs](https://github.com/mxr-software/marso-skills/releases/latest/download/marso-skills-claude.zip), unzip the download, then upload and enable each inner skill ZIP through Customize > Skills. |
 | ChatGPT desktop | Local Codex skill discovery is documented below. A packaged ChatGPT plugin for installing the whole collection is not provided yet; the standalone ChatGPT installation route has not been verified for this repository. |
 | API or custom agent | Configure the host to load each complete skill folder. See the API section below; a repository link alone does not install them. |
 
@@ -113,7 +115,19 @@ See [Claude Code skills](https://code.claude.com/docs/en/skills). Claude Code's 
 
 ## Claude desktop
 
-Package the entire selected skill folder as a ZIP, with that folder at the archive root. In **Customize > Skills**, use the custom-skill upload option and enable the skill. Follow the current [Claude skill instructions](https://support.claude.com/en/articles/12512180-use-skills-in-claude), including any account requirements.
+This is the route for installing into your **Claude account**, on the web or desktop:
+
+1. [Download all ten skill ZIPs](https://github.com/mxr-software/marso-skills/releases/latest/download/marso-skills-claude.zip).
+2. Unzip that download on your computer. It contains ten separate skill ZIPs. Keep those inner ZIPs zipped.
+3. In Claude, open **Customize > Skills > + > Create skill > Upload a skill**.
+4. Upload one inner ZIP, then repeat for the other skills you want. To install the complete collection, upload all ten.
+5. Enable the uploaded skills and start a new chat. Ask Claude to use `marso-blender-setup` to check the Blender connection.
+
+Each inner ZIP contains the complete skill folder, including its references, scripts, assets and licence. Do not upload the outer download as one skill, paste the terminal command into chat, or save only `SKILL.md`: those routes do not install the complete collection into your account. Individual ZIPs are also available on the [release downloads page](https://github.com/mxr-software/marso-skills/releases/latest).
+
+For manual packaging, ZIP each complete skill folder with that folder at the archive root. Follow the current [Claude skill instructions](https://support.claude.com/en/articles/12512180-use-skills-in-claude), including account settings. If Skills is unavailable, check that code execution and file creation are enabled.
+
+Some Claude Code versions also sync enabled account skills when signed in with the same Claude account. That sync does not upload locally installed skills back into the account. Avoid installing duplicate local copies if account sync already provides the skills; see [Claude's documentation](https://support.claude.com/en/articles/12512180-use-skills-in-claude).
 
 Configure any application or tool connections required by the selected skill separately. Uploading a skill does not establish those connections.
 
