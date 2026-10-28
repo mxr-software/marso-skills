@@ -10,7 +10,7 @@ The public collection is on the [`main` branch](https://github.com/mxr-software/
 
 ## Install the complete collection
 
-**Choose by where you use the assistant.** For skills in your Claude account, use the [Claude ZIP upload route](#claude-desktop). For a local Codex or Claude Code installation, use the terminal command below. You do not need both. Running that command in a cloud chat's sandbox does not install skills on your computer or upload them to your Claude account.
+**Choose by where you use the assistant.** For skills in your Claude account, [install the Marso plugin](#claude-desktop). For a local Codex or Claude Code installation, use the terminal command below. You do not need both. Running that command in a cloud chat's sandbox does not install skills on your computer or upload them to your Claude account.
 
 ### Codex and Claude Code
 
@@ -40,7 +40,7 @@ The command installs all ten skills on `main`: the Marso entry point, five Blend
 
 | Assistant | How to install the collection |
 | --- | --- |
-| Claude web / desktop account | [Download the skill ZIPs](https://github.com/mxr-software/marso-skills/releases/latest/download/marso-skills-claude.zip), unzip the download, then upload and enable each inner skill ZIP through Customize > Skills. |
+| Claude web / desktop account | Add `mxr-software/marso-skills` as a plugin marketplace and install `marso` once for all ten skills. Individual skill ZIPs are a fallback. |
 | ChatGPT desktop | Local Codex skill discovery is documented below. A packaged ChatGPT plugin for installing the whole collection is not provided yet; the standalone ChatGPT installation route has not been verified for this repository. |
 | API or custom agent | Configure the host to load each complete skill folder. See the API section below; a repository link alone does not install them. |
 
@@ -111,11 +111,40 @@ See [OpenAI's skill documentation](https://learn.chatgpt.com/docs/build-skills) 
 
 Copy the selected skill folder into `~/.claude/skills/` for personal use, or `.claude/skills/` in a project. Invoke `/<skill-name>`, replacing the placeholder with the installed skill's name, in a session where it is available.
 
+Alternatively, enter this directly in a **Claude Code conversation** (version 2.1.275 or later) to install the plugin:
+
+```text
+/plugin install marso --marketplace mxr-software/marso-skills
+```
+
+On versions without that shortcut, use:
+
+```text
+/plugin marketplace add mxr-software/marso-skills
+/plugin install marso@marso-skills
+```
+
+These commands target Claude Code's plugin manager, not an ordinary Claude web chat. Use either the plugin or standalone skill installation to avoid duplicates. Plugin skill commands are namespaced, for example `/marso:marso-blender-setup`.
+
 See [Claude Code skills](https://code.claude.com/docs/en/skills). Claude Code's local skill directories are distinct from account-uploaded skills used by other Claude surfaces.
 
 ## Claude desktop
 
-This is the route for installing into your **Claude account**, on the web or desktop:
+### Recommended: install the collection as one plugin
+
+In Claude on the web or desktop:
+
+1. Open **Customize > Plugins**.
+2. Choose **Add > Add marketplace > Add from a repository**.
+3. Enter `mxr-software/marso-skills` (or its full GitHub URL).
+4. Open the added marketplace and install **marso**. It contains all ten skills and their supporting files.
+5. Start a new chat and ask Claude to use Marso to check your Blender setup.
+
+Claude documents plugins for paid plans; organization settings can restrict them. See [Claude's plugin guide](https://support.claude.com/en/articles/13837440-use-plugins-in-claude) if the UI differs. The repository supplies the marketplace and plugin manifests; account UI installation must still be verified in your environment. The plugin bundles skills only, so Blender and Marso connections must be configured separately.
+
+### Fallback: upload individual skills
+
+Use this if your account supports custom skills but the plugin route is unavailable:
 
 1. [Download all ten skill ZIPs](https://github.com/mxr-software/marso-skills/releases/latest/download/marso-skills-claude.zip).
 2. Unzip that download on your computer. It contains ten separate skill ZIPs. Keep those inner ZIPs zipped.
@@ -135,7 +164,7 @@ Configure any application or tool connections required by the selected skill sep
 
 OpenAI documents local skill directories for Codex and recommends plugins for distributing collections across ChatGPT. Use the [Codex route](#codex) for a local Codex session. A published ChatGPT plugin is not included, and this repository does not yet have a verified standalone ChatGPT import procedure. Follow [OpenAI's skill documentation](https://learn.chatgpt.com/docs/build-skills) for the installation options available in your client. A ZIP uploaded as ordinary chat context is not an installed skill.
 
-Verify that the skill appears in the client and that its required tools or application connections are actually available. Four-client live testing and published plugin distribution are still pending; see [compatibility](compatibility.md).
+Verify that the skill appears in the client and that its required tools or application connections are actually available. Four-client live testing and OpenAI plugin distribution are still pending; see [compatibility](compatibility.md).
 
 ## OpenAI- and Claude-based API agents
 

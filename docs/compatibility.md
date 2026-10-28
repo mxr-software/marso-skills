@@ -6,7 +6,7 @@ Reviewed 2026-10-28. Format compatibility, available application tools and succe
 
 All ten packages use the [Agent Skills format](https://agentskills.io/specification): a leaf folder named after the skill, a `SKILL.md` with `name` and `description`, and supporting files inside that folder. Optional `agents/openai.yaml` supplies OpenAI UI metadata; the workflow does not depend on it. The same instructions are used by OpenAI- and Claude-based hosts.
 
-The repository's `skills/core/` and `skills/blender/` directories organise source. They are not themselves installable skills. Follow [installation](installation.md) to place each leaf folder in the client's discovery directory or attach it through its API. No published marketplace/plugin bundle is included.
+The repository's `skills/core/` and `skills/blender/` directories organise source. They are not themselves installable skills. Follow [installation](installation.md) to place each leaf folder in the client's discovery directory or attach it through its API. The Claude marketplace exposes one `marso` plugin, whose manifest points to those two skill directories. There is no OpenAI marketplace plugin bundle.
 
 Claude account downloads contain one complete ZIP per skill, plus an outer ZIP for downloading the collection. Descriptions are limited to 200 characters for the account upload guidance. Archive contents and package-local resources are checked before publication; actual account upload and execution still need verification in the user's Claude environment. Terminal installation and account upload are distinct routes.
 

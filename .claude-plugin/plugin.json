@@ -1,0 +1,9 @@
+{
+  "name": "marso",
+  "version": "0.1.1",
+  "description": "Build, texture and assemble 3D assets with Marso. Includes Blender setup, asset modelling, texturing, modular kits and preview scene workflows.",
+  "author": { "name": "M-XR" },
+  "homepage": "https://marso.app/",
+  "repository": "https://github.com/mxr-software/marso-skills",
+  "skills": ["./skills/core/", "./skills/blender/"]
+}

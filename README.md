@@ -11,15 +11,21 @@ Describe what you want to create. Marso skills guide your agent through the work
 
 ## Install all Marso skills
 
-**Claude on the web or desktop:** [Download the Claude skill ZIPs](https://github.com/mxr-software/marso-skills/releases/latest/download/marso-skills-claude.zip), unzip the download, then upload each inner skill ZIP through **Customize → Skills → + → Create skill → Upload a skill** and enable it. [Step-by-step guide](docs/installation.md#claude-desktop).
+**Claude on the web or desktop:** open **Customize → Plugins → Add → Add marketplace → Add from a repository**, enter `mxr-software/marso-skills`, then install **marso**. One plugin contains all ten skills. Requires a plan and account settings that allow plugins. [Step-by-step guide and ZIP fallback](docs/installation.md#claude-desktop).
 
-**Codex or Claude Code on your computer:** run this in **PowerShell or Terminal**, not in a Claude web chat:
+**Already in Claude Code?** Paste this into its conversation (version 2.1.275 or later):
+
+```text
+/plugin install marso --marketplace mxr-software/marso-skills
+```
+
+**Codex or other supported local agents:** run this in **PowerShell or Terminal**. This also works for Claude Code if you prefer standalone skills instead of the plugin:
 
 ```bash
 npx skills add mxr-software/marso-skills --skill '*'
 ```
 
-Requires **Node.js and Git**. Run it in your project folder and choose your agent when prompted. Add `--global` to use the skills across projects. The command installs all ten skills from `main`. It does not upload skills to your Claude account; choose the account ZIP route above for that.
+Requires **Node.js and Git**. Run it in your project folder and choose your agent when prompted. Add `--global` to use the skills across projects. The command installs all ten skills from `main`. It does not upload skills to your Claude account; use the account plugin route above for that.
 
 [Installation, updates and other clients](docs/installation.md#install-the-complete-collection) · [Your first Marso project](docs/getting-started.md) · [Compatibility](docs/compatibility.md)
 

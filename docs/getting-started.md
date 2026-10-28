@@ -32,7 +32,7 @@ For the new guidance, try "Give my stool three finishes, each from its original 
 
 Local Blender checks cover modelling, UV preparation, source-colour baking, connection helpers, material application and real Retexture/PBR operations. These do not establish fresh-user success on every assistant client or certify the artistic quality of a new asset.
 
-Fresh-client execution, official Blender MCP transport and API-host integration are not yet fully verified. Follow the [installation instructions](installation.md) for your host; no published plugin is included. See [compatibility](compatibility.md) for the verification boundaries.
+Fresh-client execution, official Blender MCP transport and API-host integration are not yet fully verified. Follow the [installation instructions](installation.md) for your host; Claude can install the collection as a plugin, while other hosts have separate routes. See [compatibility](compatibility.md) for the verification boundaries.
 
 Texture output needs artistic review. Check one representative part in neutral clay, inspect its baked material regions, then inspect the generated front, oblique and rear views before extending a kit. Matching prompts do not guarantee aligned patterns or correct material boundaries. Report warnings and defects even when a job succeeds.
 
