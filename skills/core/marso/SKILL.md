@@ -1,6 +1,6 @@
 ---
 name: marso
-description: Choose a Marso workflow when the user wants to make a 3D asset, model or generate an object, restyle an asset, create appearance variants, or use a modular kit and the route is not yet clear. Distinguish generative 3D from agent modelling, discover the working connection, and select supported generation options. Let an already selected specialist skill handle its task directly.
+description: Choose a Marso workflow when the user wants to make a 3D asset, model or generate an object, restyle an asset, create appearance variants, use a modular kit, or find an asset already in their library, and the route is not yet clear. Distinguish generative 3D from agent modelling, discover the working connection, and select supported generation options. Let an already selected specialist skill handle its task directly.
 license: Apache-2.0
 ---
 
@@ -24,7 +24,7 @@ An explicit request to generate or model takes precedence over the defaults belo
 | Break photographs of a room or environment into its objects, or get a scene graph from images | Scene decomposition; `marso-scene-decompose` when installed. Do not send a whole-room image straight to 3D generation. |
 | Decide how many assets a scene needs, what to generate or model, or write each object's reference brief from a scene graph | Asset planning from the graph; `marso-scene-graph` when installed, then the routes above for each asset. |
 | Generate a scene's planned assets in Blender, or rebuild the photographed room there | `marso-blender-scene-assets` turns the asset plan into minted Marso assets, reusing what the account's library already holds; `marso-blender-place-scene` imports and places them like the photographs. |
-| Use something already in the library | Find and inspect the existing asset through available library tools before importing; do not generate a replacement. |
+| Use something already in the library, or check for one before generating | Search the library by description, image or both, and let the user choose; read [library](references/library.md). Do not generate a replacement for an asset the user chose to reuse. |
 
 Organic/complex forms favour generation as a starting point; structured, articulated or modular objects favour agent modelling. These are workflow defaults, not quality guarantees. Generated meshes can need retopology, part separation and scale correction; agent-built meshes still need topology and fit checks. A hybrid can generate decoration while modelling functional joints and mating surfaces. Preserve explicit user intent and explain a material tradeoff before substituting routes.
 

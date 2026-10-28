@@ -25,7 +25,13 @@ Constraints:
 
 ## Current State
 
-- **Now: branch `feature/library-search`, cut from `feature/scene-to-assets` (commit `a58f06b`). Not committed; not pushed.** It adds a library check before anything is generated:
+- **Now: branch `feature/library-search`, cut from `feature/scene-to-assets` (commit `a58f06b`). Committed and pushed to `origin`.**
+  - **Latest commit:** the `marso` entry skill checks the library too.
+    - New `references/library.md`: the `find_in_library` search, reading its results, the user's choice. It is host-neutral.
+    - `generative-3d.md` checks the library before generating, unless the user asked for a new asset.
+    - The routing table and the description cover finding an asset in the library.
+    - `marso-blender-asset` is unchanged; it only models by hand.
+  - The library check before anything is generated:
   - `crop_objects.py` writes `search.png`: the subject's own box, 2% margin, no outline.
   - `manifest.py` gains:
     - a `library` stage (`record --stage library` stores the add-on's `find_in_library` candidates);
@@ -129,7 +135,7 @@ Earlier work (scene decomposition, blind runs 1 to 4, the verify round) is descr
 
 ## Next Steps
 
-0. Commit `feature/library-search` here and in the add-on when Elliott asks; never stage `grep.exe.stackdump`. Then a blind run of the scene-assets skill on a new room, to see the library check from instructions alone.
+0. A blind run of the scene-assets skill on a new room, and of the entry skill on a single-object request, to see the library check from instructions alone. Never stage `grep.exe.stackdump`.
 1. Rebuild and reinstall the add-on, then re-run import and placement on kitchen_test to confirm the fixes live.
 2. Address the second-corner placement and the size-disagreement policy (see Plan).
 3. Blind-run the placement skill, then a second room.
