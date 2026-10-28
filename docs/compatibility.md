@@ -10,6 +10,8 @@ The repository's `skills/core/` and `skills/blender/` directories organise sourc
 
 Claude account downloads contain one complete ZIP per skill, plus an outer ZIP for downloading the collection. Descriptions are limited to 200 characters for the account upload guidance. Archive contents and package-local resources are checked before publication; actual account upload and execution still need verification in the user's Claude environment. Terminal installation and account upload are distinct routes.
 
+Claude Code 2.1.312 validated the marketplace and plugin manifests and installed `marso@marso-skills` successfully in an isolated configuration directory. The plugin's declared paths include all ten skills. Validation reported advisory warnings about repository-only `CLAUDE.md` and a missing catalog icon; neither prevents installation. This checks Claude Code packaging, not the Claude account UI or a live Blender task.
+
 | Host | Loading route | Verification boundary |
 | --- | --- | --- |
 | Codex | `.agents/skills/<skill-name>/SKILL.md` | Format/package and isolated installation checks passed; fresh-client Blender workflow not yet verified. |
