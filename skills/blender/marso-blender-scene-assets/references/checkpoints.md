@@ -9,9 +9,10 @@ Before any job, show:
 - the Studio project name and whether it already exists;
 - how many assets will be generated, the instance range, and the settings (model, polygon budget per asset, texture);
 - every asset `manifest.py init` left out, and why (modelled, reused, skipped, no crop);
+- the library check: for each asset, `search.png` beside the thumbnails of its `match` and `possible` candidates (and the best `weak` one when nothing better came back), with names, verdicts and scores. See [library check](library-check.md);
 - every flagged asset in the plan, with its flag.
 
-Ask the user to confirm or change the list. Changes go into `asset_plan.json` and its `review` list; re-run the crop step for a changed asset, then `manifest.py init --force`.
+Ask the user to confirm or change the list, and to choose reuse or make for every asset with a candidate; record it with `manifest.py choose`. An asset with no candidate worth showing is made: record it with `--make`. Changes go into `asset_plan.json` and its `review` list; re-run the crop step for a changed asset, then `manifest.py init --force`.
 
 ## Checkpoint 2: the reference images
 

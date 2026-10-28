@@ -6,12 +6,14 @@ Usage:
                     --out <dir> [--ids g001 a002 ...] [--pad 0.15] [--mask-children]
                     [--exclude-parent] [--image-root dir] [--force] [--all-routes]
 
-Writes <out>/<asset_id>/crop.png and brief.json for every asset routed to
+Writes <out>/<asset_id>/crop.png, search.png and brief.json for every asset routed to
 `generate` (or every asset with --all-routes), plus <out>/index.json. Boxes in
 the brief are in the crop's own pixel frame, origin top-left. Children of the
 the crop is unmasked, with the subject's box drawn on it as a red outline. Masking is
 opt-in: --mask-children fills the subject's children with flat black, and
---exclude-parent blacks out the parent's box outside the subject's box. Requires Pillow.
+--exclude-parent blacks out the parent's box outside the subject's box. search.png is the
+subject's own box with no margin and no marking, for a library search by image: a wider crop
+finds its neighbours instead. Requires Pillow.
 
 Exit codes: 0 crops written, 1 something was wrong with the inputs, the images
 or the output location, 2 a JSON input could not be read.
@@ -37,6 +39,7 @@ WHOLE_OBJECT = (
 RED = (255, 0, 0)
 TOUCH_SHARE = 0.5     # share of a neighbour's box inside the subject's for it to count as touching
 COVER_LIMIT = 8       # ... or a neighbour covering the subject, if no more than this many times its area
+SEARCH_PAD = 0.02     # margin around the subject in search.png
 SITS = {
     "inside": "it sits in",
     "on-top-of": "it sits on",
@@ -353,6 +356,7 @@ def main(argv: list[str] | None = None) -> int:
         x0, y0, x1, y1 = subject_in_crop
         draw.rectangle((x0, y0, max(x0, x1 - 1), max(y0, y1 - 1)), outline=RED, width=stroke)
         crop.save(target / "crop.png")
+        source.crop(padded(subject_px, SEARCH_PAD, width, height)).save(target / "search.png")
 
         label = asset.get("label") or subject_id
         inferred = asset.get("inferred_whole") or {}
@@ -389,6 +393,7 @@ def main(argv: list[str] | None = None) -> int:
             "not_the_subject": others,
             "masking": {"children_masked": args.mask_children, "parent_masked": parent_masked},
             "marking": {"subject_box": "red outline", "stroke_px": stroke},
+            "search_crop": (target / "search.png").as_posix(),
             "prompt": build_prompt(asset, label, others, view.get("truncated")),
             "evidence_note": EVIDENCE_NOTE,
             "flags": asset.get("flags") or [],
@@ -402,6 +407,7 @@ def main(argv: list[str] | None = None) -> int:
             "label": label,
             "route": asset.get("route"),
             "crop": (target / "crop.png").as_posix(),
+            "search_crop": (target / "search.png").as_posix(),
             "brief": (target / "brief.json").as_posix(),
             "image_id": image_id,
             "not_the_subject": len(others),

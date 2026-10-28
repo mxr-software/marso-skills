@@ -92,7 +92,7 @@ Ask your assistant to use the skill by name and describe the result you want. Ch
 
 ## First available collection: Blender
 
-The five application skills are under `skills/blender/`: `marso-blender-setup`, `marso-blender-asset`, `marso-blender-texture`, `marso-blender-kit`, and `marso-blender-compose`. Install all five for the complete Blender modelling, texturing and modular workflow, or select the ones you need. The application-independent `marso` entry skill is under `skills/core/`. Collections for other applications are not yet included.
+The application skills are under `skills/blender/`: `marso-blender-setup`, `marso-blender-asset`, `marso-blender-texture`, `marso-blender-kit` and `marso-blender-compose` for modelling, texturing and modular work, and `marso-blender-scene-assets` and `marso-blender-place-scene` for rebuilding a photographed room. Install the ones you need; the scene pair also needs `marso-scene-decompose` and `marso-scene-graph` from `skills/core/`. The application-independent `marso` entry skill is under `skills/core/`. Collections for other applications are not yet included.
 
 After installation, ask: "Use marso-blender-setup to configure my Marso Blender add-on. I use the official Blender MCP."
 

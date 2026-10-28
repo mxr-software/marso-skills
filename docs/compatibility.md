@@ -57,11 +57,15 @@ Not checked: Codex, ChatGPT and API hosts; serial execution on a host without he
 
 ## Scene generation and placement in Blender
 
-`marso-blender-scene-assets` and `marso-blender-place-scene` drive the Marso add-on's scene bridge commands (`scene_reference`, `scene_mesh`, `mint_status`, `import_scene_asset`) through the official Blender MCP. They are licensed separately (see each folder's `LICENSE.txt`).
+`marso-blender-scene-assets` and `marso-blender-place-scene` drive the Marso add-on's scene bridge commands (`scene_reference`, `scene_mesh`, `mint_status`, `import_scene_asset`, and `find_in_library` for the library check) through the official Blender MCP. They are licensed separately (see each folder's `LICENSE.txt`).
+
+These commands come from add-on development builds that are not yet released: the scene commands from the `feature/scene-assets` branch of the add-on, and `find_in_library` from `feature/library-search` (both on the 1.8.0 manifest; sources `marso/services/scene_assets.py`, `marso/services/semantic_search.py`, `marso/bridge/handlers.py`). The released 1.8.0 add-on has none of them; the skills report a missing command and stop. `find_in_library` calls `POST /mcp/library/search/text` and `POST /mcp/library/search/image`, which the service answers but its published API description does not list.
 
 Checked on 2026-10-28:
 
 - Script tests (`python -m unittest discover tests/scene`) cover the generation record (`manifest.py`), the layout (`layout_plan.py`), the asset plan's polygon budget and routes, and the reference prompt.
 - `place_in_blender.py` was run in Blender 4.5 in background mode on a fixture: hierarchy, linked duplicates, bottom-centre placement, camera and a repeated run.
+- Live in Blender 5.2 with the development add-on, driven by the maintainer in Claude Code (not a blind run): one kitchen, twelve assets through a new Studio project. Reference images from crops (one regenerated after review), Tripo meshes at 40,000 polygons with PBR, all twelve minted, imported with linked duplicates and placed against the establishing photograph.
+- Library check, live on the same account: each of the twelve, searched with its label and `search.png`, came back with its own library asset first (ten as match or possible, two as weak); reuse, `mint_status` and import were run without generating anything.
 
-Not yet live-tested: the scene bridge commands themselves, a Marso Studio project, reference image and mesh quality, minting, `import_scene_asset` and what its `copies` counts, the placement of real generated meshes (their front axis and origin), and the camera estimate on real photographs.
+Not checked: a blind run of either skill; Codex, ChatGPT and API hosts; a second scene; placing objects seen only in photographs that share nothing with the establishing view. Placement is a first layout from one photograph, and minted sizes are taken as they come (one table minted at the height of a coffee table). Library verdict thresholds were set on one account's library.

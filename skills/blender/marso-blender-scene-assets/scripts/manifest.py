@@ -4,17 +4,23 @@
 Usage:
     manifest.py init <asset_plan.json> --references <references/index.json> --out <assets.json>
                      [--project NAME] [--model tripo_h3_1] [--polycount 40000] [--texture standard]
-                     [--ids a001 a002 ...] [--force]
+                     [--ids a001 a002 ...] [--skip-library] [--force]
+    manifest.py record <assets.json> --stage library <asset_id> (--result found.json | --json '{...}')
+    manifest.py choose <assets.json> --reuse a001=<pbr_asset_id> ... | --make a002 ... [--note TEXT]
     manifest.py record <assets.json> --stage reference|mesh|import <asset_id>
                        (--job JOB_ID | --result result.json | --json '{...}' | --error TEXT)
     manifest.py record <assets.json> --stage mint (--result status.json | --json '{...}')
     manifest.py review <assets.json> --approve a001 a002 ... | --reject a003 [--note TEXT]
-    manifest.py pending <assets.json> [--stage reference|review|mesh|mint|import]
+    manifest.py pending <assets.json> [--stage library|choose|reference|review|mesh|mint|import]
 
 `init` makes one entry per asset that has a crop in the references index, with the
-plan's id, label, count, members, crop and brief paths and its prompt. `record` stores
-a submitted job id, a finished job's result, or a failure. `review` records the user's
-decision on each reference image; only approved references go on to meshes.
+plan's id, label, count, members, crop and brief paths and its prompt. Each asset starts
+with a library check (skipped with --skip-library): `record --stage library` stores the
+add-on's find_in_library candidates, and `choose` records the user's decision to reuse a
+library asset (by its pbr_asset_id, which must be one of the candidates) or make a new one.
+A reused asset skips the reference image and the mesh and goes on to minting and import.
+`record` stores a submitted job id, a finished job's result, or a failure. `review` records
+the user's decision on each reference image; only approved references go on to meshes.
 `pending` prints, for each stage, the assets still waiting and the jobs to follow up.
 Standard library only.
 
@@ -30,12 +36,13 @@ import pathlib
 import sys
 
 SCHEMA = "marso/scene-assets@1"
-STAGES = ("reference", "review", "mesh", "mint", "import")
+STAGES = ("library", "choose", "reference", "review", "mesh", "mint", "import")
 DEFAULTS = {"model": "tripo_h3_1", "polygon_count": 40000, "texture": "standard"}
 MINT_STATES = ("minted", "minting", "failed", "not_minted")
 
 # The fields each finished job must return, as the add-on's bridge commands report them.
 RESULT_FIELDS = {
+    "library": ("results",),
     "reference": ("crop_asset_id", "image_node_id", "generation_node_id", "image_asset_id", "image_path"),
     "mesh": ("mesh_node_id", "pbr_node_id", "pbr_asset_id"),
     "import": ("objects", "dimensions_m"),
@@ -75,7 +82,13 @@ def unwrap(result):
     return result
 
 
-def new_entry(asset: dict, row: dict, brief: dict | None, settings: dict) -> dict:
+# What is kept of each find_in_library result: enough to show it and to reuse it.
+CANDIDATE_FIELDS = ("name", "verdict", "image_score", "text_score", "pbr_asset_id", "mesh_asset_id",
+                    "project_ids", "thumbnail_path")
+CANDIDATES_KEPT = 5
+
+
+def new_entry(asset: dict, row: dict, brief: dict | None, settings: dict, library: bool = True) -> dict:
     return {
         "asset_id": asset["asset_id"],
         "global_id": asset.get("global_id"),
@@ -87,6 +100,7 @@ def new_entry(asset: dict, row: dict, brief: dict | None, settings: dict) -> dic
         "members": asset.get("members") or [],
         "size_m": asset.get("size_m"),
         "crop": row.get("crop"),
+        "search_crop": row.get("search_crop"),
         "brief": row.get("brief"),
         "prompt": (brief or {}).get("prompt"),
         "settings": {
@@ -94,6 +108,7 @@ def new_entry(asset: dict, row: dict, brief: dict | None, settings: dict) -> dic
             "polygon_count": asset.get("polygon_count") or settings["polygon_count"],
             "texture": settings["texture"],
         },
+        "library": {"status": "pending"} if library else {"status": "make", "note": "library check skipped"},
         "reference": {"status": "pending"},
         "review": {"status": "pending"},
         "mesh": {"status": "pending"},
@@ -141,7 +156,7 @@ def cmd_init(args) -> int:
             brief = read_json(brief_path) if brief_path.exists() else None
         if brief is None or not brief.get("prompt"):
             problems.append(f"{asset_id}: no brief with a prompt; rerun the crop step for it")
-        entries.append(new_entry(asset, row, brief, settings))
+        entries.append(new_entry(asset, row, brief, settings, library=not args.skip_library))
     missing = sorted(a for a, asset in plan_assets.items() if asset.get("route") == "generate"
                      and a not in {e["asset_id"] for e in entries} and (not wanted or a in wanted))
     for asset_id in missing:
@@ -197,6 +212,87 @@ def record_mint(doc: dict, assets: dict, result) -> list[str]:
     return problems
 
 
+def record_library(args, doc: dict, asset: dict, result) -> int:
+    """Store the find_in_library candidates for the user to choose from; nothing is decided here."""
+    if args.job:
+        print("error: find_in_library answers at once; record its result, not a job", file=sys.stderr)
+        return 1
+    if args.error:
+        asset["library"] = {"status": "failed", "error": args.error, "at": now()}
+    elif result is None:
+        print("error: give --result, --json or --error", file=sys.stderr)
+        return 1
+    else:
+        result = unwrap(result)
+        if not isinstance(result.get("results"), list):
+            print("error: the library result has no results list", file=sys.stderr)
+            return 1
+        candidates = [{k: r.get(k) for k in CANDIDATE_FIELDS} for r in result["results"][:CANDIDATES_KEPT]
+                      if isinstance(r, dict) and r.get("pbr_asset_id")]
+        asset["library"] = {"status": "checked", "query": result.get("query"), "image": result.get("image"),
+                            "candidates": candidates, "at": now()}
+    doc["log"].append({"at": now(), "asset_id": args.asset_id, "stage": "library",
+                       "status": asset["library"]["status"]})
+    write_json(pathlib.Path(args.manifest), doc)
+    print(json.dumps({"asset_id": args.asset_id, "stage": "library", "status": asset["library"]["status"],
+                      "candidates": [[c["name"], c["verdict"]] for c in asset["library"].get("candidates", [])]},
+                     indent=2))
+    return 0
+
+
+def cmd_choose(args) -> int:
+    code, doc, assets = load(args.manifest)
+    if code:
+        return code
+    reuse, problems = {}, []
+    for item in args.reuse or []:
+        asset_id, _, pbr_id = item.partition("=")
+        if not pbr_id:
+            problems.append(f"{item}: write it as <asset_id>=<pbr_asset_id>")
+        else:
+            reuse[asset_id] = pbr_id
+    make = list(args.make or [])
+    if not reuse and not make and not problems:
+        problems.append("give --reuse, --make or both")
+    for asset_id in [*reuse, *make]:
+        if asset_id not in assets:
+            problems.append(f"{asset_id}: no such asset")
+    both = sorted(set(reuse) & set(make))
+    if both:
+        problems.append(f"both reused and made: {', '.join(both)}")
+    for asset_id, pbr_id in reuse.items():
+        library = (assets.get(asset_id) or {}).get("library") or {}
+        if asset_id in assets and pbr_id not in {c.get("pbr_asset_id") for c in library.get("candidates") or []}:
+            problems.append(f"{asset_id}: {pbr_id} is not one of its library candidates")
+    if problems:
+        for line in problems:
+            print(f"error: {line}", file=sys.stderr)
+        return 1
+    for asset_id, pbr_id in reuse.items():
+        asset = assets[asset_id]
+        library = asset["library"]
+        chosen = next(c for c in library["candidates"] if c.get("pbr_asset_id") == pbr_id)
+        library.update(status="reuse", chosen=chosen, note=args.note, decided=now())
+        asset["pbr_asset_id"] = pbr_id
+        asset["minted"] = "not_minted"  # mint_status says whether the library asset is ready
+        for stage in ("reference", "review", "mesh"):
+            asset[stage] = {"status": "skipped", "reason": "reused from the library"}
+    for asset_id in make:
+        asset = assets[asset_id]
+        library = asset.setdefault("library", {})
+        if library.get("status") == "reuse":
+            # Back to making it: the reused asset's id goes, and the chain starts from the reference.
+            asset["pbr_asset_id"], asset["minted"] = None, "not_minted"
+            for stage in ("reference", "review", "mesh", "import"):
+                asset[stage] = {"status": "pending"}
+        library.update(status="make", note=args.note, decided=now())
+        library.pop("chosen", None)
+    doc["log"].append({"at": now(), "stage": "choose", "reuse": reuse, "make": make, "note": args.note})
+    write_json(pathlib.Path(args.manifest), doc)
+    print(json.dumps({"reuse": reuse, "make": make}, indent=2))
+    return 0
+
+
 def cmd_record(args) -> int:
     code, doc, assets = load(args.manifest)
     if code:
@@ -233,6 +329,8 @@ def cmd_record(args) -> int:
     if asset is None:
         print(f"error: no asset {args.asset_id} in {args.manifest}", file=sys.stderr)
         return 1
+    if args.stage == "library":
+        return record_library(args, doc, asset, result)
     stage = asset[args.stage]
     if args.job:
         asset[args.stage] = stage = {"status": "submitted", "job_id": args.job, "submitted": now()}
@@ -297,7 +395,17 @@ def pending(assets: dict) -> dict:
             elif status == "failed":
                 failed[stage].append({"asset_id": asset_id, "error": asset[stage].get("error")})
         ref, review, mesh = asset["reference"], asset["review"], asset["mesh"]
-        if ref.get("status") in ("pending", "failed") or (
+        library = (asset.get("library") or {"status": "make"}).get("status")
+        if library in ("pending", "failed"):
+            out["library"].append(asset_id)
+        elif library == "checked":
+            out["choose"].append(asset_id)
+        elif library == "reuse":
+            if asset.get("minted") != "minted":
+                out["mint"].append(asset_id)
+            elif asset["import"].get("status") in ("pending", "failed"):
+                out["import"].append(asset_id)
+        elif ref.get("status") in ("pending", "failed") or (
                 ref.get("status") == "done" and review.get("status") == "rejected"):
             out["reference"].append(asset_id)
         elif ref.get("status") == "done" and review.get("status") == "pending":
@@ -311,6 +419,10 @@ def pending(assets: dict) -> dict:
     mint_ids = [assets[a]["pbr_asset_id"] for a in out["mint"]]
     return {
         "pending": out,
+        # What to send find_in_library for each asset still to check: its label and its search crop.
+        "library_searches": [{"asset_id": a, "query": assets[a].get("label"),
+                              "image_path": assets[a].get("search_crop")} for a in out["library"]],
+        "reused": sorted(a for a, asset in assets.items() if (asset.get("library") or {}).get("status") == "reuse"),
         "running": running,
         "failed": failed,
         "mint_status_asset_ids": mint_ids,
@@ -328,6 +440,7 @@ def cmd_pending(args) -> int:
         report = {"stage": args.stage, "pending": report["pending"][args.stage],
                   **({"running": report["running"][args.stage], "failed": report["failed"][args.stage]}
                      if args.stage in report["running"] else {}),
+                  **({"library_searches": report["library_searches"]} if args.stage == "library" else {}),
                   **({"mint_status_asset_ids": report["mint_status_asset_ids"],
                       "mint_failed": report["mint_failed"]} if args.stage == "mint" else {})}
     print(json.dumps(report, indent=2))
@@ -348,19 +461,27 @@ def main(argv: list[str] | None = None) -> int:
                    help="used where the plan gives no polygon_count")
     p.add_argument("--texture", default=DEFAULTS["texture"])
     p.add_argument("--ids", nargs="*", help="only these asset ids")
+    p.add_argument("--skip-library", action="store_true", help="make every asset without a library check")
     p.add_argument("--force", action="store_true")
     p.set_defaults(func=cmd_init)
 
     p = sub.add_parser("record", help="record a submitted job, a finished result or a failure")
     p.add_argument("manifest", help="assets.json")
     p.add_argument("asset_id", nargs="?")
-    p.add_argument("--stage", required=True, choices=("reference", "mesh", "mint", "import"))
+    p.add_argument("--stage", required=True, choices=("library", "reference", "mesh", "mint", "import"))
     group = p.add_mutually_exclusive_group()
     group.add_argument("--job", help="the job id the command returned")
     group.add_argument("--result", help="a JSON file holding the job result")
     group.add_argument("--json", help="the job result as a JSON string")
     group.add_argument("--error", help="why the job failed")
     p.set_defaults(func=cmd_record)
+
+    p = sub.add_parser("choose", help="record the user's decision to reuse a library asset or make one")
+    p.add_argument("manifest", help="assets.json")
+    p.add_argument("--reuse", nargs="*", help="<asset_id>=<pbr_asset_id> of a library candidate")
+    p.add_argument("--make", nargs="*", help="asset ids to make despite, or for want of, a candidate")
+    p.add_argument("--note")
+    p.set_defaults(func=cmd_choose)
 
     p = sub.add_parser("review", help="record the user's decision on reference images")
     p.add_argument("manifest", help="assets.json")

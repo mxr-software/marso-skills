@@ -1,14 +1,14 @@
 ---
 name: marso-blender-place-scene
 description: Import a photographed scene's minted Marso assets into Blender and place them like the photographs, with the Blender hierarchy matching the scene graph and repeated objects as linked duplicates. Use when a scene graph and a generation record (assets.json) exist and the user wants the room rebuilt in Blender. Landmarks go first, a camera matches the establishing photograph, and a review loop compares the two.
-license: Proprietary
+license: Proprietary. See LICENSE.txt in this skill folder.
 ---
 
 # Place a scene's assets in Blender
 
 Rebuild a photographed room in Blender from its scene graph: the floor and walls first, then the large fixed things, then everything that rests on them, each object parented to what holds it in the graph. Positions come from one photograph and a simple camera model, so they are a first layout to review, not a measurement.
 
-Inputs: the decompose run folder (`scene_graph.json`, `manifest.json`, `registration.json`), its `asset_plan.json`, and `runs/<job>/assets.json` from the generation run, which holds each asset's `pbr_asset_id`, minted state and members. Generation belongs to `marso-blender-scene-assets`; Blender connection problems to `marso-blender-setup`, when installed.
+Inputs: the decompose run folder (`scene_graph.json`, `manifest.json`, `registration.json`), its `asset_plan.json`, and `runs/<job>/assets.json` from the generation run, which holds each asset's `pbr_asset_id`, minted state and members. An asset reused from the library carries the library asset's `pbr_asset_id` and imports the same way. `<skill>` in the commands below stands for this skill folder's path. Generation belongs to `marso-blender-scene-assets`; Blender connection problems to `marso-blender-setup`, when installed.
 
 ## Workflow
 
@@ -26,7 +26,7 @@ Inputs: the decompose run folder (`scene_graph.json`, `manifest.json`, `registra
 - One object per instance. Copies of an asset are linked duplicates (shared mesh data), never independent copies.
 - Never scale a minted asset. Size disagreements are flags for the user.
 - Do not delete anything in the user's scene. The script reuses objects by name on a re-run and creates nothing twice.
-- A modelled, reused or unconfirmed object is a wire box at the graph's size, or left out; it is never generated here.
+- A modelled object, an unconfirmed one, or one the plan routes to `reuse` without a library asset recorded in `assets.json` is a wire box at the graph's size, or left out; it is never generated here.
 
 ## Deliver
 

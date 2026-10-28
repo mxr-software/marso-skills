@@ -110,6 +110,21 @@ class CropObjectsTests(unittest.TestCase):
         self.assertNotIn("Not the subject", prompt)
         self.assertEqual(brief["schema"], "marso/reference-brief@1")
 
+    def test_a_search_crop_holds_the_subject_alone_unmarked(self):
+        """A library search by image finds whatever fills the crop, so it gets the subject's own box."""
+        self.assertEqual(self.crop().returncode, 0)
+        index = json.loads((self.out / "index.json").read_text(encoding="utf-8"))
+        row = next(r for r in index["assets"] if r["asset_id"] == self.ids["bowl"])
+        self.assertTrue(row["search_crop"].endswith("search.png"))
+        _, brief = self.load(self.ids["bowl"])
+        self.assertEqual(brief["search_crop"], row["search_crop"])
+        image = Image.open(row["search_crop"]).convert("RGB")
+        # Bowl box (8,12,32,30); a 2% margin of 24 px rounds to nothing.
+        self.assertEqual(image.size, (24, 18))
+        # No outline: the corners, where crop.png draws its red box, are the bowl itself.
+        for corner in ((0, 0), (23, 17), (0, 17), (23, 0)):
+            self.assertEqual(image.getpixel(corner), BOWL)
+
     def test_mask_children_is_opt_in(self):
         self.assertEqual(self.crop("--mask-children").returncode, 0)
         image, brief = self.load(self.ids["bowl"])

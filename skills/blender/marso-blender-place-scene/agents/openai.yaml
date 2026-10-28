@@ -1,4 +1,4 @@
 interface:
   display_name: "Marso Blender Place Scene"
-  short_description: "Place a scene's minted Marso assets in Blender like the photographs"
+  short_description: "Place a scene's Marso assets in Blender like the photos"
   default_prompt: "Use $marso-blender-place-scene to import my scene's assets into Blender and place them like the photographs."

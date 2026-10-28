@@ -8,7 +8,7 @@
 | --- | --- |
 | `generate` | Produce a crop and brief; hand to Marso generative 3D through the entry skill. |
 | `model` | Build in the application with its modelling skill, from the metadata block and the crop as reference. |
-| `reuse` | Find the asset in the library before making anything. The script never assigns this itself; set it in review when the library is known to hold the object. |
+| `reuse` | Find the asset in the library before making anything. The script never assigns this itself; set it in review when the library is known to hold the object. When generating from Blender, `marso-blender-scene-assets` searches the library for every generate-route asset anyway and offers what it finds, so `generate` is the safe default. |
 | `skip` | Not a separate asset: an anchor, a part of its parent, or something the user excluded. |
 
 ## Rules, in the order applied

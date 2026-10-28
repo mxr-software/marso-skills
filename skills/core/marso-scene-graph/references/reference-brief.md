@@ -15,6 +15,7 @@ One `brief.json` and one `crop.png` per asset, written by `crop_objects.py` into
 - `prompt`: the text for an object-mode image node that is shown the crop as a linked image named `@crop`. See [the prompt](#the-prompt).
 - `polygon_count`: copied from the plan when `--polycount` set one; see [polycount](polycount.md).
 - `evidence_note`: the reminder that the crop is identity and camera evidence, not a pose.
+- `search_crop`: the path of `search.png`, the subject's own box with a 2% margin and no marking. It is for a library search by image, not for the generator: a search finds whatever fills the picture, so a padded crop with a large neighbour in it finds the neighbour.
 
 Boxes in the brief are in the crop's frame, so a reader of `crop.png` can draw them without the manifest.
 

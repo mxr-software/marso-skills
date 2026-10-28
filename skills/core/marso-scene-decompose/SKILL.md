@@ -2,14 +2,15 @@
 name: marso-scene-decompose
 description: Turn one or more photographs of a room or environment into a scene graph of every object, with boxes in each view, a support hierarchy, repeated-object clusters and cross-view identities, plus a self-contained interactive viewer. Use when someone wants photos decomposed into objects, an object inventory or scene graph from images, or object references for a 3D pipeline. Use marso-scene-graph to plan assets from the finished graph.
 license: Proprietary. See LICENSE.txt in this skill folder.
-compatibility: Needs a shell with Python 3.10+ and Pillow (pip install Pillow), and an assistant that can look at local image files. No network access or API keys.
 ---
 
 # Decompose a scene
 
 Turn photographs of one environment into `scene_graph.json`: every object found and described, boxed in each view it appears in, hung off physical anchors (floor, wall, ceiling) in a support hierarchy, and matched across views. Deliver it with per-view quality scores, a confusion list and `viewer.html`. Write the room down so completely that someone who has never seen it could rebuild it: the spoon as well as the table, and what the spoon rests on. Where two photographs disagree about whether they show the same spoon, say so rather than quietly picking one.
 
-Scripts do the bookkeeping: cutting photographs up, putting boxes back, building the tree, pairing obvious matches, checking and building the viewer. You do the looking. Run scripts by full quoted path from the user's project folder, for example `python "<this skill's folder>/scripts/fast.py"`; never change into or write inside the skill folder. If `python` is not found, try `python3` or `py -3`.
+Needs a shell with Python 3.10+ and Pillow (`pip install Pillow`), and an assistant that can look at local image files. It uses no network access or API keys.
+
+Scripts do the bookkeeping: cutting photographs up, putting boxes back, building the tree, pairing obvious matches, checking and building the viewer. You do the looking. Run scripts by full quoted path from the user's project folder; `<skill>` in the commands below stands for this skill folder's path, as in `python "<skill>/scripts/fast.py"`. Never change into or write inside the skill folder. If `python` is not found, try `python3` or `py -3`.
 
 ## Hard rules
 

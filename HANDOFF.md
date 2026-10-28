@@ -25,7 +25,27 @@ Constraints:
 
 ## Current State
 
-- Branch `feature/scene-to-assets`, cut from `feature/scene-decompose` (commit `8313f40`, which holds the first two scene skills). Committed here; not pushed.
+- **Now: branch `feature/library-search`, cut from `feature/scene-to-assets` (commit `a58f06b`). Not committed; not pushed.** It adds a library check before anything is generated:
+  - `crop_objects.py` writes `search.png`: the subject's own box, 2% margin, no outline.
+  - `manifest.py` gains:
+    - a `library` stage (`record --stage library` stores the add-on's `find_in_library` candidates);
+    - `choose --reuse <asset_id>=<pbr_asset_id> | --make`;
+    - `--skip-library`;
+    - `pending` output carrying `library_searches` and `reused`.
+  - A reused asset skips reference, review and mesh, and goes to `mint_status` and import. Placement needed no change.
+  - New reference `marso-blender-scene-assets/references/library-check.md`; SKILL.md, checkpoints, studio-chain, route and reference-brief docs updated.
+  - Tests: 385 in `tests/scene`, all passing.
+  - Needs the add-on's `find_in_library`, now committed on add-on branch `feature/library-find-panel`.
+  - **Review for host compatibility (same branch):**
+    - All ten skills pass both the Codex and the Claude `quick_validate.py`.
+    - The `compatibility` key was dropped from `marso-scene-decompose`; Codex rejects it. Its requirements are now in the body.
+    - OpenAI `short_description` values are within 25–64 characters.
+    - `<skill>` is defined in each skill. The licence lines match.
+    - The place-scene rule on reused objects was corrected.
+    - `docs/compatibility.md` and `docs/installation.md` were brought up to date.
+    - Each scene skill's scripts ran from a lone copy of its folder.
+    - Not run in Codex or ChatGPT.
+- Branch `feature/scene-to-assets`, cut from `feature/scene-decompose` (commit `8313f40`, which holds the first two scene skills). Committed; not pushed.
 - **`skills/core/marso-scene-decompose/`:** photographs to `scene_graph.json` plus a viewer. Rounds: detect, verify, match.
 - **`skills/core/marso-scene-graph/`:** the asset plan, reference crops and briefs.
   - `--polycount`: a fixed count or `by-size`.
@@ -74,6 +94,19 @@ Constraints:
   - `manifest.py` accepts the add-on's `mint_status` reply as is.
 - **Camera:** pitch -20 degrees, estimated from where eye level falls in the photograph.
 
+**Library search (2026-10-28, later)**
+- The search routes are live but missing from the spec's paths.
+  - Text: JSON body.
+  - Image: multipart with only the `image` field; any extra field gives a 400.
+  - Each asset comes back as a mesh row and a PBR row.
+- **Search crop:** a tight crop of the object alone is needed. A padded crop finds the neighbour (glasses lying on their case found the glasses).
+- **Live check:**
+  - Searched with label and `search.png` in a scratch run kept on the maintainer's machine, with no credits spent.
+  - Each of the 12 kitchen_test assets came back with its own library asset first: 10 as match or possible, 2 as weak.
+  - The 2 weak ones are the table and the placemat. Both were minted under wrong names ("Wooden coffee table", "Coiled Straw Shield"), and their crops are filled by what sits on or in them.
+  - The cork coaster, minted as "Whetstone", was still a match by image.
+  - In the same run: choose reuse, then `mint_status` (all minted), and 12 were ready to import.
+
 Earlier work (scene decomposition, blind runs 1 to 4, the verify round) is described in commit `8313f40`'s HANDOFF.
 
 ## What Worked
@@ -96,6 +129,7 @@ Earlier work (scene decomposition, blind runs 1 to 4, the verify round) is descr
 
 ## Next Steps
 
+0. Commit `feature/library-search` here and in the add-on when Elliott asks; never stage `grep.exe.stackdump`. Then a blind run of the scene-assets skill on a new room, to see the library check from instructions alone.
 1. Rebuild and reinstall the add-on, then re-run import and placement on kitchen_test to confirm the fixes live.
 2. Address the second-corner placement and the size-disagreement policy (see Plan).
 3. Blind-run the placement skill, then a second room.
