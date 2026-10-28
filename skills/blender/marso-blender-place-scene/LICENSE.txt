@@ -1,0 +1,5 @@
+Copyright (c) 2026 M-XR. All rights reserved.
+
+This skill folder is proprietary. It is provided for use with Marso and may
+not be copied, modified, redistributed or sublicensed without written
+permission from M-XR.

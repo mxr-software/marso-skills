@@ -14,7 +14,7 @@
 ## Rules, in the order applied
 
 1. **Anchors** (`parent: null`) are listed under `anchors` with route `model`: floors, walls and ceilings are built as the room shell, not generated.
-2. **Architecture and built-in runs** route to `model`: labels or categories that name walls, floors, ceilings, doors, windows, skirting, cornices, fitted or built-in units, worktops, counters, cabinet runs, radiators or stairs. These are planar, dimensioned and tied to the room.
+2. **Architecture, built-in, fitted and modular units** route to `model`: labels or categories that name walls, floors, ceilings, doors, windows, skirting, cornices, fitted, built-in or modular units, worktops, counters, cabinet runs or cabinet units, sideboards, shelving units, radiators or stairs. These are planar, dimensioned and often tied to the room.
 3. **`part-of`** relation routes to `skip`, with the parent's asset naming it under `children`. A drawer front is made with its chest, not alone.
 4. **Repeated `instances` of structured things** route to `model`, once, with `count` instances. Structured means a category or label in the furniture, seating, table, storage, shelving, lighting, appliance, electronics or fixture families, or anything whose longest side exceeds 1.2 m.
 5. **Organic, complex and small props** route to `generate`: food, plants, textiles, cushions, ceramics, vessels, ornaments, toys, tools, bags, and anything not caught above with a longest side of 0.6 m or less, including a single small appliance or device (a kettle, a camera, a laptop).

@@ -54,3 +54,14 @@ Checked on 2026-10-28:
 - On the last run the graph validated, the viewer opened and was clicked through, and every heavily hidden object carried a context-built description.
 
 Not checked: Codex, ChatGPT and API hosts; serial execution on a host without helper agents; Coarse mode on this set; scenes other than one kitchen; handing reference briefs to generation. Detected names and boxes remain model readings: the verify round and the match round reduce misnamed and duplicated objects but do not remove them, and some boxes stay loose.
+
+## Scene generation and placement in Blender
+
+`marso-blender-scene-assets` and `marso-blender-place-scene` drive the Marso add-on's scene bridge commands (`scene_reference`, `scene_mesh`, `mint_status`, `import_scene_asset`) through the official Blender MCP. They are licensed separately (see each folder's `LICENSE.txt`).
+
+Checked on 2026-10-28:
+
+- Script tests (`python -m unittest discover tests/scene`) cover the generation record (`manifest.py`), the layout (`layout_plan.py`), the asset plan's polygon budget and routes, and the reference prompt.
+- `place_in_blender.py` was run in Blender 4.5 in background mode on a fixture: hierarchy, linked duplicates, bottom-centre placement, camera and a repeated run.
+
+Not yet live-tested: the scene bridge commands themselves, a Marso Studio project, reference image and mesh quality, minting, `import_scene_asset` and what its `copies` counts, the placement of real generated meshes (their front axis and origin), and the camera estimate on real photographs.

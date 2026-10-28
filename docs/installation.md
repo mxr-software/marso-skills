@@ -43,9 +43,10 @@ These are recommended combinations of existing folders, not separate packages. I
 | Build, texture and assemble a modular Blender kit | All five Blender skills: setup, asset, texture, kit and compose |
 | Generate an asset through the Blender add-on | `marso`, `marso-blender-setup`; add texture for later Restyle and style variants |
 | Turn photographs of a room into a scene graph and plan its assets | `marso-scene-decompose`, `marso-scene-graph`; add `marso` to generate the planned objects |
+| Rebuild a photographed room in Blender from Marso assets | `marso-scene-decompose`, `marso-scene-graph`, `marso-blender-setup`, `marso-blender-scene-assets`, `marso-blender-place-scene` |
 | Generate through a connected Marso Studio service | `marso`, plus the service's current tools and workflow guides |
 
-The two scene skills run Python scripts from their own folders and need Python 3.10+ with Pillow (`pip install Pillow`) and a host that can run shell commands and look at local images. They need no application connection or network access.
+The two scene skills run Python scripts from their own folders and need Python 3.10+ with Pillow (`pip install Pillow`) and a host that can run shell commands and look at local images. They need no application connection or network access. `marso-blender-scene-assets` and `marso-blender-place-scene` run standard-library Python scripts and need Blender with the official MCP and a Marso add-on that provides the scene commands they name.
 
 The entry skill discovers available capabilities; it does not supply Studio credentials or install connections. A working Blender add-on route does not require a separate hosted Marso MCP. The generative routing is capability-reviewed; fresh-client execution remains part of the pilot.
 

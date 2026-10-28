@@ -3,14 +3,15 @@
 
 Usage:
     crop_objects.py <scene_graph.json> --manifest manifest.json --plan asset_plan.json
-                    --out <dir> [--ids g001 a002 ...] [--pad 0.15] [--keep-children]
+                    --out <dir> [--ids g001 a002 ...] [--pad 0.15] [--mask-children]
                     [--exclude-parent] [--image-root dir] [--force] [--all-routes]
 
 Writes <out>/<asset_id>/crop.png and brief.json for every asset routed to
 `generate` (or every asset with --all-routes), plus <out>/index.json. Boxes in
 the brief are in the crop's own pixel frame, origin top-left. Children of the
-subject are filled with flat black unless --keep-children; --exclude-parent also
-blacks out the parent's box outside the subject's box. Requires Pillow.
+the crop is unmasked, with the subject's box drawn on it as a red outline. Masking is
+opt-in: --mask-children fills the subject's children with flat black, and
+--exclude-parent blacks out the parent's box outside the subject's box. Requires Pillow.
 
 Exit codes: 0 crops written, 1 something was wrong with the inputs, the images
 or the output location, 2 a JSON input could not be read.
@@ -27,12 +28,23 @@ EVIDENCE_NOTE = (
     "This crop is evidence of what the object is, what it is made of and how the "
     "camera saw it. It is not a pose, framing or lighting to copy."
 )
+# The prompt is written for an image node that is shown the crop as a linked image named @crop.
+# There is no negative prompt and no mask field, so every exclusion is an instruction in the text.
 WHOLE_OBJECT = (
-    "Produce the complete object on its own, upright, at the stated real size, on a "
-    "neutral background. The visible side must match the crop; unseen sides must be "
-    "consistent with it. Nothing blacked out and nothing listed as not the subject "
-    "belongs in the result."
+    "The visible side must match @crop and the unseen sides must be consistent with it. "
+    "Do not copy the crop's framing, pose, lighting or background. Do not draw the red box."
 )
+RED = (255, 0, 0)
+TOUCH_SHARE = 0.5     # share of a neighbour's box inside the subject's for it to count as touching
+COVER_LIMIT = 8       # ... or a neighbour covering the subject, if no more than this many times its area
+SITS = {
+    "inside": "it sits in",
+    "on-top-of": "it sits on",
+    "hanging-on": "it hangs on",
+    "leaning-against": "it leans against",
+    "attached-to": "it is fixed to",
+    "under": "it is under",
+}
 
 
 def read_json(path: pathlib.Path):
@@ -86,6 +98,61 @@ def size_text(size_m) -> str:
     return "size unknown"
 
 
+def names(labels) -> str:
+    """'the bowl', 'the bowl and the mat', 'the onions, the mat and the bowl'."""
+    labels = [str(label) for label in labels if label]
+    unique = list(dict.fromkeys(labels))
+    items = [f"the {label}" if labels.count(label) == 1 or label.endswith("s") else f"the {label}s"
+             for label in unique]
+    if len(items) < 2:
+        return "".join(items)
+    return ", ".join(items[:-1]) + " and " + items[-1]
+
+
+def build_prompt(asset: dict, label: str, others: list[dict], truncated) -> str:
+    lines = [f"Generate the {label} inside the red box in @crop, isolated, the whole object in full, upright, "
+             "on a plain neutral background."]
+    inferred = asset.get("inferred_whole") or {}
+    if inferred.get("whole_description"):
+        # Mostly hidden in every photograph: the crop shows a fragment, so the text carries the whole.
+        lines.append(f"Most of it is hidden in @crop; only {inferred.get('visible') or 'part of it'} "
+                     f"is visible. The whole object, inferred from context: "
+                     f"{inferred['whole_description']} Match the visible part exactly and "
+                     "complete the rest as described.")
+    elif asset.get("description"):
+        text = str(asset["description"]).strip().rstrip(".")
+        lines.append(text[:1].upper() + text[1:] + ".")
+    # A neighbour made as its own asset that sits against or inside the subject's box: a kettle's
+    # power base, a lid on its pot. "Shares the frame" was too weak; one run's kettle came back with
+    # its base attached. Name it, and say why, before anything else is excluded.
+    separate = list(dict.fromkeys(o["label"] for o in others if o.get("separate_asset")))
+    if separate:
+        verb = "it is" if len(separate) == 1 else "each is"
+        lines.append(f"Do not include {names(separate)}: {verb} made as a separate asset, even where it "
+                     f"touches or joins the {label} in @crop.")
+    kids = [o["label"] for o in others if o["role"] == "child"]
+    if len(kids) == 1:
+        lines.append(f"Leave out {names(kids)}: it rests on the {label} and is not part of it.")
+    elif kids:
+        lines.append(f"Leave out {names(kids)}: they rest on it and are not part of it.")
+    parent = next((o for o in others if o["role"] == "parent"), None)
+    if parent:
+        sits = SITS.get(asset.get("relation"), "it rests on")
+        lines.append(f"Only the {label}, not the {parent['label']} {sits}.")
+    rest = [o["label"] for o in others if o["role"] in ("other", "sibling-instance") and not o.get("separate_asset")]
+    if rest:
+        lines.append(f"Leave out {names(rest)}: they only share the frame.")
+    lines.append(f"Everything outside the red box is context, not part of the {label}.")
+    if any(o["pixels"] == "blacked out" for o in others):
+        lines.append(f"The black areas in @crop are removed objects, not part of the {label}.")
+    lines.append(f"Real size: {size_text(asset.get('size_m'))}"
+                 + (f" ({asset.get('size_basis')})." if asset.get("size_basis") else "."))
+    if truncated:
+        lines.append("@crop cuts it off at the image edge; complete the missing part.")
+    lines.append(WHOLE_OBJECT)
+    return " ".join(lines)
+
+
 def descendants(gid: str, children: dict[str, list[str]]) -> set[str]:
     out, stack = set(), list(children.get(gid, []))
     while stack:
@@ -119,7 +186,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--out", required=True, help="folder to write crops and briefs into")
     parser.add_argument("--ids", nargs="*", default=[], help="asset_ids or global_ids to crop; default all")
     parser.add_argument("--pad", type=float, default=0.15, help="margin as a fraction of the box's longer side")
-    parser.add_argument("--keep-children", action="store_true", help="do not black out the subject's children")
+    parser.add_argument("--mask-children", action="store_true", help="black out the subject's children")
     parser.add_argument("--exclude-parent", action="store_true", help="black out the parent outside the subject's box")
     parser.add_argument("--image-root", help="folder that relative manifest paths are under")
     parser.add_argument("--all-routes", action="store_true", help="crop every asset, not only generate")
@@ -150,6 +217,9 @@ def main(argv: list[str] | None = None) -> int:
             children.setdefault(node["parent"], []).append(gid)
 
     wanted = set(args.ids)
+    # Every object some asset of the plan will make, so a crop can tell its subject which
+    # neighbours are made on their own.
+    planned = {m for a in plan["assets"] if a.get("route") == "generate" for m in a.get("members") or []}
     selected = []
     for asset in plan["assets"]:
         if wanted:
@@ -239,13 +309,26 @@ def main(argv: list[str] | None = None) -> int:
                     >= 0.6 * (subject_px[2] - subject_px[0]) * (subject_px[3] - subject_px[1]))
                 if covers:
                     pixels = "still visible: it covers most of the subject, so it was not masked"
-                elif role == "child" and not args.keep_children:
+                elif role == "child" and args.mask_children:
                     draw.rectangle(shift(box, crop_px), fill=(0, 0, 0))
                     pixels = "blacked out"
+                # Measured on the neighbour's whole box, not the part the crop clips: a table
+                # clipped to a camera's crop is not "mostly inside" the camera.
+                full = to_pixels(v["bbox"], width, height)
+                overlap = intersect(subject_px, full)
+                shared = ((overlap[2] - overlap[0]) * (overlap[3] - overlap[1])) if overlap else 0
+                full_area = max(1, (full[2] - full[0]) * (full[3] - full[1]))
+                subject_area = max(1, (subject_px[2] - subject_px[0]) * (subject_px[3] - subject_px[1]))
+                # Either the neighbour sits mostly inside the subject (a power base under a kettle),
+                # or it covers most of the subject without being far bigger (the kettle over its base).
+                touching = role == "other" and gid in planned and (
+                    shared >= TOUCH_SHARE * full_area or
+                    (shared >= TOUCH_SHARE * subject_area and full_area <= COVER_LIMIT * subject_area))
                 others.append({
                     "global_id": gid,
                     "label": node.get("label"),
                     "role": role,
+                    "separate_asset": touching,
                     "relation": relation,
                     "sits": sits,
                     "pixels": pixels,
@@ -265,25 +348,14 @@ def main(argv: list[str] | None = None) -> int:
                 parent_masked = True
 
         target.mkdir(parents=True, exist_ok=True)
+        # The subject's box as a red outline, drawn last so masking never hides it.
+        stroke = max(2, round(max(crop.size) / 180))
+        x0, y0, x1, y1 = subject_in_crop
+        draw.rectangle((x0, y0, max(x0, x1 - 1), max(y0, y1 - 1)), outline=RED, width=stroke)
         crop.save(target / "crop.png")
 
         label = asset.get("label") or subject_id
-        lines = [f"Subject: {label}, {size_text(asset.get('size_m'))}"
-                 + (f" ({asset.get('size_basis')})." if asset.get("size_basis") else ".")]
         inferred = asset.get("inferred_whole") or {}
-        if inferred.get("whole_description"):
-            # Mostly hidden in every photograph: the crop shows a fragment, so the text leads.
-            lines.append(f"Most of it is hidden in the crop; only {inferred.get('visible') or 'part of it'} "
-                         f"is visible. The whole object, inferred from context: "
-                         f"{inferred['whole_description']} Match the visible part exactly and "
-                         "complete the rest as described.")
-        elif asset.get("description"):
-            lines.append(str(asset["description"]))
-        for o in others:
-            lines.append(f"Not the subject: {o['label']} ({o['sits']}; {o['pixels']}).")
-        if view.get("truncated"):
-            lines.append("The subject runs off the image edge in this view; the crop is partial.")
-        lines.append(WHOLE_OBJECT)
 
         brief = {
             "schema": SCHEMA_OUT,
@@ -315,11 +387,14 @@ def main(argv: list[str] | None = None) -> int:
             },
             "subject_box": subject_in_crop,
             "not_the_subject": others,
-            "masking": {"children_masked": not args.keep_children, "parent_masked": parent_masked},
-            "prompt": " ".join(lines),
+            "masking": {"children_masked": args.mask_children, "parent_masked": parent_masked},
+            "marking": {"subject_box": "red outline", "stroke_px": stroke},
+            "prompt": build_prompt(asset, label, others, view.get("truncated")),
             "evidence_note": EVIDENCE_NOTE,
             "flags": asset.get("flags") or [],
         }
+        if asset.get("polygon_count"):
+            brief["polygon_count"] = asset["polygon_count"]
         (target / "brief.json").write_text(json.dumps(brief, indent=2) + "\n", encoding="utf-8")
         index.append({
             "asset_id": asset_id,

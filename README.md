@@ -13,6 +13,8 @@ Install the skills you need in your preferred assistant. Blender is the first av
 | [marso](skills/core/marso/SKILL.md) | Choose generation, modelling, restyling or kit workflows; discover supported 3D model settings. |
 | [marso-scene-decompose](skills/core/marso-scene-decompose/SKILL.md) | Turn photographs of a room into a scene graph of every object, with an interactive viewer. |
 | [marso-scene-graph](skills/core/marso-scene-graph/SKILL.md) | Plan assets from a scene graph: unique assets and counts, per-object reference briefs and crops, generate or model. |
+| [marso-blender-scene-assets](skills/blender/marso-blender-scene-assets/SKILL.md) | Generate a scene's planned assets in Marso from Blender: reference image, mesh, PBR, minted. |
+| [marso-blender-place-scene](skills/blender/marso-blender-place-scene/SKILL.md) | Import a scene's minted assets into Blender and place them like the photographs, hierarchy matching the scene graph. |
 | [marso-blender-setup](skills/blender/marso-blender-setup/SKILL.md) | Install, configure, update, and troubleshoot Marso for Blender. |
 | [marso-blender-asset](skills/blender/marso-blender-asset/SKILL.md) | Model editable assets from briefs, dimensions and images. |
 | [marso-blender-texture](skills/blender/marso-blender-texture/SKILL.md) | Add textures, retexture, restyle and generate PBR using Marso. |
@@ -63,4 +65,4 @@ Copy the entire skill folder when installing it. Its runtime references stay ins
 
 For the complete Blender modelling-to-texturing and kit workflow, install all five Blender folders; add `marso` for workflow and generation routing. Each skill states when a companion skill would help; none assumes sibling files are available at runtime. Behavioural acceptance cases live in [workflow cases](tests/blender/workflow-cases.md); [compatibility](docs/compatibility.md) distinguishes local checks from live assistant and cloud testing.
 
-See [contributing](CONTRIBUTING.md) for authoring and validation. Skills are licensed under [Apache-2.0](LICENSE), except `marso-scene-decompose` and `marso-scene-graph`, which carry their own proprietary `LICENSE.txt`; Blender, its MCP, and the Marso add-on retain their own licences.
+See [contributing](CONTRIBUTING.md) for authoring and validation. Skills are licensed under [Apache-2.0](LICENSE), except `marso-scene-decompose`, `marso-scene-graph`, `marso-blender-scene-assets` and `marso-blender-place-scene`, which carry their own proprietary `LICENSE.txt`; Blender, its MCP, and the Marso add-on retain their own licences.

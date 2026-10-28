@@ -2,103 +2,100 @@
 
 ## Goal
 
-Add public, host-neutral Agent Skills (usable from Claude- and OpenAI-based hosts) that turn photographs of a room into a scene graph, and use that graph to plan Marso asset work (reference image, 3D generation, PBR): how many unique assets and instances, the per-object crop and prompt, what to model instead of generate, and what metadata travels with each asset. Blender scene placement from the graph comes later.
+Public, host-neutral Agent Skills (usable from Claude- and OpenAI-based hosts) that turn photographs of a room into a scene graph, plan Marso asset work from it, generate the assets through the Marso Blender add-on, and rebuild the room in Blender.
 
-Constraints: these two skills are proprietary (own `LICENSE.txt`), unlike the Apache-2.0 skills. Every skill folder is self-contained. Public files and commit messages stay free of internal names and of the terms the local publication hook blocks.
+The end-to-end workflow (the maintainer's kitchen_test run):
+
+1. Detect every object and remove duplicates.
+2. Pick the unique objects Marso should generate; walls, ceilings and cabinet runs are modelled instead.
+3. Create a Studio project for the run.
+4. Make an object-mode reference image per object, from its crop and a prompt that says what to leave out.
+5. Make a Tripo mesh at 40k, then PBR, then wait for the asset to be minted (sim-ready, real-world scale).
+6. Import and place in Blender:
+   - landmarks first;
+   - the Blender hierarchy follows the scene graph;
+   - copies are linked duplicates.
+
+Later, the placement logic could serve other editors through their own add-ons.
+
+Constraints:
+- The scene skills are proprietary (own `LICENSE.txt`), unlike the Apache-2.0 skills.
+- Every skill folder is self-contained.
+- Public files and commit messages stay free of internal names and of the terms the local publication hook blocks.
 
 ## Current State
 
-- Branch `feature/scene-decompose`, cut from `development`. Nothing committed or pushed yet.
-- `skills/core/marso-scene-decompose/`: done and blind-tested four times.
-  - **Rounds:** detect, verify, match.
-  - **Scripts:** in `scripts/`, run through `fast.py` and `plan_fast.py`.
-  - **Viewer:** `assets/viewer_template.html`.
-- `skills/core/marso-scene-graph/`: done and blind-tested once.
-  - `plan_assets.py` writes `asset_plan.json`.
-  - `crop_objects.py` writes a crop and brief per asset.
-- `tests/scene/`: 361 tests, all passing (`python -m unittest discover tests/scene`).
-- **Wired in:**
-  - routing rows in `skills/core/marso/SKILL.md`;
-  - a pointer in `skills/core/marso/references/generative-3d.md`;
-  - `README.md`;
-  - an install bundle and the Pillow note in `docs/installation.md`;
-  - a compatibility section in `docs/compatibility.md`.
+- Branch `feature/scene-to-assets`, cut from `feature/scene-decompose` (commit `8313f40`, which holds the first two scene skills). Committed here; not pushed.
+- **`skills/core/marso-scene-decompose/`:** photographs to `scene_graph.json` plus a viewer. Rounds: detect, verify, match.
+- **`skills/core/marso-scene-graph/`:** the asset plan, reference crops and briefs.
+  - `--polycount`: a fixed count or `by-size`.
+  - Modelling words for sideboards and modular units.
+  - Crops are unmasked with the subject outlined in red.
+  - A neighbour that is made as its own asset and touches the subject is named in the prompt as "made as a separate asset". The first kettle reference came back with its power base attached.
+- **New `skills/blender/marso-blender-scene-assets/`:** the generation workflow over the add-on's scene commands. Review stops after the asset plan and after the reference images. `manifest.py` keeps `runs/<job>/assets.json`.
+- **New `skills/blender/marso-blender-place-scene/`:**
+  - `layout_plan.py` writes `placement.json` from one photograph and a camera model.
+  - `place_in_blender.py` builds the collection, the hierarchy, linked duplicates and a matched camera.
+- **Tests:** `tests/scene/` has 383, all passing.
+- **Live:** kitchen_test ran end to end in Blender 5.2 with a dev build of the add-on (branch `feature/scene-assets` in the add-on repo). Placement is a first layout:
+  - the dining table and chairs line up with the establishing photograph;
+  - the coffee corner, seen only in its own photograph, is parked out of view;
+  - some minted sizes are off (the table is 0.51 m tall).
 - **Unresolved:**
-  - Detect still misnames some objects within a single photograph, and the verify round is conservative.
-  - Some boxes are loose.
-  - Not tested on Codex, ChatGPT, API hosts or serial (no helper agents) execution.
+  - Detect still misnames some objects within one photograph.
+  - Placement needs a shared view to place a second corner of the room.
+  - Minted sizes are taken as they come.
+  - Untested on Codex, ChatGPT, API hosts and serial execution.
 
 ## Plan
 
-- [x] Port the fast path into one self-contained skill folder.
-- [x] Host-neutral SKILL.md and references (detect, register, verify, match, relations, schema, gotchas).
-- [x] Scene-graph skill: asset plan, reference brief, routes, metadata.
-- [x] Fixes from the blind runs (see the progress log).
-- [x] Context-built descriptions for heavily hidden objects (`occlusion`, `whole_description`, node `inferred_whole`).
-- [x] Verify round (numbered crop sheets; renames, removals, duplicates, reparents).
-- [ ] Commit on `feature/scene-decompose`, once the maintainer approves.
-- [ ] Optional: a box-tightening step; a blind run on another scene; tests on other hosts.
-- [ ] Later: placing the scene graph in Blender.
+- [x] Scene decomposition and asset planning skills (commit `8313f40`).
+- [x] Add-on scene commands (add-on repo, `feature/scene-assets`).
+- [x] Generation skill and placement skill.
+- [x] Live kitchen_test run: 12 assets, references reviewed, kettle redone, meshes, mint, import, placement.
+- [ ] Place objects seen only in photographs that share nothing with the establishing view, e.g. by registering them through a shared object or asking for one more photo.
+- [ ] Decide what to do when a minted size disagrees with the scene: flag only (now), or rescale on the user's say.
+- [ ] Blind run of the placement skill alone on the finished `assets.json`.
+- [ ] A second scene; other hosts.
 
 ## Progress Log
 
-**Blind run 1:**
-- `merge_tiles.py` loop-breaking orphaned every object resting on a support loop (worktop and base units). It now cuts one link per loop.
-- The viewer gallery crashed (`RangeError`) because every crop copied the embedded photograph into the markup. Crops now share one string through `fillCrops()`.
-- SKILL.md instruction gaps were fixed: job naming, agent caps, exit codes, anchor check, local-server fallback for the viewer.
+**kitchen_test (2026-10-28)**
+- **Crops:** they were masked at first (children blacked out). The maintainer asked for unmasked crops with the subject's bounding box instead, so the red box is now the default and masking is opt-in.
+- **Reference images:** 12, from 120 credits. The maintainer approved them all except the kettle, which included its power base. The fix is the separate-asset rule in `crop_objects.py` (neighbours touching the subject that are generated assets are named in a "Do not include" sentence, in both directions). The regenerated kettle came back clean.
+- **Meshes:** 12 Tripo 40k meshes with PBR, at 70 credits each. All 12 minted within minutes.
+- **Placement fixes:**
+  - The add-on returned local dimensions; it now returns world dimensions.
+  - The import result lacked an `objects` list, so placement swapped every asset for a box.
+  - Flat objects generated on edge are laid flat, and only once.
+  - Placeholder heights are measured from the photograph.
+  - Walls are pushed behind the furniture.
+  - Unplaced objects are parked behind the camera.
+  - `manifest.py` accepts the add-on's `mint_status` reply as is.
+- **Camera:** pitch -20 degrees, estimated from where eye level falls in the photograph.
 
-**After run 1, from user review:**
-- Duplicates at tile seams with different names: added `join_across_seams()` and `drop_slivers()`.
-- A whole-view housing must never swallow a hanging object.
-
-**Blind run 2:**
-- Stacked same-name objects looped; the named support is now the one below.
-- Geometry-only joins are now marked low confidence.
-
-**User request:** heavily hidden objects carry a context-built whole description through to the reference brief. In the asset plan, the least hidden member of a group stands for the asset.
-
-**Blind run 3 and the scene-graph blind run:**
-- Wide-view guesses inside a close-up's region that the close-up never matched are now marked `unconfirmed` (`apply_matches.py --registration`) and listed for review, not made into assets.
-- Planner fixes:
-  - whole-word route matching;
-  - numeric `size_m`;
-  - `cl_id` key;
-  - clusters merged with identity groups;
-  - image paths relative to the project;
-  - merged `index.json`;
-  - no masking of a child that covers the subject.
-
-**User request:** verify round. `make_verify.py` plus `fast.py verify-plan` and `fast.py verify`.
-
-**Blind run 4:**
-- Added a `reparent` decision.
-- A merged object is now named by its best view; it used to take the first-listed member's name, which was often a wide-view guess.
-- Corrections that were never merged are now joined.
-- Run 4 graph: 125 objects, 119–125 physical. The plan: 96 assets, 109–111 instances. Run 3's raw plan was 104 assets and 118–127 instances.
+Earlier work (scene decomposition, blind runs 1 to 4, the verify round) is described in commit `8313f40`'s HANDOFF.
 
 ## What Worked
 
-- Blind runs with a fresh general-purpose subagent, given only the installed skill folder and a one-line user request, then a review against the photographs. Starting a separate session for this was refused by the app's auto-mode check.
-- Reading the overlays (`qc/*.png`) and labelled overlays (`draw_boxes.py` without `--no-labels`) to find seam duplicates and misnames.
-- The registration region of a close-up pair, as a cheap signal for wide-view misreadings.
+- Blind runs with a fresh subagent, given only the installed skill folders and a one-line request.
+- Driving the add-on through `execute_blender_code` and `bridge.commands.execute`, with a Blender timer writing job states to a file and a Monitor reading it. Never call `wait_job` from inside Blender: it blocks the main thread the job needs.
+- A review sheet of each crop beside its reference image, before any mesh is paid for.
 
 ## What Did Not Work
 
-- Name-based dedupe alone at tile seams: two tiles name one object differently.
-- Choosing an asset's representative by view count or size alone: it picked low-confidence or hidden members.
-- Expecting the verify round to fix supports without a `reparent` decision: the agents could only describe them in notes.
+- Masked crops: black regions removed the parts of objects that the masks were meant to keep (the espresso machine's hopper).
+- "Leave out X: they only share the frame" for a neighbour joined to the subject.
+- A camera pitch of 0 for a room photograph: everything came out several metres too far away.
 
 ## Important Context
 
-- **Skill rules:** `AGENTS.md`, `CONTRIBUTING.md`, and the local `.internal/publication-policy.md`, which is never staged. Never stage `.internal/` or `.local-tests/`.
-- **Commits:** the local hooks in `.git/hooks/` block restricted terms in files and commit messages. Stage explicit paths.
-- **Run layout and schemas:** `skills/core/marso-scene-decompose/references/schema.md`. Clusters use `cl_id`, areas `ar_id`.
-- **Script exit codes:** 0 clean; 1 done, with something listed for a person to look at; 2 an input could not be read.
-- **Blind-run folders and reviews** are on the maintainer's machine, outside the repository. They are not part of this branch.
+- **Skill rules:** `AGENTS.md`, `CONTRIBUTING.md`, and the local `.internal/publication-policy.md`, which is never staged. Never stage `.internal/`, `.local-tests/` or stray files such as `grep.exe.stackdump`.
+- **Add-on:** repo `virtuoso-add-on-blender`, branch `feature/scene-assets`. The installed dev build predates the world-dimension and `objects` fixes; rebuild with `scripts/build_archive.py` (set `GITHUB_OUTPUT` to a scratch file) and reinstall.
+- **Run folders and reviews** for kitchen_test are on the maintainer's machine, outside the repository.
 
 ## Next Steps
 
-1. Review the diff: `git status`, then `git diff`; the untracked folders are the two skills and `tests/scene`.
-2. Commit on `feature/scene-decompose` with explicit paths, once the maintainer approves, and include this file.
-3. Decide on a box-tightening step, and whether the verify round should be stricter about renames.
-4. Blind-run another scene (a different room) and, if available, a Codex host.
+1. Rebuild and reinstall the add-on, then re-run import and placement on kitchen_test to confirm the fixes live.
+2. Address the second-corner placement and the size-disagreement policy (see Plan).
+3. Blind-run the placement skill, then a second room.

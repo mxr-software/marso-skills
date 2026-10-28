@@ -1,0 +1,4 @@
+interface:
+  display_name: "Marso Blender Scene Assets"
+  short_description: "Generate a scene's planned assets as minted Marso assets"
+  default_prompt: "Use $marso-blender-scene-assets to generate the assets in my asset plan into a Marso Studio project."

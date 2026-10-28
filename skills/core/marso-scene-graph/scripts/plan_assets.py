@@ -2,9 +2,12 @@
 """Derive the unique-asset plan from a scene-decompose/scene-graph@1 file.
 
 Usage:
-    plan_assets.py <scene_graph.json> [--scores view_scores.json] --out asset_plan.json [--force]
+    plan_assets.py <scene_graph.json> [--scores view_scores.json] --out asset_plan.json
+                   [--polycount 40000|by-size] [--force]
 
-Writes marso/asset-plan@1 to --out and prints a JSON summary. Standard library only.
+Writes marso/asset-plan@1 to --out and prints a JSON summary. --polycount writes a
+default `polygon_count` on every asset routed to generation: a fixed number, or
+`by-size` from the largest dimension. Standard library only.
 
 Exit codes: 0 plan written, 1 something was wrong with the inputs or the output
 location, 2 the graph (or scores file) could not be read as JSON.
@@ -26,10 +29,13 @@ OCCLUDED_FACTOR = 0.6
 TRUNCATED_PER_EDGE = 0.15
 ID_FACTOR = {"high": 1.0, "medium": 0.8, "low": 0.5}
 
+# Always modelled: architecture, built-in and fitted runs, and modular or carcass furniture whose
+# straight panels and repeated units a generator reconstructs poorly.
 ARCHITECTURE_WORDS = (
     "wall", "floor", "ceiling", "ground", "door", "window", "skirting", "cornice",
-    "fitted", "built-in", "builtin", "worktop", "counter", "cabinet run",
+    "fitted", "built-in", "builtin", "worktop", "counter", "cabinet run", "cabinet unit",
     "kitchen units", "radiator", "stair", "architecture", "room shell", "fireplace",
+    "sideboard", "modular", "shelving unit",
 )
 STRUCTURED_WORDS = (
     "furniture", "seating", "chair", "stool", "bench", "sofa", "table", "desk",
@@ -42,6 +48,11 @@ ORGANIC_WORDS = (
     "pillow", "blanket", "throw", "ceramic", "vessel", "bowl", "vase", "ornament",
     "decor", "toy", "tool", "bag", "organic", "sculpture", "natural", "rug",
 )
+
+# Default polygon budgets by largest dimension, in metres: (below, polygons). A default to review,
+# clipped to the chosen model's live options before it is sent.
+POLYCOUNT_BY_SIZE = ((0.3, 40000), (1.0, 50000), (2.0, 100000))
+POLYCOUNT_LARGEST = 250000
 
 
 def read_json(path: pathlib.Path) -> dict | None:
@@ -136,7 +147,7 @@ def route_for(node: dict, count: int) -> tuple[str, str]:
     if node.get("parent") is None:
         return "model", "anchor: built as the room shell, not generated"
     if matches(text, ARCHITECTURE_WORDS):
-        return "model", "architecture or built-in run: planar, dimensioned and tied to the room"
+        return "model", "architecture, built-in, fitted or modular unit: planar, dimensioned and tied to the room"
     if node.get("relation") == "part-of":
         return "skip", "part of its parent: made with the parent, not separately"
     structured = matches(text, STRUCTURED_WORDS) or side > 1.2
@@ -149,7 +160,19 @@ def route_for(node: dict, count: int) -> tuple[str, str]:
     return "generate", "fallback: no rule matched, review this route"
 
 
-def build_plan(graph: dict, scores_doc: dict | None) -> dict:
+def polycount_for(size_m, rule) -> int | None:
+    if rule is None:
+        return None
+    if rule != "by-size":
+        return int(rule)
+    side = longest_side(size_m)
+    for below, polygons in POLYCOUNT_BY_SIZE:
+        if side < below:
+            return polygons
+    return POLYCOUNT_LARGEST
+
+
+def build_plan(graph: dict, scores_doc: dict | None, polycount=None) -> dict:
     nodes = {n["global_id"]: n for n in graph.get("nodes") or [] if n.get("global_id")}
     scores = None
     if scores_doc:
@@ -304,6 +327,8 @@ def build_plan(graph: dict, scores_doc: dict | None) -> dict:
         }
         if rep.get("inferred_whole"):
             asset["inferred_whole"] = rep["inferred_whole"]
+        if route == "generate" and polycount is not None:
+            asset["polygon_count"] = polycount_for(rep.get("size_m"), polycount)
         if cluster_id:
             asset["cluster_id"] = cluster_id
         assets.append(asset)
@@ -341,6 +366,8 @@ def build_plan(graph: dict, scores_doc: dict | None) -> dict:
         "flagged": [a["asset_id"] for a in assets if a["flags"]],
         "unconfirmed": len(unconfirmed),
     }
+    if polycount is not None:
+        summary["polycount"] = polycount
     return {
         "schema": SCHEMA_OUT,
         "source_schema": graph.get("schema"),
@@ -361,8 +388,22 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("graph", help="scene_graph.json")
     parser.add_argument("--scores", help="view_scores.json from the decompose run")
     parser.add_argument("--out", required=True, help="write asset_plan.json here")
+    parser.add_argument("--polycount", help="polygon_count for generated assets: a number such as 40000, "
+                        "or by-size (largest side under 0.3 m 40000, under 1 m 50000, under 2 m 100000, "
+                        "else 250000)")
     parser.add_argument("--force", action="store_true", help="overwrite an existing --out file")
     args = parser.parse_args(argv)
+
+    polycount = None
+    if args.polycount is not None:
+        if args.polycount == "by-size":
+            polycount = "by-size"
+        elif args.polycount.isdigit() and int(args.polycount) > 0:
+            polycount = int(args.polycount)
+        else:
+            print(f"error: --polycount must be a positive whole number or by-size, not {args.polycount!r}",
+                  file=sys.stderr)
+            return 1
 
     graph = read_json(pathlib.Path(args.graph))
     if graph is None:
@@ -387,7 +428,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"error: {out.as_posix()} exists; pass --force to overwrite", file=sys.stderr)
         return 1
 
-    plan = build_plan(graph, scores_doc)
+    plan = build_plan(graph, scores_doc, polycount)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(plan, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({"out": out.as_posix(), **plan["summary"]}, indent=2))

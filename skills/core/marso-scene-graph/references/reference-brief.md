@@ -10,27 +10,46 @@ One `brief.json` and one `crop.png` per asset, written by `crop_objects.py` into
 - `not_the_subject`: every other object whose box overlaps the crop. Each entry has the object's `global_id`, `label`, `role` (`child`, `parent`, `sibling-instance` or `other`), its `relation` to the subject where there is one, a `box` in the crop frame, and two fields the generator reads:
   - `sits`: `"resting on this object"`, `"this object rests on it"`, or `"shares the frame, unrelated"`.
   - `pixels`: `"blacked out"` or `"still visible"`.
-- `masking`: which direction was applied, `children_masked` and `parent_masked`.
-- `prompt`: a plain-language paragraph built from the above for a generator that takes text, ending with the whole-object instruction below.
+- `masking`: `children_masked` and `parent_masked`, both false unless masking was asked for.
+- `marking`: the subject's box is drawn on the crop as a red outline; `stroke_px` is its width.
+- `prompt`: the text for an object-mode image node that is shown the crop as a linked image named `@crop`. See [the prompt](#the-prompt).
+- `polygon_count`: copied from the plan when `--polycount` set one; see [polycount](polycount.md).
 - `evidence_note`: the reminder that the crop is identity and camera evidence, not a pose.
 
 Boxes in the brief are in the crop's frame, so a reader of `crop.png` can draw them without the manifest.
 
+## The prompt
+
+The prompt is written for an image-generation node in object mode whose linked input image is the crop, referred to as `@crop`. That route has no negative prompt and no mask field, so everything to leave out is said as an instruction. In order:
+
+1. `Generate the <label> inside the red box in @crop, isolated, the whole object in full, upright, on a plain neutral background.`
+2. The description, or, for a mostly hidden object, the inferred whole (below), which keeps what the decompose step wrote there.
+3. Neighbours made as their own assets first: `Do not include the <neighbours>: each is made as a separate asset, even where it touches or joins the <label> in @crop.` A neighbour counts when another generate-route asset of the plan has at least half its box inside the subject's box (a power base under a kettle), or covers at least half of the subject's box without being more than eight times its size (the kettle over its base). Measured on whole boxes, not the parts the crop clips. Without this, a kettle came back with its base attached, because the base only "shared the frame" and the kettle's own description mentioned a base. The brief marks these entries `separate_asset: true`.
+4. Other exclusions as instructions: `Leave out the <children>: they rest on it and are not part of it.`; `Only the <label>, not the <parent> it sits in.` (the verb follows the relation: sits on, hangs on, is fixed to, leans against); `Leave out the <others>: they only share the frame.`; then `Everything outside the red box is context, not part of the <label>.`, and, only when masking was asked for, that the black areas are removed objects.
+5. The real size, with its basis.
+6. When the crop is cut by the image edge, an instruction to complete the missing part.
+7. That the visible side must match `@crop`, the unseen sides follow from it, and the crop's framing, pose, lighting and background are not copied; it ends `Do not draw the red box.`
+
+If the route that receives the brief names its linked image differently, replace `@crop` throughout; do not remove the exclusions.
+
 ## Mostly hidden objects
 
-When every photograph shows an object mostly hidden, the decompose step records `occlusion: "heavy"` and an `inferred_whole` on its node: what was actually `visible`, and a `whole_description` of the complete object built from context (a matching object elsewhere in the room, the visible parts, the setting, the usual form of that kind of thing), with the inferred parts named. The crop of such an object is a fragment, so the brief's prompt leads with that description: it says which part is visible, asks for the visible part to be matched exactly and the rest completed as described. `subject.inferred_whole` carries the same fields for a generator that reads structured input.
+When every photograph shows an object mostly hidden, the decompose step records `occlusion: "heavy"` and an `inferred_whole` on its node: what was actually `visible`, and a `whole_description` of the complete object built from context (a matching object elsewhere in the room, the visible parts, the setting, the usual form of that kind of thing), with the inferred parts named. The crop of such an object is a fragment, so the brief's prompt follows its opening line with that description: it says which part is visible, asks for the visible part to be matched exactly and the rest completed as described. `subject.inferred_whole` carries the same fields for a generator that reads structured input.
 
 Two things come first, before relying on inference. If the asset has several members (an `instances` cluster or identity group), `plan_assets.py` already picks the least hidden member as the representative, so a chair half behind the table borrows its clearly seen twin's crop. If the representative is still mostly hidden, the plan flags it `mostly-hidden`, and `no-inferred-whole` when the decompose step left no description; review those with the user, who may have a better photograph.
 
-## The two directions
+## The red box, and optional masking
 
-The default is **the table without what is on it**: every child of the subject (and the children's children) is filled with flat black. The generator sees the table's material and legs, and a black hole where the fruit bowl was; the brief tells it the hole is a bowl that rests on the table, and to produce the table alone.
+The default crop is unmasked: the subject, its neighbours, what holds it and what rests on it all stay visible, and the subject's box is drawn on it as a red outline (stroke about the crop's longer side / 180, at least 2 px). The outline says which object is meant; the prompt's `Leave out ...` and `Only the <label>, not the <parent> ...` sentences say what to exclude; the generator keeps the real context it needs to read material and scale.
 
-`--exclude-parent` adds **the onion without the bowl**: the parent's box is also blacked out, except for the subject's own box. The onion stays, the bowl around it goes. Use this when the parent's surface would otherwise read as part of the subject, such as a cushion on a chair or food in a bowl.
+Masking is opt-in, for a generator that keeps copying a neighbour despite the outline:
 
-`--keep-children` turns off child masking. Use it when the children are tiny and masking would destroy the subject's surface, and say so in the review.
+- `--mask-children` fills every child of the subject (and the children's children) with flat black: **the table without what is on it**.
+- `--exclude-parent` blacks out the parent's box outside the subject's own box: **the onion without the bowl**.
 
-Anchors (floor, walls, ceiling) are left out of the list unless one is the subject's parent, since they span every crop. Objects that share the frame but are neither parent nor child are never masked. They are listed as `still visible` so the generator can be told to ignore them.
+A child whose box covers most of the subject (a kettle standing on its base) is never masked. The outline is drawn last, so masking never hides it. Record any masking in the review.
+
+Anchors (floor, walls, ceiling) are left out of the list unless one is the subject's parent, since they span every crop. Objects that share the frame but are neither parent nor child are never masked; they are listed as `still visible` so the generator can be told to ignore them.
 
 ## Padding
 

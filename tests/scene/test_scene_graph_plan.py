@@ -278,6 +278,50 @@ class PlanAssetsTests(unittest.TestCase):
         self.assertEqual(plan["summary"]["unconfirmed"], 1)
         self.assertEqual(plan["review"], [])
 
+    def add(self, graph, gid, label, size, category="furniture"):
+        graph["nodes"].append({"global_id": gid, "label": label, "category": category,
+                               "parent": "g001", "relation": "on-top-of", "size_m": size,
+                               "views": [view("img002", gid, (2, 2, 6, 6))]})
+
+    def test_fitted_and_modular_units_are_modelled(self):
+        graph = fixture_graph()
+        for i, label in enumerate(("sideboard", "modular sofa", "cabinet unit", "built-in oven",
+                                   "fitted wardrobe", "shelving unit")):
+            self.add(graph, f"g04{i}", label, 0.5)
+        self.graph.write_text(json.dumps(graph), encoding="utf-8")
+        result = run(PLAN, str(self.graph), "--out", str(self.out))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        assets = by_label(json.loads(self.out.read_text(encoding="utf-8")))
+        for label in ("sideboard", "modular sofa", "cabinet unit", "built-in oven", "fitted wardrobe",
+                      "shelving unit"):
+            self.assertEqual(assets[label]["route"], "model", label)
+            self.assertIn("modular", assets[label]["route_reason"])
+
+    def test_polycount_by_size_and_fixed(self):
+        graph = fixture_graph()
+        for gid, label, size in (("g050", "vase", 0.29), ("g051", "plant", 0.6), ("g052", "tree", 1.5),
+                                 ("g053", "sculpture", 3.0)):
+            self.add(graph, gid, label, size, category="decor")
+        self.graph.write_text(json.dumps(graph), encoding="utf-8")
+        result = run(PLAN, str(self.graph), "--out", str(self.out), "--polycount", "by-size")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        plan = json.loads(self.out.read_text(encoding="utf-8"))
+        assets = by_label(plan)
+        self.assertEqual(assets["vase"]["polygon_count"], 40000)
+        self.assertEqual(assets["plant"]["polygon_count"], 50000)
+        self.assertEqual(assets["tree"]["polygon_count"], 100000)
+        self.assertEqual(assets["sculpture"]["polygon_count"], 250000)
+        self.assertNotIn("polygon_count", assets["chair"])  # modelled, no generation budget
+        self.assertEqual(plan["summary"]["polycount"], "by-size")
+        result = run(PLAN, str(self.graph), "--out", str(self.out), "--polycount", "40000", "--force")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        assets = by_label(json.loads(self.out.read_text(encoding="utf-8")))
+        self.assertEqual({a["polygon_count"] for a in assets.values() if a["route"] == "generate"}, {40000})
+        self.assertEqual(run(PLAN, str(self.graph), "--out", str(self.out), "--polycount", "lots",
+                             "--force").returncode, 1)
+        result = run(PLAN, str(self.graph), "--out", str(self.out), "--force")
+        self.assertNotIn("polygon_count", json.dumps(json.loads(self.out.read_text(encoding="utf-8"))["assets"]))
+
     def test_low_confidence_flag(self):
         graph = fixture_graph()
         graph["nodes"][3]["views"][0]["id_confidence"] = "low"

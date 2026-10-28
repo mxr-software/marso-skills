@@ -31,8 +31,12 @@ Never narrow the range by guessing. Report "2 to 3 chairs" to the user and ask, 
 
 ## Children and parents
 
-Each asset records its `parent` and `relation` from the representative node, and `children` as every node whose parent is one of its members. Children are what the crop masks by default; the parent is what `--exclude-parent` masks. Nodes with relation `part-of` are not separate assets by default: they are skipped and named in the parent's `children` so the parent's brief mentions them.
+Each asset records its `parent` and `relation` from the representative node, and `children` as every node whose parent is one of its members. Children are what the prompt tells the generator to leave out (and what `--mask-children` masks); the parent is named the same way (and masked by `--exclude-parent`). Nodes with relation `part-of` are not separate assets by default: they are skipped and named in the parent's `children` so the parent's brief mentions them.
 
 ## Order and identifiers
 
 Assets are numbered `a001`, `a002`, ... in order of their first member's `global_id`. The identifier is stable for a given graph and plan run; re-running with `--force` on an unchanged graph gives the same ids. Edit the plan by hand freely, but keep `members` as `global_id`s so the crop step can find the boxes.
+
+## Polygon budget
+
+`--polycount` writes a default `polygon_count` on every asset routed to `generate`: a fixed number (`--polycount 40000`) or `by-size`. Read [polycount](polycount.md) before relying on it; the number is a starting point for review, not a setting the generator is known to accept.
