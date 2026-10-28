@@ -1,0 +1,4 @@
+interface:
+  display_name: "Marso Scene Graph"
+  short_description: "Turn a scene graph into a Marso asset plan and reference briefs"
+  default_prompt: "Use $marso-scene-graph to plan which objects in my scene graph to generate, model or reuse, and crop a reference for each."

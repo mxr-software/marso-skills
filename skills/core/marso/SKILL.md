@@ -21,6 +21,8 @@ An explicit request to generate or model takes precedence over the defaults belo
 | Make N styles of the same asset | One preserved source, independent Restyle branches for each look; use the texture skill's variants workflow. |
 | Build components that fit together or decompose a reference into reusable parts | Kit design with explicit dimensions and interfaces; `marso-blender-kit` in Blender. |
 | Arrange an existing kit | Composition with the kit's real connectors and material assignments; `marso-blender-compose` in Blender. |
+| Break photographs of a room or environment into its objects, or get a scene graph from images | Scene decomposition; `marso-scene-decompose` when installed. Do not send a whole-room image straight to 3D generation. |
+| Decide how many assets a scene needs, what to generate or model, or write each object's reference brief from a scene graph | Asset planning from the graph; `marso-scene-graph` when installed, then the routes above for each asset. |
 | Use something already in the library | Find and inspect the existing asset through available library tools before importing; do not generate a replacement. |
 
 Organic/complex forms favour generation as a starting point; structured, articulated or modular objects favour agent modelling. These are workflow defaults, not quality guarantees. Generated meshes can need retopology, part separation and scale correction; agent-built meshes still need topology and fit checks. A hybrid can generate decoration while modelling functional joints and mating surfaces. Preserve explicit user intent and explain a material tradeoff before substituting routes.

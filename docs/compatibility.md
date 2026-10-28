@@ -4,7 +4,7 @@ Reviewed 2026-10-27. Format compatibility, available application tools and succe
 
 ## Shared skill format
 
-All six packages use the [Agent Skills format](https://agentskills.io/specification): a leaf folder named after the skill, a `SKILL.md` with `name` and `description`, and supporting files inside that folder. Optional `agents/openai.yaml` supplies OpenAI UI metadata; the workflow does not depend on it. The same instructions are used by OpenAI- and Claude-based hosts.
+All eight packages use the [Agent Skills format](https://agentskills.io/specification): a leaf folder named after the skill, a `SKILL.md` with `name` and `description`, and supporting files inside that folder. Optional `agents/openai.yaml` supplies OpenAI UI metadata; the workflow does not depend on it. The same instructions are used by OpenAI- and Claude-based hosts.
 
 The repository's `skills/core/` and `skills/blender/` directories organise source. They are not themselves installable skills. Follow [installation](installation.md) to place each leaf folder in the client's discovery directory or attach it through its API. No published marketplace/plugin bundle is included.
 
@@ -18,7 +18,7 @@ The repository's `skills/core/` and `skills/blender/` directories organise sourc
 
 The repository is an artist pilot. Structural validation does not certify model behaviour or photorealistic output.
 
-The Skills CLI discovered all six skills and installed them into isolated Codex and Claude Code project directories. All twelve installed copies matched their source resources. Frontmatter, standalone ZIP packages, package-local links and public repository links passed validation. This checks distribution and file accessibility, not live model execution.
+The Skills CLI discovered the six Blender and entry skills and installed them into isolated Codex and Claude Code project directories. All twelve installed copies matched their source resources. Frontmatter, standalone ZIP packages, package-local links and public repository links passed validation. This checks distribution and file accessibility, not live model execution.
 
 ## Blender and Marso capabilities
 
@@ -42,3 +42,15 @@ Relevant operational limits:
 Validate each complete skill in isolation: frontmatter, package-local links, optional metadata and bundled scripts. Use [setup cases](../tests/blender/setup-cases.md) and [workflow cases](../tests/blender/workflow-cases.md) as acceptance criteria, not as a claim that every case has passed. The offline Blender checks in `tests/blender/` do not call cloud generation or validate client transport.
 
 Detailed experiment journals, prototype scene builders and raw evidence are kept local. Installable skill packages contain only reusable workflow instructions and their supporting resources.
+
+## Scene decomposition and asset planning
+
+`marso-scene-decompose` and `marso-scene-graph` need a host that can run shell commands, Python 3.10+ with Pillow, and an assistant that can look at local image files. They use no network, account or application connection. They are licensed separately (see each folder's `LICENSE.txt`).
+
+Checked on 2026-10-28:
+
+- Script tests (`python -m unittest discover tests/scene`) pass, covering intake, tiling, the tile merge, verify, matching, the graph, the viewer, the asset plan and the crops.
+- Blind runs in Claude Code: a fresh agent given only the installed skill folders and a one-line request, on four photographs of one kitchen (Fine mode, helper agents in parallel with a host cap of 20). Four decomposition runs and one asset-planning run were reviewed against the photographs. Each fixed what the previous one exposed: duplicate objects at tile seams, a support tree broken by a loop, a gallery that failed on large runs, names guessed at wide-shot scale surviving as separate objects and assets, and asset routing and counting errors.
+- On the last run the graph validated, the viewer opened and was clicked through, and every heavily hidden object carried a context-built description.
+
+Not checked: Codex, ChatGPT and API hosts; serial execution on a host without helper agents; Coarse mode on this set; scenes other than one kitchen; handing reference briefs to generation. Detected names and boxes remain model readings: the verify round and the match round reduce misnamed and duplicated objects but do not remove them, and some boxes stay loose.

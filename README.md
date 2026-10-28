@@ -11,6 +11,8 @@ Install the skills you need in your preferred assistant. Blender is the first av
 | Skill | Purpose |
 | --- | --- |
 | [marso](skills/core/marso/SKILL.md) | Choose generation, modelling, restyling or kit workflows; discover supported 3D model settings. |
+| [marso-scene-decompose](skills/core/marso-scene-decompose/SKILL.md) | Turn photographs of a room into a scene graph of every object, with an interactive viewer. |
+| [marso-scene-graph](skills/core/marso-scene-graph/SKILL.md) | Plan assets from a scene graph: unique assets and counts, per-object reference briefs and crops, generate or model. |
 | [marso-blender-setup](skills/blender/marso-blender-setup/SKILL.md) | Install, configure, update, and troubleshoot Marso for Blender. |
 | [marso-blender-asset](skills/blender/marso-blender-asset/SKILL.md) | Model editable assets from briefs, dimensions and images. |
 | [marso-blender-texture](skills/blender/marso-blender-texture/SKILL.md) | Add textures, retexture, restyle and generate PBR using Marso. |
@@ -38,6 +40,7 @@ Other requests:
 - "Use Marso to generate an organic rock formation from this image."
 - "Turn this shelving reference into a modular kit with compatible shelves and uprights."
 - "Use this wall kit to make an L-shaped room with a doorway."
+- "Decompose these four kitchen photos into a scene graph and tell me how many unique assets to make."
 
 You need a Marso account for the add-on's cloud features. Enter credentials in the add-on, not in chat. Setup checks do not generate assets.
 
@@ -60,4 +63,4 @@ Copy the entire skill folder when installing it. Its runtime references stay ins
 
 For the complete Blender modelling-to-texturing and kit workflow, install all five Blender folders; add `marso` for workflow and generation routing. Each skill states when a companion skill would help; none assumes sibling files are available at runtime. Behavioural acceptance cases live in [workflow cases](tests/blender/workflow-cases.md); [compatibility](docs/compatibility.md) distinguishes local checks from live assistant and cloud testing.
 
-See [contributing](CONTRIBUTING.md) for authoring and validation. Skills are licensed under [Apache-2.0](LICENSE); Blender, its MCP, and the Marso add-on retain their own licences.
+See [contributing](CONTRIBUTING.md) for authoring and validation. Skills are licensed under [Apache-2.0](LICENSE), except `marso-scene-decompose` and `marso-scene-graph`, which carry their own proprietary `LICENSE.txt`; Blender, its MCP, and the Marso add-on retain their own licences.

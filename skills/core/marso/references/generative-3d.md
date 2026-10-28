@@ -4,7 +4,7 @@ Use this route when the user wants generation, or the brief favours an organic/c
 
 ## Select a supported generator
 
-First establish the source (description, one object image, or consistent views of that same object), required geometric detail and intended use. A fabric swatch is a look reference, not the object to reconstruct. A whole-room image needs an object extraction workflow rather than being treated as one prop.
+First establish the source (description, one object image, or consistent views of that same object), required geometric detail and intended use. A fabric swatch is a look reference, not the object to reconstruct. A whole-room image needs an object extraction workflow rather than being treated as one prop: decompose it into a scene graph (`marso-scene-decompose`) and generate each object from its own reference brief (`marso-scene-graph`), when those skills are installed.
 
 Inspect the installed Blender `generate_state` model catalogue and `create_3d_asset` schema, or Studio `get_capabilities` with `section: "generation_3d_models"` and full detail. Refresh after a capability error. Model availability and option names can differ between routes and versions. Use catalogue IDs, not guessed names. The catalogue's source support does not prove that a particular tool accepts that input directly.
 
