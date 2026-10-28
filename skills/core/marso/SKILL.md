@@ -40,6 +40,8 @@ For a set, keep the same appearance-brief identity and approved reference across
 
 Distinguish shape variants from style variants. Style variants branch from the unchanged original mesh, UVs and source appearance, not from the previous Restyle result. A request to refine a specific returned version may deliberately use that version as the new source; record that choice. Keep a clear source-to-result mapping and descriptive material names after application succeeds.
 
+For agent-modelled assets that will be textured, show neutral-clay previews and wait for the user's approval of the current geometry before Marso Retexture or PBR. Honour an explicit review waiver or existing approval of unchanged geometry. A finished-asset request alone does not waive model review; directly retexturing an existing unchanged asset needs no extra model-approval step.
+
 ## Complete the chosen workflow
 
 Follow job IDs to completion, inspect results and preserve originals. A timeout is not permission to resubmit. Deliver the saved asset or project, the chosen route, source and output identifiers where available, and the checks actually performed. State untested visual or application behaviour. A generated PBR result is not by itself proof of animation readiness, modular fit or validated simulation physics.

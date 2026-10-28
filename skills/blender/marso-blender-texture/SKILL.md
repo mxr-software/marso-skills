@@ -22,6 +22,12 @@ Read [commands and jobs](references/commands.md) before invoking Marso. Discover
 
 A photographed object is a style reference for Retexture, not automatically a seamless surface swatch. Prefer the requested route; do not substitute an ordinary Blender procedural material for a requested Marso result.
 
+## Model approval checkpoint
+
+When this workflow follows new modelling or substantial geometry edits, confirm that the user has seen useful neutral-clay previews and approved the current source revision and target parts before submitting Retexture or PBR. If not, save and show the model, state dimensions and visible defects, ask whether it is ready for texturing, and wait. An overall request for a textured asset is not approval of an unseen model; elapsed time is not approval either. If images cannot be shown, let the user review the saved model or explicitly waive review.
+
+Respect an explicit instruction to proceed without model review. Reuse approval for unchanged geometry; renew it after material changes to shape, proportions or visible detail. Routine UV preparation that preserves the approved appearance does not invalidate approval. For kits, record which components the approval covers. A direct request to retexture an existing asset without geometry changes needs no additional model-approval question. Local inspection and reversible preparation may continue while approval is pending, but cloud texturing must wait.
+
 ## 2. Prepare the target
 
 Read [UVs and assemblies](references/preparation.md). Save a recoverable checkpoint before replacing authored UV/material arrangements. Isolate shared data when only one instance should change; retain sharing when a change is meant to affect the whole family.

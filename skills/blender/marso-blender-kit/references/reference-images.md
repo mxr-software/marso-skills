@@ -39,7 +39,7 @@ Inspect the baked source on the actual upload copy before submission, including 
 
 For example, distinguish an ivory painted housing, a charcoal recessed channel, an opal diffuser and metal guard bands. Describe each surface's finish and wear separately. Do not merely request "a detailed sci-fi light". Keep any required glow as a deliberate emission/lighting treatment; avoid painting bloom and lighting gradients into albedo.
 
-Before submitting the whole family, test a representative component with the kit's main material transitions. Inspect its source bake and returned front, oblique and rear views. Resolve a diagnosed preparation error or adjust a mismatched brief before carrying it into the remaining components. This is an agent-side quality check, not an extra user approval or an open-ended regeneration loop. Retain comparisons and select a replacement only after matched-view review.
+After user approval of the representative component's geometry (or an explicit review waiver), test it with the kit's main material transitions before submitting the whole family. Inspect its source bake and returned front, oblique and rear views. Resolve a diagnosed preparation error or adjust a mismatched brief before carrying it into the remaining components. This appearance check is the agent's responsibility and does not replace the model-approval checkpoint for remaining components. It is not an open-ended regeneration loop. Retain comparisons and select a replacement only after matched-view review.
 
 ## Project and handoff
 

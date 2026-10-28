@@ -14,6 +14,8 @@ Then give the assistant your brief, for example:
 
 Say **model** when you want editable, structured geometry; say **generate** when you want Marso's generative 3D workflow. You can also ask to restyle an existing object, build a modular kit from references, or assemble a kit you already have. Include dimensions, reference images and finish details when available. The assistant should choose the relevant skills, inspect the results and deliver the saved file with any remaining issues.
 
+For newly modelled assets, the assistant shows neutral-clay previews and waits for you to approve the model before Marso texturing. You can request geometry changes at that point, or explicitly ask it to proceed without review. Existing assets you directly ask to retexture do not need an extra model-approval step.
+
 The public collection covers setup, asset modelling, texturing and modular kits. It also includes photographed-scene decomposition and reconstruction as development previews with additional requirements; see [availability](installation.md#choose-by-outcome).
 
 ## Start with a small task

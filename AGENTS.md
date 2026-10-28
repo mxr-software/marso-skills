@@ -6,6 +6,7 @@
 - Keep the common skill body usable by ChatGPT, Codex, Claude desktop, and Claude Code. Put optional client metadata in `agents/`; do not require a client-specific tool prefix.
 - Default Blender route: official Blender MCP plus the Marso add-on. Hosted Marso MCP is optional. Preserve a working user-selected route.
 - Keep asset modelling independent of texturing. Modular kits and photographed-scene decomposition, generation and placement are in scope; scene commands require a verified supporting add-on build. Add only developed skill folders.
+- Before Marso texturing newly modelled or substantially remodelled assets, show the geometry and wait for user approval. Respect an explicit review waiver or approval of unchanged geometry; avoid redundant model-approval questions for direct retexture requests on existing assets.
 - For scene support hierarchies, use entity transforms with separate geometry groups. Supported entities must not inherit mesh-only scale edits. Preserve support metadata separately from physics and scope object reuse to the owning run.
 - Keep kit connectors, reusable surfaces and material roles intact across texturing. Do not invent an add-on option to preserve hidden-face UVs.
 - Do not introduce pricing checks, spending allowances, or extra credit confirmation steps. Setup validation uses non-generating operations.

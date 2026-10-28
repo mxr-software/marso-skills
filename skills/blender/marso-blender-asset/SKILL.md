@@ -6,7 +6,7 @@ license: Apache-2.0
 
 # Build an asset in Blender
 
-Create the requested geometry, inspect it, and leave an editable asset ready for its next use. Modelling does not require generating textures. If the user asks for a finished textured asset, complete geometry first and then use `marso-blender-texture` when available.
+Create the requested geometry, inspect it, and leave an editable asset ready for its next use. Modelling does not require generating textures. If the user asks for a finished textured asset, complete geometry and obtain model approval before using `marso-blender-texture` when available.
 
 ## Establish the target
 
@@ -29,6 +29,12 @@ Keep changes within the requested asset. Inspect an existing model before choosi
 Before a photorealistic texturing handoff, compare a neutral-clay view with the reference at the intended viewing distance, including an oblique angle. Model features that need silhouette, depth, parallax, articulation or substantial contact shadows: for example a recessed plate, open vent or projecting trim. Leave coating grain, shallow scratches and small finish variation to textures. This is a feature-and-scale decision, not a minimum polygon count; excessive tiny bevel faces can waste UV sampling without improving the result. Restyle should finish the modelled structure, not be asked to invent missing structural detail on sparse geometry.
 
 For a reusable family, use `marso-blender-kit` when available; establish shared dimensions, connection frames and fit tests before multiplying variants. Do not independently model each piece and hope their edges line up.
+
+## Review the model before texturing
+
+Show the user the saved model in neutral clay from useful angles, including an oblique view at the intended viewing distance. State dimensions and remaining geometry or shading defects; avoid lighting that hides them. Ask whether the model is ready for Marso texturing, and wait for their answer before submitting Retexture or PBR. A request for a finished textured asset is not approval of an unseen model.
+
+Honour an explicit instruction to skip this review. Approval of the same unchanged model remains valid; record the approved source revision and covered parts with the handoff. Material changes to shape, proportions or visible detail require a new preview and approval. Routine UV preparation that preserves the approved appearance does not. If previews cannot be shown, disclose that limitation and wait for the user to review the saved model or explicitly waive review.
 
 ## Leave a useful texturing handoff
 

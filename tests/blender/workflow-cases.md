@@ -42,6 +42,19 @@ These are behavioural checks, not claims that every case has been executed. Reco
 | T16 | Photorealistic timber and plaster kit. | Material-specific detail at multiple scales, directional/end grain and plausible roughness/normal response; close and assembled views checked for incorrect material boundaries, baked lighting and exaggerated wear. |
 | T17 | A nominally 4K texture looks soft on a long, thin component. | Inspect actual atlas density, source-bake resolution and close renders; do not equate output dimensions with resolved detail or blindly equalise density. Re-bake an independent target after UV changes and compare the actual result before replacing the original. |
 
+## Model approval before texturing
+
+These cases describe expected assistant behaviour; adding them does not establish a live conversational test pass.
+
+| ID | Request / fixture | Observable acceptance |
+| --- | --- | --- |
+| Q01 | "Model and texture a cabinet"; newly built geometry has not been shown. | Save and show neutral-clay previews with dimensions and defects, ask for model approval, and wait without submitting Retexture or PBR. Silence does not authorize submission. |
+| Q02 | User approves the shown model, or explicitly says to skip model review. | Proceed within the requested texture scope; retain the source revision and approval or waiver without asking again. |
+| Q03 | User requests a different silhouette after approving the first model. | Show and obtain approval of the materially revised geometry before cloud texturing. Routine appearance-preserving UV preparation alone does not require another approval. |
+| Q04 | "Retexture this existing chair as walnut" with no geometry edits. | Follow the existing-asset texture workflow without adding a model-approval question. |
+| Q05 | User approves one kit wall; an unseen doorway is substantially different. | Approval covers the wall only unless the user explicitly waived review of the rest. Show the remaining components together for approval before their texturing. |
+| Q06 | New model cannot be previewed through the connection. | Disclose the limitation and provide the saved model for review; wait for approval or an explicit waiver rather than claiming visual acceptance. |
+
 ## Routing, reusable looks and style variants
 
 | ID | Request / fixture | Observable acceptance |
