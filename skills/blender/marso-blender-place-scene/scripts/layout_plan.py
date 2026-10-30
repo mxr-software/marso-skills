@@ -17,8 +17,8 @@ camera at the origin looking along +Y), a rotation about z, a target size and fl
 Every number is an estimate from one photograph; the review loop corrects them.
 Standard library only.
 
-Exit codes: 0 written, 1 written with objects that could not be positioned or sizes
-that disagree (listed), or an input problem, 2 a JSON input could not be read.
+Exit codes: 0 written (review the problems list), 1 an input problem,
+2 a JSON input could not be read.
 """
 from __future__ import annotations
 
@@ -261,10 +261,17 @@ def build(graph: dict, assets_doc: dict, registration: dict | None, manifest: di
     for asset in assets_doc.get("assets") or []:
         for member in asset.get("members") or []:
             asset_of[member] = asset
-    routes = {}
+    routes, planned_of = {}, {}
     for asset in (plan or {}).get("assets") or []:
         for member in asset.get("members") or []:
             routes[member] = asset.get("route")
+            planned_of[member] = asset
+    # A manifest may also track specialist handoffs. Those are not cloud imports.
+    for gid, asset in list(asset_of.items()):
+        if routes.get(gid, asset.get("route")) == "model":
+            planned_of.setdefault(gid, asset)
+            routes[gid] = "model"
+            del asset_of[gid]
     imports = imports or {}
     groups_of: dict[str, list[str]] = {}
     for group in graph.get("identity_groups") or []:
@@ -280,12 +287,29 @@ def build(graph: dict, assets_doc: dict, registration: dict | None, manifest: di
         return d
 
     anchors = {gid: n for gid, n in nodes.items() if n.get("parent") is None}
+    selection_mode = (plan or {}).get("selection_mode", False)
+    support_frames = set()
+    if selection_mode:
+        for gid, route in routes.items():
+            if route == "skip":
+                continue
+            seen = set()
+            parent = nodes.get(gid, {}).get("parent")
+            while parent in nodes and parent not in seen:
+                seen.add(parent)
+                if parent not in anchors and routes.get(parent, "skip") == "skip":
+                    support_frames.add(parent)
+                parent = nodes[parent].get("parent")
     skipped, kinds = [], {}
     for gid, node in nodes.items():
         if gid in anchors:
             continue
         reason = None
-        if node.get("relation") == "part-of":
+        if gid in support_frames:
+            kinds[gid] = "support"
+        elif selection_mode and routes.get(gid, "skip") == "skip":
+            reason = "not selected for creation"
+        elif node.get("relation") == "part-of" and not selection_mode:
             reason = "part of its parent"
         elif node.get("unconfirmed") and opts.unconfirmed == "skip":
             reason = "unconfirmed reading"
@@ -569,6 +593,11 @@ def build(graph: dict, assets_doc: dict, registration: dict | None, manifest: di
         wall["corners"] = [[round(ax, 3), round(ay, 3), 0.0], [round(bx, 3), round(by, 3), 0.0],
                            [round(bx, 3), round(by, 3), top], [round(ax, 3), round(ay, 3), top]]
         wall["floor_line"] = [[round(ax, 3), round(ay, 3)], [round(bx, 3), round(by, 3)]]
+    if selection_mode:
+        selected_anchors = {a["global_id"] for a in (plan or {}).get("anchors", []) if a.get("route") != "skip"}
+        for anchor in anchor_out:
+            if anchor["global_id"] not in selected_anchors:
+                anchor["object"] = "empty"
     for gid in order:
         if gid not in placed:
             placed[gid] = position(gid)
@@ -576,19 +605,24 @@ def build(graph: dict, assets_doc: dict, registration: dict | None, manifest: di
     objects = []
     for index, gid in enumerate(order, start=1):
         row = placed[gid]
-        asset = asset_of.get(gid)
+        asset = asset_of.get(gid) if kinds[gid] != "support" else None
         if asset:
             row["asset_id"] = asset["asset_id"]
             row["name"] = f"{asset['asset_id']}_{slug(asset.get('label'))}_{gid}"
         else:
             row["name"] = f"box_{slug(row['label'])}_{gid}"
+            planned = planned_of.get(gid, {})
+            if planned.get("route") == "model" and planned.get("asset_id") and kinds[gid] != "support":
+                row["asset_id"] = planned["asset_id"]
+                row["route"] = "model"
         row["order"] = index
         row["landmark"] = is_landmark(gid)
         objects.append(row)
 
     asset_rows = {}
     for asset in assets_doc.get("assets") or []:
-        instances = [o["global_id"] for o in objects if o.get("asset_id") == asset["asset_id"]]
+        instances = [o["global_id"] for o in objects if o.get("asset_id") == asset["asset_id"]
+                     and o.get("route") != "model"]
         if not instances:
             continue
         asset_rows[asset["asset_id"]] = {
@@ -710,7 +744,8 @@ def main(argv: list[str] | None = None) -> int:
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(placement, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({"out": out.as_posix(), **placement["summary"], "problems": placement["problems"]}, indent=2))
-    return 1 if placement["problems"] else 0
+    # A written estimate can need review without being a failed command.
+    return 0
 
 
 if __name__ == "__main__":

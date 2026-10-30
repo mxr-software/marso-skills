@@ -52,7 +52,8 @@ class ManifestTests(unittest.TestCase):
 
     def init(self, *extra: str) -> dict:
         result = self.mf("init", str(self.plan), "--references", str(self.index), "--out", str(self.out),
-                         "--project", "kitchen_test", "--project-id", "project-test", *extra)
+                         "--project", "kitchen_test", "--project-id", "project-test",
+                         "--model", "fixture-model", *extra)
         self.assertEqual(result.returncode, 0, result.stderr)
         return json.loads(self.out.read_text(encoding="utf-8"))
 
@@ -61,6 +62,22 @@ class ManifestTests(unittest.TestCase):
         result = self.mf(*args)
         self.assertEqual(result.returncode, 0, result.stderr)
         return json.loads(result.stdout)
+
+    def test_retry_keeps_failure_and_cannot_replace_unresolved_job(self):
+        self.init("--skip-library")
+        aid = self.ids["bowl"]
+        args = ("record", str(self.out), "--stage", "mesh", aid)
+        self.assertEqual(self.mf(*args, "--job", "first-job").returncode, 0)
+        self.assertEqual(self.mf(*args, "--job", "second-job").returncode, 1)
+        self.assertEqual(self.mf(*args, "--error", "Subject too small").returncode, 0)
+        self.assertEqual(self.mf(*args, "--job", "second-job").returncode, 0)
+        self.assertEqual(self.mf(*args, "--job", "second-job").returncode, 0)
+        doc = json.loads(self.out.read_text())
+        asset = next(a for a in doc["assets"] if a["asset_id"] == aid)
+        self.assertEqual(len(asset["attempts"]["mesh"]), 1)
+        self.assertEqual(asset["attempts"]["mesh"][0]["error"], "Subject too small")
+        self.assertEqual(asset["attempts"]["mesh"][0]["job_id"], "first-job")
+        self.assertTrue(any(e.get("record", {}).get("error") == "Subject too small" for e in doc["log"]))
 
     def test_init_records_the_plan_and_briefs(self):
         doc = self.init()
@@ -73,9 +90,8 @@ class ManifestTests(unittest.TestCase):
         self.assertEqual(onion["count"], 2)
         self.assertEqual(onion["prompt"], "Generate the onion shown in @crop")
         self.assertTrue(onion["brief"].endswith("brief.json"))
-        # The plan's by-size budget wins over the default; the model and texture are the defaults.
-        self.assertEqual(onion["settings"], {"model": "tripo_h3_1", "polygon_count": 40000,
-                                             "texture": "standard"})
+        # A plan budget is retained; model is explicit and no texture option is invented.
+        self.assertEqual(onion["settings"], {"model": "fixture-model", "polygon_count": 40000})
         self.assertEqual(assets["bowl"]["settings"]["polygon_count"], 50000)
         self.assertEqual(onion["minted"], "not_minted")
         # The library is checked first, with each asset's label and search crop.
@@ -95,6 +111,52 @@ class ManifestTests(unittest.TestCase):
         bad.write_text("{", encoding="utf-8")
         self.assertEqual(self.mf("init", str(bad), "--references", str(self.index), "--out",
                                  str(self.folder / "x.json")).returncode, 2)
+
+    def test_settings_require_model_and_preserve_omitted_options(self):
+        args = ("init", str(self.plan), "--references", str(self.index), "--out", str(self.out),
+                "--project-id", "project-test")
+        missing = self.mf(*args)
+        self.assertEqual(missing.returncode, 1)
+        self.assertIn("--model", missing.stderr)
+        self.assertFalse(self.out.exists())
+        plan = json.loads(self.plan.read_text())
+        for asset in plan["assets"]:
+            asset.pop("polygon_count", None)
+        self.plan.write_text(json.dumps(plan), encoding="utf-8")
+        doc = self.init()
+        self.assertTrue(all(a["settings"] == {"model": "fixture-model"} for a in doc["assets"]))
+        doc = self.init("--force", "--model", "preferred-model", "--polycount", "25000", "--texture", "4k")
+        self.assertTrue(all(a["settings"] == {"model": "preferred-model", "polygon_count": 25000,
+                                            "texture": "4k"} for a in doc["assets"]))
+
+    def test_per_asset_models_and_omitted_texture_survive_manifest(self):
+        plan = json.loads(self.plan.read_text())
+        for asset in plan["assets"]:
+            if asset["label"] == "bowl":
+                asset.update(model="model-without-texture", texture=None, polygon_count=15000)
+            elif asset["label"] == "onion":
+                asset.update(model="model-with-resolution", texture="4k", polygon_count=25000)
+        self.plan.write_text(json.dumps(plan), encoding="utf-8")
+        result = self.mf("init", str(self.plan), "--references", str(self.index), "--out", str(self.out),
+                         "--project-id", "project-test", "--texture", "standard")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        entries = {a["label"]: a for a in json.loads(self.out.read_text())["assets"]}
+        self.assertEqual(entries["bowl"]["settings"], {"model": "model-without-texture", "polygon_count": 15000})
+        self.assertEqual(entries["onion"]["settings"]["texture"], "4k")
+
+    def test_model_only_plan_does_not_need_generator_settings(self):
+        plan = json.loads(self.plan.read_text())
+        plan["selection_mode"] = True
+        for asset in plan["assets"]:
+            asset["route"] = "model"
+            asset.pop("polygon_count", None)
+        self.plan.write_text(json.dumps(plan), encoding="utf-8")
+        result = self.mf("init", str(self.plan), "--references", str(self.index), "--out", str(self.out),
+                         "--project-id", "project-test", "--skip-library")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        doc = json.loads(self.out.read_text())
+        self.assertTrue(all(a["settings"] == {} for a in doc["assets"]))
+        self.assertEqual(len(self.pending("handoff")["pending"]), 2)
 
     def test_the_stages_run_in_order(self):
         self.init("--skip-library")

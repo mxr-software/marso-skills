@@ -1,0 +1,3 @@
+interface:
+  display_name: "Marso Library"
+  short_description: "Find and reuse assets, instances and style sources"

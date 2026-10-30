@@ -7,7 +7,7 @@ The unit of reuse determines the texture target. A wall panel, shelf, leg or cor
 Texture component masters before arranging instances into a larger structure. Inspect all allowed orientations and moving states: attachment ends, undersides, door interiors and surfaces hidden by neighbouring modules may become visible later.
 
 - For a single-mesh master, prepare full-face UVs and Retexture that mesh without assembly preparation. Keep it outside any tagged assembly that would redirect the command.
-- For a fixed multipart component, isolate it from neighbouring modules and inspect which internal surfaces are permanently buried. Assembly preparation is appropriate only when collapsing those surfaces cannot break reuse.
+- For a fixed multipart component, isolate it from neighbouring modules and inspect which internal surfaces are permanently buried. Prefer the [agent-authored shared-atlas route](preparation.md#agent-authored-layouts). Automatic assembly preparation is a fallback only when replacing the layout and collapsing those surfaces cannot break reuse.
 - For moving or rearrangeable subparts, keep independently reusable masters and texture their exposed surfaces independently. Do not run hidden-face optimisation on their closed/assembled configuration.
 - If a required multipart shared atlas must preserve every face, the inspected `prepare_assembly` command has no such option. Do not pretend that it does. Use an explicitly verified full-face UV/bake workflow on an independent working mesh with a validated transfer back, or report that this particular path needs add-on support. Do not silently join the user's editable masters or transfer maps by object name alone.
 

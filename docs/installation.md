@@ -30,7 +30,7 @@ npx skills add mxr-software/marso-skills --skill '*' --agent codex claude-code -
 
 Keep only the agent name you use. To explicitly select `main` instead of following the default branch, replace `mxr-software/marso-skills` with `https://github.com/mxr-software/marso-skills/tree/main`.
 
-The command installs all ten skills on `main`: the Marso entry point, five Blender setup/modelling/texturing/kit skills, and four scene skills. The scene workflows remain development previews with additional requirements listed below. Future skills published on `main` are included when you run the command again; unmerged changes on other branches are not.
+The command installs the complete skill collection on `main`: the workflow coordinator, generation and library routes, Blender creation/render workflows, and four scene skills. The scene workflows remain development previews with additional requirements listed below. Future skills published on `main` are included when you run the command again; unmerged changes on other branches are not.
 
 **Verify:** run `npx skills list --agent codex claude-code` in the same project (add `--global` for a global installation), then start a session in that project. Ask the assistant to list its available Marso skills and use `marso-blender-setup` to check Blender. If a skill is missing, check the install scope and restart the client. A successful file installation does not verify Blender access.
 
@@ -40,7 +40,7 @@ The command installs all ten skills on `main`: the Marso entry point, five Blend
 
 | Assistant | How to install the collection |
 | --- | --- |
-| Claude web / desktop account | Add `mxr-software/marso-skills` as a plugin marketplace and install `marso` once for all ten skills. Individual skill ZIPs are a fallback. |
+| Claude web / desktop account | Add `mxr-software/marso-skills` as a plugin marketplace and install `marso` once for the complete skill collection. Individual skill ZIPs are a fallback. |
 | ChatGPT desktop | Local Codex skill discovery is documented below. A packaged ChatGPT plugin for installing the whole collection is not provided yet; the standalone ChatGPT installation route has not been verified for this repository. |
 | API or custom agent | Configure the host to load each complete skill folder. See the API section below; a repository link alone does not install them. |
 
@@ -75,18 +75,21 @@ These are recommended combinations of existing folders, not separate packages. I
 
 | What you want | Skills to install |
 | --- | --- |
-| Choose whether to generate or model an asset | `marso` |
+| Choose or coordinate a complete workflow | `marso` plus the relevant specialists below |
+| Generate/edit images or prepare realistic appearance references | `marso-image`; add `marso-blender-texture` for an authorized Blender Retexture/PBR handoff |
+| Reuse assets from the Marso library | `marso-library` |
+| Optimize Blender render time, memory or repeated assets | `marso-blender-render` |
 | Model an asset in Blender and texture it with Marso | `marso-blender-setup`, `marso-blender-asset`, `marso-blender-texture` |
 | Restyle an existing Blender asset or make several looks from its original source | `marso-blender-setup`, `marso-blender-texture` |
-| Build, texture and assemble a modular Blender kit | All five Blender skills: setup, asset, texture, kit and compose |
-| Generate an asset through the Blender add-on | `marso`, `marso-blender-setup`; add texture for later Restyle and style variants |
-| Turn photographs of a room into a scene graph and plan its assets | `marso-scene-decompose`, `marso-scene-graph`; add `marso` to generate the planned objects |
-| Rebuild a photographed room in Blender from Marso assets | `marso-scene-decompose`, `marso-scene-graph`, `marso-blender-setup`, `marso-blender-scene-assets`, `marso-blender-place-scene` |
-| Generate through a connected Marso Studio service | `marso`, plus the service's current tools and workflow guides |
+| Build, texture and assemble a modular Blender kit | Blender setup, asset, texture, kit and compose |
+| Generate an asset through the Blender add-on | `marso-generate`, `marso-blender-setup`; add texture for later Restyle and style variants |
+| Turn photographs of a room into a scene graph and plan its assets | `marso-scene-decompose`, `marso-scene-graph`; add `marso-generate` to generate planned objects |
+| Rebuild a photographed room in Blender from Marso assets | `marso`, `marso-library`, `marso-generate`, `marso-blender-asset`, `marso-blender-texture`, `marso-scene-decompose`, `marso-scene-graph`, `marso-blender-setup`, `marso-blender-scene-assets`, `marso-blender-place-scene` |
+| Generate through a connected Marso Studio service | `marso-generate`, plus the service's current tools and workflow guides |
 
 The two scene skills run Python scripts from their own folders and need Python 3.10+ with Pillow (`pip install Pillow`) and a host that can run shell commands and look at local images. They need no application connection or network access. `marso-blender-scene-assets` and `marso-blender-place-scene` run standard-library Python scripts and need Blender with the official MCP and a Marso add-on that provides the scene commands they name.
 
-The four scene skills are included on `main` as development previews. The two scene workflows in Blender require a development add-on with their named commands; a release version number alone is insufficient. See [compatibility](compatibility.md). Each preview folder has its own proprietary licence permitting installation and use with Marso; its terms apply separately from the six Apache-2.0 skills.
+The four scene skills are included on `main` as development previews. The two scene workflows in Blender require a development add-on with their named commands; a release version number alone is insufficient. See [compatibility](compatibility.md). Each preview folder has its own proprietary licence permitting installation and use with Marso; its terms apply separately from the Apache-2.0 skills.
 
 If you prefer to install from a local checkout, run these commands in your working project directory:
 
@@ -137,7 +140,7 @@ In Claude on the web or desktop:
 1. Open **Customize > Plugins**.
 2. Choose **Add > Add marketplace > Add from a repository**.
 3. Enter `mxr-software/marso-skills` (or its full GitHub URL).
-4. Open the added marketplace and install **marso**. It contains all ten skills and their supporting files.
+4. Open the added marketplace and install **marso**. It contains the complete skill collection and its supporting files.
 5. Start a new chat and ask Claude to use Marso to check your Blender setup.
 
 Claude documents plugins for paid plans; organization settings can restrict them. See [Claude's plugin guide](https://support.claude.com/en/articles/13837440-use-plugins-in-claude) if the UI differs. The repository supplies the marketplace and plugin manifests; account UI installation must still be verified in your environment. The plugin bundles skills only, so Blender and Marso connections must be configured separately.
@@ -146,10 +149,10 @@ Claude documents plugins for paid plans; organization settings can restrict them
 
 Use this if your account supports custom skills but the plugin route is unavailable:
 
-1. [Download all ten skill ZIPs](https://github.com/mxr-software/marso-skills/releases/latest/download/marso-skills-claude.zip).
-2. Unzip that download on your computer. It contains ten separate skill ZIPs. Keep those inner ZIPs zipped.
+1. [Download the released skill ZIPs](https://github.com/mxr-software/marso-skills/releases/latest/download/marso-skills-claude.zip).
+2. Unzip that download on your computer. It contains one ZIP per skill in that release. Keep those inner ZIPs zipped.
 3. In Claude, open **Customize > Skills > + > Create skill > Upload a skill**.
-4. Upload one inner ZIP, then repeat for the other skills you want. To install the complete collection, upload all ten.
+4. Upload one inner ZIP, then repeat for the other skills you want. To install the complete collection, upload all included skills.
 5. Enable the uploaded skills and start a new chat. Ask Claude to use `marso-blender-setup` to check the Blender connection.
 
 Each inner ZIP contains the complete skill folder, including its references, scripts, assets and licence. Do not upload the outer download as one skill, paste the terminal command into chat, or save only `SKILL.md`: those routes do not install the complete collection into your account. Individual ZIPs are also available on the [release downloads page](https://github.com/mxr-software/marso-skills/releases/latest).

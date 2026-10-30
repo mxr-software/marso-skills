@@ -75,23 +75,23 @@ class CropObjectsTests(unittest.TestCase):
         self.assertEqual({row["label"] for row in index["assets"]}, {"bowl", "onion"})
         self.assertEqual(index["problems"], [])
         image, brief = self.load(self.ids["bowl"])
-        # Bowl box (8,12,32,30), pad 0.15 x 24 = 4 -> crop (4,8,36,34).
-        self.assertEqual(brief["view"]["crop_px"], [4, 8, 36, 34])
-        self.assertEqual(image.size, (32, 26))
-        self.assertEqual(brief["subject_box"], [4, 4, 28, 22])
-        onion_px = (PX["g005"][0] + 4 - 4, PX["g005"][1] + 4 - 8)
+        # Bowl box (8,12,32,30), 4 px margin on longest side -> 32 px square.
+        self.assertEqual(brief["view"]["crop_px"], [4, 5, 36, 37])
+        self.assertEqual(image.size, (32, 32))
+        self.assertEqual(brief["subject_box"], [4, 7, 28, 25])
+        onion_px = (PX["g005"][0] + 4 - 4, PX["g005"][1] + 4 - 5)
         self.assertEqual(image.getpixel(onion_px), ONION)  # neighbours stay visible
-        self.assertEqual(image.getpixel((6, 6)), BOWL)
-        self.assertEqual(image.getpixel((4, 4)), (255, 0, 0))  # the red outline, 2 px
+        self.assertEqual(image.getpixel((6, 9)), BOWL)
+        self.assertEqual(image.getpixel((4, 7)), (255, 0, 0))  # the red outline, 2 px
         self.assertEqual(image.getpixel((5, 10)), (255, 0, 0))
-        self.assertEqual(image.getpixel((27, 21)), (255, 0, 0))
+        self.assertEqual(image.getpixel((27, 24)), (255, 0, 0))
         self.assertEqual(brief["marking"], {"subject_box": "red outline", "stroke_px": 2})
         roles = {o["global_id"]: o for o in brief["not_the_subject"]}
         self.assertEqual(set(roles), {"g003", "g005", "g006"})
         self.assertEqual(roles["g005"]["sits"], "resting on this object")
         self.assertEqual(roles["g005"]["pixels"], "still visible")
         self.assertEqual(roles["g005"]["role"], "child")
-        self.assertEqual(roles["g005"]["box"], [8, 8, 16, 16])
+        self.assertEqual(roles["g005"]["box"], [8, 11, 16, 19])
         self.assertEqual(roles["g003"]["sits"], "this object rests on it")
         self.assertEqual(roles["g003"]["pixels"], "still visible")
         self.assertFalse(brief["masking"]["children_masked"])
@@ -133,7 +133,7 @@ class CropObjectsTests(unittest.TestCase):
         self.assertEqual(child["pixels"], "blacked out")
         self.assertTrue(brief["masking"]["children_masked"])
         self.assertIn("The black areas in @crop are removed objects", brief["prompt"])
-        self.assertEqual(image.getpixel((4, 4)), (255, 0, 0))  # the outline is drawn over masking
+        self.assertEqual(image.getpixel((4, 7)), (255, 0, 0))  # the outline is drawn over masking
 
     def test_exclude_parent_by_global_id(self):
         result = self.crop("--ids", "g005", "--exclude-parent")
@@ -145,7 +145,7 @@ class CropObjectsTests(unittest.TestCase):
         self.assertEqual(brief["view"]["crop_px"], [11, 15, 21, 25])
         self.assertEqual(brief["subject_box"], [1, 1, 9, 9])
         self.assertEqual(image.getpixel((0, 0)), (0, 0, 0))
-        self.assertEqual(image.getpixel((4, 4)), ONION)
+        self.assertEqual(image.getpixel((4, 7)), ONION)
         parent = next(o for o in brief["not_the_subject"] if o["role"] == "parent")
         self.assertEqual(parent["global_id"], "g004")
         self.assertEqual(parent["pixels"], "blacked out")
@@ -208,6 +208,31 @@ class CropObjectsTests(unittest.TestCase):
         self.assertEqual(self.crop("--ids", self.ids["onion"], "--exclude-parent").returncode, 0)
         index = json.loads((self.out / "index.json").read_text(encoding="utf-8"))
         self.assertEqual({row["label"] for row in index["assets"]}, {"bowl", "onion"})
+
+    def test_square_padding_at_image_edge_and_thin_subject(self):
+        plan = json.loads(self.plan.read_text())
+        asset = next(a for a in plan["assets"] if a["label"] == "bowl")
+        asset["best_view"]["bbox"] = [0, 0, 1, 0.05]
+        self.plan.write_text(json.dumps(plan))
+        self.assertEqual(self.crop("--ids", self.ids["bowl"]).returncode, 0)
+        image, brief = self.load(self.ids["bowl"])
+        self.assertEqual(image.width, image.height)
+        self.assertEqual(image.getpixel((0, 0)), (128, 128, 128))
+        self.assertGreater(brief["view"]["subject_long_side_fraction"], 0.7)
+        box = brief["subject_box"]
+        self.assertTrue(0 <= box[0] < box[2] <= image.width)
+        self.assertTrue(0 <= box[1] < box[3] <= image.height)
+        self.assertEqual(image.getpixel((box[0], box[1])), (255, 0, 0))
+        with Image.open(self.out / self.ids["bowl"] / "search.png") as search:
+            self.assertEqual(search.width, brief["view"]["subject_source_size_px"][0])
+
+    def test_context_opt_in_and_invalid_margin(self):
+        self.assertEqual(self.crop("--shape", "context").returncode, 0)
+        image, brief = self.load(self.ids["bowl"])
+        self.assertEqual(image.size, (32, 26))
+        self.assertEqual(brief["view"]["crop_px"], [4, 8, 36, 34])
+        for value in ("nan", "inf", "-1", "100"):
+            self.assertNotEqual(self.crop("--pad", value, "--force").returncode, 0)
 
     def test_exit_codes(self):
         bad = self.folder / "bad.json"

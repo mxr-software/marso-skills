@@ -1,0 +1,122 @@
+[
+  {
+    "id": "generate",
+    "prompt": "Use Marso to generate a weathered garden statue from this image.",
+    "context": "Relevant project exists. No saved preference. Live models A (default) and B both support image input, with different options."
+  },
+  {
+    "id": "exact-reuse",
+    "prompt": "Use my existing Marso library chair in this Blender room; don't make a replacement.",
+    "context": "User supplies exact asset id chair-17; import available."
+  },
+  {
+    "id": "complete-scene",
+    "prompt": "Recreate this office from four photos in Blender. Include furniture and props, save the scene and show previews.",
+    "context": "Photos and scene/native batch commands available; no run yet."
+  },
+  {
+    "id": "decompose-only",
+    "prompt": "Just identify objects in these photos and give me an interactive scene graph.",
+    "context": "Photos and local image/script tools available."
+  },
+  {
+    "id": "remembered-options",
+    "prompt": "Generate one kettle, same options as last time.",
+    "context": "Recorded user preference Model B/standard supported; panel currently Model A."
+  },
+  {
+    "id": "scene-budget",
+    "prompt": "Make this 80-chair cafe with four upholstery styles and six unique tables. It needs to fit on my 8GB GPU.",
+    "context": "Preferred Model B supports 40000 or 100000 polygons; explicit hero-chair ceiling 20000."
+  },
+  {
+    "id": "explicit-model",
+    "prompt": "Model an editable articulated desk lamp in Blender and texture it as worn brass.",
+    "context": "User usually prefers Model B for generated assets; tools available."
+  },
+  {
+    "id": "unsupported-preference",
+    "prompt": "Generate a mushroom prop. Remember I prefer Model B with detailed textures for future projects.",
+    "context": "Model B currently supports standard only; Model A supports detailed."
+  },
+  {
+    "id": "batch-recovery",
+    "prompt": "Resume my scene batch; reject the held item, and start another batch if the first is stuck.",
+    "context": "Three images await review. Target rename caused one held item. Commands expose paginated status, batch_items and batch_control."
+  },
+  {
+    "id": "material-names",
+    "prompt": "Keep my chair geometry, make three styles from the original; rename returned materials so I can find them.",
+    "context": "Legacy name-based prepared-material state; one style job running."
+  },
+  {
+    "id": "memory",
+    "prompt": "My Blender cafe with 100 repeated chairs and four looks runs out of GPU memory. Make it fit and show a preview.",
+    "context": "All meshes unique copies; duplicate images; Cycles GPU."
+  },
+  {
+    "id": "mixed-legacy",
+    "prompt": "Here is an approved plan: two generated plants, an agent-modelled desk, existing-scene chair instances and a modular wall. Build the finished scene.",
+    "context": "Plan approval excludes image/mesh review. Legacy scene_mesh bundles mesh+PBR; native batches absent."
+  },
+  {
+    "id": "appearance-families",
+    "prompt": "Fill a shelf with 60 cans using six label designs; most cans are standard size and some are tall. Use blank white label areas as editable guides.",
+    "context": "Reference inspiration supplied; actual geometry families must be inspected."
+  },
+  {
+    "id": "shape-pack",
+    "prompt": "Create 12 weapons and shields with different silhouettes.",
+    "context": "User wants geometry variety."
+  },
+  {
+    "id": "identical-instances",
+    "prompt": "Place 40 identical chairs with the same texture.",
+    "context": "Source chair exists; no appearance changes requested."
+  },
+  {
+    "id": "grid-drift",
+    "prompt": "Make 15 box looks using a 3-column, 5-row edited sheet at 4K, crop and retexture the approved master.",
+    "context": "Tool has no size parameter; actual 2048-square output has moved subjects, extra items and blurry labels."
+  },
+  {
+    "id": "image-only",
+    "prompt": "Edit this blank bottle image into three realistic label concepts. Just show me the images for now.",
+    "context": "Image editing and mesh-generation tools are available; no mesh work has been requested."
+  },
+  {
+    "id": "airbrushed-sheet",
+    "prompt": "Make realistic can appearances from this shape guide, then texture the approved master.",
+    "context": "The edited sheet preserves all cells and silhouettes, but surfaces are uniformly glossy and illustrative. The brief calls for clean, recently handled cans. The source render is a simple clay guide."
+  },
+  {
+    "id": "wrong-master",
+    "prompt": "Use this shelf reference to model the two can families and make label variants.",
+    "context": "The current low-poly masters pass UV and budget checks. Their height-to-diameter ratios, shoulders and lids visibly differ from the reference. Family assignment used product-name keywords; complementary reference lookup is available."
+  },
+  {
+    "id": "crop-resolution",
+    "prompt": "Use these six edited packaging designs for assets that will be seen close up.",
+    "context": "The source sheet was large, but returned object crops are only 270 by 620 pixels and fine artwork is blurred. PBR can output 4K maps. No higher image-edit resolution control is exposed."
+  },
+  {
+    "id": "retexture-brief",
+    "prompt": "Apply this accepted red can design to the approved master, keeping the existing mesh and UVs.",
+    "context": "The material reference is accepted. Geometry and UV correspondence can be checked locally. The service accepts an appearance prompt and one reference."
+  },
+  {
+    "id": "pbr-handoff",
+    "prompt": "Finish texturing this cabinet and show me the final result.",
+    "context": "Retexture completed. Auto-PBR is disabled, but a PBR command is available. There is no user-requested intermediate hold. The intermediate colour result has prominent lighting highlights."
+  },
+  {
+    "id": "conditional-pilot",
+    "prompt": "Make six appearances from this approved master and populate the shelf.",
+    "context": "The first final PBR pilot passed correspondence checks but has raised-looking printed lettering and obvious colour bleed. It was marked conditional. The original brief requires realistic close-up materials; the other appearances are not submitted."
+  },
+  {
+    "id": "transparent-packaging",
+    "prompt": "Texture this display fridge and its labelled clear bottles.",
+    "context": "Marso cannot generate transparency. Editable glass objects and bottle material regions exist locally; opaque labels must remain visible. The source meshes are approved."
+  }
+]

@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import base64
+import hashlib
 import json
 import mimetypes
 import os
@@ -49,9 +50,19 @@ def image_src(path: pathlib.Path, out_dir: pathlib.Path, embed: bool) -> tuple[s
 
 def build(graph: dict, manifest: dict | None, scores: dict | None, confusion: dict | None,
           ontology: dict | None, out_dir: pathlib.Path, embed: bool,
-          image_root: pathlib.Path | None) -> tuple[str, list[str], list[str]]:
+          image_root: pathlib.Path | None, choices: dict | None = None,
+          asset_record: dict | None = None) -> tuple[str, list[str], list[str]]:
     problems: list[str] = []
     warnings: list[str] = []
+    key = hashlib.sha256(json.dumps(graph, sort_keys=True, ensure_ascii=True,
+                                   separators=(",", ":")).encode()).hexdigest()
+    if choices is not None and (not isinstance(choices, dict) or choices.get("schema") != "marso/scene-choices@1"
+                                or choices.get("graph_key") != key):
+        problems.append("choices do not belong to this graph revision")
+    if asset_record is not None and (not isinstance(asset_record, dict) or asset_record.get("graph_key") != key):
+        problems.append("asset record does not belong to this graph revision; initialise it from this plan")
+    if problems:
+        return "", problems, warnings
 
     rows = {r.get("image_id"): r for r in (manifest or {}).get("images") or []}
     images, cost = [], 0
@@ -88,7 +99,22 @@ def build(graph: dict, manifest: dict | None, scores: dict | None, confusion: di
         "confusion": confusion or {},
         "ontology": (ontology or {}).get("categories") or [],
         "distinct_objects": (ontology or {}).get("total_objects"),
+        "graph_key": key,
+        "choices": choices,
+        "library_candidates": {},
     }
+    for asset in (asset_record or {}).get("assets") or []:
+        candidates = []
+        for candidate in (asset.get("library") or {}).get("candidates") or []:
+            if not candidate.get("pbr_asset_id"):
+                continue
+            item = {k: candidate.get(k) for k in ("name", "verdict", "pbr_asset_id")}
+            thumbnail = pathlib.Path(candidate.get("thumbnail_path") or "")
+            if thumbnail.is_file():
+                item["thumbnail_src"], _ = image_src(thumbnail, out_dir, embed)
+            candidates.append(item)
+        for gid in asset.get("members") or [asset.get("global_id")]:
+            data["library_candidates"][gid] = candidates
     if data["distinct_objects"] is None:
         slack = sum(max(0, len(g.get("members") or []) - (g.get("distinct") or 0))
                     for g in data["identity_groups"])
@@ -99,7 +125,7 @@ def build(graph: dict, manifest: dict | None, scores: dict | None, confusion: di
     data["title"] = title
     html = TEMPLATE.read_text(encoding="utf-8-sig")
     # Order matters: the data blob may itself contain the title placeholder's text.
-    html = html.replace("__DATA__", json.dumps(data, ensure_ascii=False))
+    html = html.replace("__DATA__", json.dumps(data, ensure_ascii=False).replace("<", "\\u003c"))
     html = html.replace("__TITLE__", title)
     return html, problems, warnings
 
@@ -111,6 +137,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--scores", help="view_scores.json")
     parser.add_argument("--confusion", help="confusion.json")
     parser.add_argument("--ontology", help="ontology.json")
+    parser.add_argument("--choices", help="restore exported scene_choices.json")
+    parser.add_argument("--asset-record", help="assets.json with recorded find_in_library candidates")
     parser.add_argument("--image-root", help="look for the images in this folder instead of the "
                                              "paths in the manifest")
     parser.add_argument("--embed", action="store_true",
@@ -133,6 +161,8 @@ def main(argv: list[str] | None = None) -> int:
         scores = optional(args.scores)
         confusion = optional(args.confusion)
         ontology = optional(args.ontology)
+        choices = optional(args.choices)
+        asset_record = optional(args.asset_record)
     except FileNotFoundError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 2
@@ -147,7 +177,7 @@ def main(argv: list[str] | None = None) -> int:
     out.parent.mkdir(parents=True, exist_ok=True)
     html, problems, warnings = build(
         graph, manifest, scores, confusion, ontology, out.parent, args.embed,
-        pathlib.Path(args.image_root) if args.image_root else None)
+        pathlib.Path(args.image_root) if args.image_root else None, choices, asset_record)
 
     if problems:
         for line in problems:

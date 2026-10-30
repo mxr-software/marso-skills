@@ -1,6 +1,8 @@
 # Find an asset in the library
 
-Use this before generating an object the user's Marso library might already hold, and whenever the user asks to find, reuse or import something they have made before. Reusing an asset costs nothing and keeps a set consistent; generating a near copy does neither. Skip it when the user asks for a new asset, a different version, or a hand-modelled one.
+Use this before generating an object the user's Marso library might already hold, and whenever the user asks to find, reuse or import something they have made before. Reusing the intended source keeps a set consistent and avoids unnecessary generation. Skip it when the user asks for a new asset, a different version, or a hand-modelled one.
+
+If the user has supplied an exact asset id or already selected a candidate, resolve it directly and continue with the authorized import. Do not ask them to select it again.
 
 ## Search
 
@@ -24,6 +26,6 @@ Search with both a description and an image whenever there is an image:
 
 ## Decide with the user
 
-Show each candidate's thumbnail with its name and verdict beside the user's picture, and let the user choose to reuse one or make a new asset. Never reuse on a score alone: a library asset can differ in size, style or material from what the user wants. When the user chooses one, import it through the route's import command by the id it takes (`pbr_asset_id` in Blender), and inspect its scale as for any imported asset. When the user declines, or nothing came back, continue with generation or modelling and say the library was checked.
+Show plausible candidates with thumbnails, names, verdicts and material differences. Ask for a choice unless the user already chose or delegated it; distinguish an agent decision from user approval. Never reuse on a score alone: a library asset can differ in size, style or material from what the user wants. When the user chooses one, import it through the route's import command by the id it takes (`pbr_asset_id` in Blender), and inspect its scale as for any imported asset. When the user declines, or nothing came back, continue with generation or modelling and say the library was checked.
 
 Report what was searched (the description, the picture), what came back, and what the user chose.

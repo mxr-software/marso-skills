@@ -11,7 +11,7 @@ Record the following compactly:
 | Components | Stable component ID, root object/collection, dimensions, variant and intended purpose. |
 | Connectors | Owning component, empty object name, local position/orientation, interface type, permitted mates and twists. |
 | Fit | Position and angle tolerance; intended clearance, overlap or flush seating for each interface. |
-| Appearance | Material roles, grain direction, pattern scale, texture target and surfaces that must remain mapped. |
+| Appearance | Material roles, grain direction/pattern scale where relevant, texture target and surfaces that must remain mapped. |
 | Reusable look | Appearance-brief location/revision, accepted reference component, original source revision, and named style variants when present. |
 | Reference evidence | Role of each source image, observed versus inferred dimensions/construction, and per-component appearance instructions. |
 | Studio destination | Relevant project name/ID and graph ID when generation is used; saved-file selection and output membership verification. |

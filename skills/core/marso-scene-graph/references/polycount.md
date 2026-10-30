@@ -1,18 +1,22 @@
-# Polygon budget
+# Scene polygon budget
 
-`plan_assets.py --polycount` writes `polygon_count` on each asset routed to `generate`, and `crop_objects.py` copies it into the brief. Without the option no budget is written and the generation step uses its own default.
+Establish a budget before bulk creation from intended use, target hardware when relevant, screen coverage, hero/background roles, unique assets, instances and material variants. Propose reasonable provisional targets where the brief permits; ask about material unknowns once rather than interviewing for every prop.
 
-## Rules
+Use the user's preferred mesh options where compatible with live capabilities. Allocate per-asset `polygon_count` in `asset_plan.json` and record reasoning/limits in `review`. Count modelled and reused assets too.
 
-| `--polycount` | `polygon_count` |
+Track unique geometry separately from the count across instances. Sharing can save memory without eliminating traversal/shading work. Texture images, displacement, subdivision and buffers also affect GPU memory. Generator polygon targets are not measured triangle counts; inspect imports and update the budget.
+
+## Optional helper presets
+
+`plan_assets.py --polycount` writes a provisional value on generate-route entries; `crop_objects.py` copies it into briefs. Without it, no value is written. This is not a live validator or scene allocator.
+
+| Argument | Provisional value |
 | --- | --- |
-| a whole number, such as `40000` | that number on every generated asset |
-| `by-size` | from the asset's largest dimension `size_m`: under 0.3 m 40000; under 1 m 50000; under 2 m 100000; otherwise 250000 |
+| A positive whole number | That target on each generated asset |
+| `by-size` | Largest dimension below 0.3 m: 40000; below 1 m: 50000; below 2 m: 100000; otherwise 250000 |
 
-An asset with no size reads as 0 m and gets the smallest budget; it is usually flagged `low-size-confidence` already.
+Unknown dimensions receive the smallest preset; that does not establish the right detail level. Prefer purposeful allocation over size-only presets. A tiny hero mechanism may need more detail than a large flat cabinet.
 
-## It is a default to review
+## Reconcile capabilities
 
-- The budget is chosen from size alone. A small object with fine relief (a carved ornament) can need more; a large plain one (a bin) can need less. Change `polygon_count` in `asset_plan.json` during review, and record the change in `review`.
-- The model decides what is allowed. Before a job is sent, read the selected model's live options and clip the budget to the nearest offered value at or below it, or the smallest offered value when none is below. For example, Tripo `tripo_h3_1` has offered 40k, 50k, 100k, 250k, 500k, 1M and 1.5M; read the live list rather than trusting this one.
-- Never send a number the live options do not list. Report every asset whose budget was clipped.
+Read the selected model's live options and actual command schema. Use supported values within agreed ceilings; never silently round upward. If the lowest value exceeds a strict cap, propose a compatible model or an authorized reduction workflow with a preserved original and validated result. Keep the requested ceiling distinct from the service setting and final measured count. Do not promise fixed VRAM usage from these numbers.

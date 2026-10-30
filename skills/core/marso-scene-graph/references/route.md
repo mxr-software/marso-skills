@@ -8,10 +8,14 @@
 | --- | --- |
 | `generate` | Produce a crop and brief; hand to Marso generative 3D through the entry skill. |
 | `model` | Build in the application with its modelling skill, from the metadata block and the crop as reference. |
+| `instance` | Use an identified scene mesh or library asset, preserve the source and retexture an independent material variant. Never silently generate a replacement. |
+| `kit` | Build a modular component using shared dimensions, connections and fit tests, then review its model before texturing. |
 | `reuse` | Find the asset in the library before making anything. The script never assigns this itself; set it in review when the library is known to hold the object. When generating from Blender, `marso-blender-scene-assets` searches the library for every generate-route asset anyway and offers what it finds, so `generate` is the safe default. |
 | `skip` | Not a separate asset: an anchor, a part of its parent, or something the user excluded. |
 
 ## Rules, in the order applied
+
+An exported viewer choice supplied through `--choices` takes precedence over these defaults. Unpicked objects are skipped. The optional `search_library` choice applies across selected routes; finding a candidate does not change the chosen route without a recorded decision.
 
 1. **Anchors** (`parent: null`) are listed under `anchors` with route `model`: floors, walls and ceilings are built as the room shell, not generated.
 2. **Architecture, built-in, fitted and modular units** route to `model`: labels or categories that name walls, floors, ceilings, doors, windows, skirting, cornices, fitted, built-in or modular units, worktops, counters, cabinet runs or cabinet units, sideboards, shelving units, radiators or stairs. These are planar, dimensioned and often tied to the room.

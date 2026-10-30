@@ -1,28 +1,25 @@
 # Review checkpoints
 
-The run stops twice for the user. Each stop is a full stop: end the turn with the question, and start no job until the user answers. When the user is unreachable and told you to continue alone, make the call yourself, record it with `manifest.py review --note "decided by the assistant: ..."`, and say so when you deliver.
+Retain approval of unchanged decisions. Consolidate plan, library and scene-budget review rather than asking the same questions twice. An explicit waiver permits the covered work; otherwise pause at the applicable checkpoints defined below until the user answers. Continue independent approved items. Record agent decisions as such, never as user approval.
 
-## Checkpoint 1: the asset plan
+## Plan and library selection
 
-Before any job, show:
+Show the verified Studio project, routes, unique assets and instance counts, resolved options and scene budget, exclusions/flags and useful library thumbnails. Review new choices only. A candidate score alone is not approval; an already selected asset or explicitly delegated reuse decision needs no repeated permission.
 
-- the Studio project name, verified id and whether it already exists;
-- how many assets will be generated, the instance range, and the settings (model, polygon budget per asset, texture);
-- every asset `manifest.py init` left out, and why (modelled, reused, skipped, no crop);
-- the library check: for each asset, `search.png` beside the thumbnails of its `match` and `possible` candidates (and the best `weak` one when nothing better came back), with names, verdicts and scores. See [library check](library-check.md);
-- every flagged asset in the plan, with its flag.
+Record decisions with `manifest.py choose`. An asset with no useful candidate can be made within the approved plan. Revise plan/references as needed; reinitialise with `--force` only before any jobs exist. After submission, preserve the active record and plan revised work separately.
 
-Ask the user to confirm or change the list, and to choose reuse or make for every asset with a candidate; record it with `manifest.py choose`. An asset with no candidate worth showing is made: record it with `--make`. Changes go into `asset_plan.json` and its `review` list; re-run the crop step for a changed asset, then `manifest.py init --force` with the verified project id only if no jobs have been submitted. Once work exists, preserve that record and plan a separate revised run instead of overwriting job and source ids.
+## Native batch route
 
-## Checkpoint 2: the reference images
+Use image and mesh review gates by default; omit a gate only when explicitly waived. Review each ready item without waiting for every reference. Open its review artifact and compare it with its crop and brief. Approve through `batch_review`; reconcile local records as described in [batches](batches.md). A local manifest decision does not advance the batch.
 
-When every listed reference job has finished, show each `image_path` beside its `crop.png`, with the asset id and label. For each, the user approves or rejects. Look for:
+Inspect image isolation/framing/proportions before mesh generation. Inspect geometry from useful views before approving downstream PBR; an inadequate thumbnail is not a passed review. Rejecting a review stops that item. Held scene-generation items are different: reconcile the cause and use supported cancel or authorized retry; they cannot be review-rejected. Retexture reprepare does not apply to this pipeline.
 
-- the wrong object, or two objects merged into one;
-- a child, the parent or a neighbour drawn into the image;
-- the object cut off, posed oddly, or on a busy background;
-- the wrong material, colour or proportions against the crop.
+## Individual-command fallback
 
-Record the answer: `manifest.py review runs/<job>/assets.json --approve a001 a004 --reject a002 --note "the bowl, not the fruit in it"`. For a rejection, work the user's note into the prompt as an instruction, start a new `scene_reference` job and return to this checkpoint for that asset only. Approved assets can go on to meshes while rejected ones are redone.
+Review completed reference images beside source crops with stable asset ids. Check wrong/merged subjects, cut-off parts, neighbours, pose, materials and proportions. Record with `manifest.py review <assets.json> --approve a001 a004 --reject a002 --note "..."`. Approved references can progress while others are revised. Preserve completed attempts when retrying.
 
-There is no stop after the meshes; the placement step's review covers how they look in the room. Report the minted state at the end.
+The inspected legacy `scene_mesh` bundles mesh and PBR; it cannot pause between them. For generated assets on this fallback, the default is image approval, combined mesh/PBR, then inspection of the returned geometry. Disclose that sequence before submission; no extra generated-mesh waiver is required unless the user already required a pre-PBR geometry checkpoint. This exception does not apply to agent-modelled assets. If the user requires a pre-PBR mesh gate, use a verified staged/native route or report the capability gap. Do not promise a checkpoint the command cannot provide. Review returned geometry before placement; minted status is not visual approval.
+
+## Modelled and reused assets
+
+Newly modelled/substantially remodelled geometry needs a recorded visual form/construction check, then user approval before Retexture/PBR unless explicitly waived. A failed form check stays partial even when its UVs pass; repair it before final texture preparation, or report the remaining work without submitting it. Continue independent accepted assets and retain their approvals. Unchanged existing assets requested for retexture need no redundant model gate. Place complete assets and finish the requested scene; report unresolved or rejected ones.

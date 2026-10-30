@@ -15,6 +15,7 @@ location, 2 the graph (or scores file) could not be read as JSON.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import pathlib
 import re
@@ -22,6 +23,44 @@ import sys
 
 SCHEMA_IN = "scene-decompose/scene-graph@1"
 SCHEMA_OUT = "marso/asset-plan@1"
+
+
+def graph_key(graph):
+    return hashlib.sha256(json.dumps(graph, sort_keys=True, ensure_ascii=True,
+                                     separators=(",", ":")).encode()).hexdigest()
+
+
+def read_choices(doc, graph):
+    """Validate a viewer handoff before it can change any route."""
+    if not isinstance(doc, dict) or doc.get("schema") != "marso/scene-choices@1":
+        raise ValueError("expected marso/scene-choices@1")
+    if doc.get("graph_key") != graph_key(graph):
+        raise ValueError("choices belong to a different graph revision; reopen its viewer")
+    choices = doc.get("choices")
+    if not isinstance(choices, dict):
+        raise ValueError("choices must be an object keyed by global_id")
+    nodes = {n["global_id"]: n for n in graph["nodes"]}
+    for gid, choice in choices.items():
+        if gid not in nodes or not isinstance(choice, dict):
+            raise ValueError(f"invalid choice for {gid}")
+        if choice.get("route") not in ("model", "generate", "instance", "kit"):
+            raise ValueError(f"{gid}: unknown creation route")
+        if type(choice.get("search_library")) is not bool:
+            raise ValueError(f"{gid}: search_library must be boolean")
+        if choice.get("decided_by") not in ("user", "agent"):
+            raise ValueError(f"{gid}: decided_by must be user or agent")
+        for key in ("source_ref", "notes"):
+            if not isinstance(choice.get(key, ""), str):
+                raise ValueError(f"{gid}: {key} must be text")
+        if choice.get("source_kind", "scene") not in ("scene", "library"):
+            raise ValueError(f"{gid}: source_kind must be scene or library")
+        if nodes[gid].get("unconfirmed"):
+            raise ValueError(f"{gid}: resolve the unconfirmed detection in the graph first")
+    for group in graph.get("identity_groups") or []:
+        values = [choices.get(gid) for gid in group.get("members", []) if gid in nodes]
+        if values and any(value != values[0] for value in values):
+            raise ValueError("unresolved identity members need the same choice; resolve identity before splitting them")
+    return choices
 
 # Same penalties as the decompose stage's view ranking, so the two agree when no
 # scores file is supplied.
@@ -172,7 +211,8 @@ def polycount_for(size_m, rule) -> int | None:
     return POLYCOUNT_LARGEST
 
 
-def build_plan(graph: dict, scores_doc: dict | None, polycount=None) -> dict:
+def build_plan(graph: dict, scores_doc: dict | None, polycount=None, choices_doc=None) -> dict:
+    choices = read_choices(choices_doc, graph) if choices_doc is not None else None
     nodes = {n["global_id"]: n for n in graph.get("nodes") or [] if n.get("global_id")}
     scores = None
     if scores_doc:
@@ -223,8 +263,13 @@ def build_plan(graph: dict, scores_doc: dict | None, polycount=None) -> dict:
         for member in members:
             cluster_of.setdefault(member, cluster_key(cluster))
         if cluster.get("kind") == "instances":
-            for member in members[1:]:
-                owner[find(member)] = find(members[0])
+            batches = {}
+            for member in members:
+                key = json.dumps(choices.get(member), sort_keys=True) if choices is not None else "all"
+                batches.setdefault(key, []).append(member)
+            for batch in batches.values():
+                for member in batch[1:]:
+                    owner[find(member)] = find(batch[0])
     for group in groups.values():
         members = usable(group.get("members"))
         for member in members[1:]:
@@ -276,6 +321,10 @@ def build_plan(graph: dict, scores_doc: dict | None, polycount=None) -> dict:
         count = max(at_least, min(count, at_most))
 
         route, reason = route_for(rep, count)
+        choice = choices.get(members[0]) if choices is not None else None
+        if choices is not None:
+            route = choice["route"] if choice else "skip"
+            reason = "explicit scene selection" if choice else "not selected in the scene viewer"
         view = best_view(rep, scores)
         if view is None:
             flags.append("no-view")
@@ -327,6 +376,10 @@ def build_plan(graph: dict, scores_doc: dict | None, polycount=None) -> dict:
         }
         if rep.get("inferred_whole"):
             asset["inferred_whole"] = rep["inferred_whole"]
+        if choice:
+            asset["creation_choice"] = choice
+            if route == "instance" and not choice.get("source_ref", "").strip():
+                asset["flags"].append("source-mesh-needed")
         if route == "generate" and polycount is not None:
             asset["polygon_count"] = polycount_for(rep.get("size_m"), polycount)
         if cluster_id:
@@ -351,6 +404,12 @@ def build_plan(graph: dict, scores_doc: dict | None, polycount=None) -> dict:
             "source_images": sorted({v.get("image_id") for v in node.get("views") or []
                                      if v.get("image_id")}),
         })
+        if choices is not None:
+            choice = choices.get(gid)
+            anchors[-1].update(route=choice["route"] if choice else "skip",
+                               route_reason="explicit scene selection" if choice else "support frame only; not selected")
+            if choice:
+                anchors[-1]["creation_choice"] = choice
 
     by_route: dict[str, int] = {}
     for asset in assets:
@@ -368,8 +427,14 @@ def build_plan(graph: dict, scores_doc: dict | None, polycount=None) -> dict:
     }
     if polycount is not None:
         summary["polycount"] = polycount
+    if choices is not None:
+        summary["selected_assets"] = sum(a["route"] != "skip" for a in assets)
+        summary["selected_instances"] = sum(a["count"] for a in assets if a["route"] != "skip")
+        summary["selected_anchors"] = sum(a["route"] != "skip" for a in anchors)
     return {
         "schema": SCHEMA_OUT,
+        "graph_key": graph_key(graph),
+        "selection_mode": choices is not None,
         "source_schema": graph.get("schema"),
         "images": graph.get("images") or [],
         "assets": assets,
@@ -387,6 +452,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("graph", help="scene_graph.json")
     parser.add_argument("--scores", help="view_scores.json from the decompose run")
+    parser.add_argument("--choices", help="scene_choices.json exported from the viewer; only selected objects are made")
     parser.add_argument("--out", required=True, help="write asset_plan.json here")
     parser.add_argument("--polycount", help="polygon_count for generated assets: a number such as 40000, "
                         "or by-size (largest side under 0.3 m 40000, under 1 m 50000, under 2 m 100000, "
@@ -428,7 +494,14 @@ def main(argv: list[str] | None = None) -> int:
         print(f"error: {out.as_posix()} exists; pass --force to overwrite", file=sys.stderr)
         return 1
 
-    plan = build_plan(graph, scores_doc, polycount)
+    choices_doc = read_json(pathlib.Path(args.choices)) if args.choices else None
+    if args.choices and choices_doc is None:
+        return 2
+    try:
+        plan = build_plan(graph, scores_doc, polycount, choices_doc)
+    except ValueError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 1
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(plan, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({"out": out.as_posix(), **plan["summary"]}, indent=2))

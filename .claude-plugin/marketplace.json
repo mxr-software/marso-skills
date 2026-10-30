@@ -1,12 +1,14 @@
 {
   "name": "marso-skills",
-  "description": "Marso workflows for creating, texturing and assembling 3D assets with an AI agent.",
-  "owner": { "name": "M-XR" },
+  "description": "Marso workflows for images and creating, texturing and assembling 3D assets with an AI agent.",
+  "owner": {
+    "name": "M-XR"
+  },
   "plugins": [
     {
       "name": "marso",
       "source": "./",
-      "description": "All ten Marso skills for asset creation, texturing, modular kits and preview scene workflows."
+      "description": "The complete Marso skill collection for asset creation, reuse, texturing, Blender rendering and preview scene workflows."
     }
   ]
 }

@@ -42,6 +42,23 @@ These are behavioural checks, not claims that every case has been executed. Reco
 | T16 | Photorealistic timber and plaster kit. | Material-specific detail at multiple scales, directional/end grain and plausible roughness/normal response; close and assembled views checked for incorrect material boundaries, baked lighting and exaggerated wear. |
 | T17 | A nominally 4K texture looks soft on a long, thin component. | Inspect actual atlas density, source-bake resolution and close renders; do not equate output dimensions with resolved detail or blindly equalise density. Re-bake an independent target after UV changes and compare the actual result before replacing the original. |
 
+## Form and construction acceptance
+
+These cases test decisions and visible results, not wording in the skill. Evaluate at the requested fidelity with reference images and actual renders. A passing UV report cannot satisfy them.
+
+| ID | Request / fixture | Required observable outcome |
+| --- | --- | --- |
+| F01 | Realistic compound body whose side outline matches but whose end view is a constant-depth slab. | Agent identifies the width/section mismatch and reshapes or rebuilds the volume before adding fittings or final UVs. A second view shows the repair; more bevel segments alone do not pass. |
+| F02 | Soft fitted object represented by a generic tube with surface panels. | Underlying volume and distinctive asymmetry are resolved from usable references before panel detailing. Close views reveal credible panel contact and thickness without clipping. |
+| F03 | Attractive material render and clean UVs on a recognisable but poorly proportioned model. | Neutral comparison fails the form check; the agent fixes the proportions or reports unresolved work, without claiming texture readiness or submitting a cloud job. |
+| F04 | Several references depict different variants of a product. | One coherent shape target is identified, with other references assigned explicit roles. Hidden construction remains labelled as inferred rather than combining incompatible shapes silently. |
+| F05 | Batch of complex objects or modular masters. | A representative difficult form is inspected and corrected before the approach is repeated; successful scripts and interface dimensions do not substitute for visual acceptance. |
+| F06 | User explicitly requests only a rough blockout. | Agent matches the requested fidelity, states limitations and avoids imposing close-view finishing work or extra approval stages. |
+| F07 | Surface-bound detail was placed before smoothing/thickness, or a supporting panel has changed. | Agent checks the evaluated surfaces, corrects buried/floating details and rechecks bends across surface boundaries. A positive projection offset or matching construction coordinates alone does not pass. |
+| F08 | A procedural build saves previews but continues straight to final atlas/bake despite a known form defect. | Separate geometry/preview and preparation executions; inspect actual images and record repair/proceed for the saved revision. Unresolved form remains partial and does not receive final texture preparation. |
+| F09 | User explicitly asks to diagnose UVs on an unfinished model. | Perform the requested diagnostic without requiring model completion; report geometry quality separately and do not treat a numerical UV pass as permission to texture. |
+| F10 | Soft fitted asset has a straight tubular upper and simplified contact base. | Inspect top/side/rear volumes, footprint and support curvature before fittings; reshape the supporting form and panel transitions or deliver a specifically limited partial result. Do not hide it behind a passing atlas. |
+
 ## Model approval before texturing
 
 These cases describe expected assistant behaviour; adding them does not establish a live conversational test pass.
@@ -92,6 +109,20 @@ Run `style_variant_smoke.py` with the same disposable Blender flags as below and
 These are acceptance criteria. Record executed checks separately from untested assistant behaviour.
 
 ## Local Blender smoke check
+
+For the read-only UV quality measurements, run `uv_quality_smoke.py` in a disposable background Blender process with factory startup and `--python-exit-code 1`. It checks equal-area maps with different directional stretch, chart connectivity, requested gaps and borders, collapsed UVs, world scale, one-pixel strips with substantial area, and exact exported-vertex-split diagnostics. Real UV seams, position differences and ambiguous duplicate faces must remain separate; the diagnostic must not mutate coordinates or UVs. Run the separate overlap audit too; spacing alone cannot certify a layout.
+
+Additional visual/behavioural acceptance cases (not implied passes from the smoke test):
+
+| ID | Request / fixture | Required observable outcome |
+| --- | --- | --- |
+| U01 | High-coverage atlas with tiny fragments and one-pixel-wide strips at the intended lower resolution. | Repair avoidable fragmentation, retain continuous bevel charts where useful, measure actual strip cross-sections, allocate extra detail space deliberately and inspect a low-resolution checker. No blanket scaling of all tiny triangles. |
+| U02 | Large hollow rings or long strips limit atlas density after enlargement. | Compare a cut/unwrapped alternative on unchanged geometry, inspect seams/stretch and preserve the better useful allocation. A padding pass or larger small islands alone does not establish efficient packing. |
+| U03 | A GLB import reports twice the charts and zero-distance padding failures despite the saved layout passing. | Retain raw results and verify export correspondence; use optional exact-position/UV diagnostics without welding the deliverable. Keep overlap/winding checks independent and disclose ambiguous matches. |
+| U04 | User accepts an atlas revision after a colour guide was baked. | Re-bake the working guide, export again and check actual file bindings/layer/object inventory. Old guide/GLB is not relabelled as the revised output. |
+| U05 | A convincing single-object appearance edit changes canvas ratio and object proportions. | Inspect actual dimensions and landmarks with aspect ratios preserved. Distinguish padding from object change, repair the image or explicitly constrain it to finish inspiration; no stretching to fake correspondence or silently reshaping the mesh. |
+
+When reviewing authored UV preparation, include a long rounded member and a curved shell. Compare checker distortion, smallest chart area and packing on the same evaluated geometry; preserve valid direct mappings when relaxation makes them worse. Reopen the saved result and verify geometry correspondence, including documented hidden-face exclusions. These are acceptance criteria, not a claim that every future assistant will satisfy them.
 
 Run the script only in a new background Blender process. It refuses a GUI session and uses factory startup rather than an existing file:
 

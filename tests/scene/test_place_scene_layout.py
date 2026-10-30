@@ -80,6 +80,42 @@ class LayoutPlanTests(unittest.TestCase):
         self.assertEqual(placement["assets"]["a002"]["copies"], 1)
         self.assertEqual(objects["g005"]["name"], "a003_onion_g005")
 
+    def test_model_route_retains_plan_id_for_local_handoff(self):
+        plan = self.run_dir / "model-plan.json"
+        plan.write_text(json.dumps({"assets": [{"asset_id": "local-worktop", "members": ["g003"], "route": "model"}]}))
+        manifest = assets_doc()
+        manifest["assets"].append({"asset_id": "local-worktop", "members": ["g003"],
+                                   "route": "model", "minted": "not_minted", "pbr_asset_id": None})
+        self.assets.write_text(json.dumps(manifest))
+        placement = self.layout("--plan", str(plan), code=0)
+        row = self.by_id(placement)["g003"]
+        self.assertEqual(row["asset_id"], "local-worktop")
+        self.assertEqual(row["route"], "model")
+        self.assertNotIn("local-worktop", placement["assets"])
+
+    def test_picked_child_keeps_empty_supports_without_unpicked_geometry(self):
+        plan = self.run_dir / "choices-plan.json"
+        plan.write_text(json.dumps({'selection_mode': True, 'anchors': [], 'assets': [
+            {'members':['g004'], 'route':'generate'},
+            {'members':['g003','g005','g006','g007','g008','g009'], 'route':'skip'}]}))
+        placement = self.layout('--plan', str(plan))
+        objects = self.by_id(placement)
+        self.assertEqual(set(objects), {'g003','g004'})
+        self.assertEqual(objects['g003']['kind'], 'support')
+        self.assertEqual(objects['g004']['parent'], 'g003')
+        self.assertTrue(all(a['object'] == 'empty' for a in placement['anchors']))
+
+    def test_unpicked_support_is_not_imported_from_an_old_asset_record(self):
+        plan = self.run_dir / "choices-plan.json"
+        plan.write_text(json.dumps({'selection_mode': True, 'anchors': [], 'assets': [
+            {'members':['g005'], 'route':'generate'},
+            {'members':['g003','g004','g006','g007','g008','g009'], 'route':'skip'}]}))
+        placement = self.layout('--plan', str(plan))
+        bowl = self.by_id(placement)['g004']
+        self.assertEqual(bowl['kind'], 'support')
+        self.assertNotIn('asset_id', bowl)
+        self.assertNotIn('a002', placement['assets'])
+
     def test_a_floor_object_is_projected_onto_the_floor(self):
         objects = self.by_id(self.layout())
         # The worktop's box bottom-centre is u=19/64, v=38/48. With a 90 degree field of view the
@@ -131,7 +167,7 @@ class LayoutPlanTests(unittest.TestCase):
         imports.write_text(json.dumps({"a002": {"objects": ["bowl"], "dimensions_m": [0.6, 0.6, 0.25]},
                                        "a003": {"objects": ["onion"], "dimensions_m": [0.085, 0.08, 0.08]}}),
                            encoding="utf-8")
-        placement = self.layout("--imports", str(imports), code=1)
+        placement = self.layout("--imports", str(imports), code=0)
         objects = self.by_id(placement)
         self.assertIn("size-disagrees", objects["g004"]["flags"])
         self.assertEqual(objects["g004"]["dimensions_m"], [0.6, 0.6, 0.25])

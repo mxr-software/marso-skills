@@ -34,6 +34,8 @@ Design the visible join before splitting components. Choose whether each interfa
 
 ## Build masters and test reuse
 
+Resolve one representative master's visual construction before multiplying it: compare its silhouette, depth, proportions, joins and curved transitions with the reference in neutral views. Record the source revision, inspected views and repair/proceed decision before final UV preparation or family replication. A fitting connector or valid UV layout does not establish model quality. If the form fails, reshape or rebuild the affected region before adding fittings or making the family; an unresolved master remains partial. These are internal checks; the existing user approval checkpoint remains before cloud texturing. Use the asset companion's detailed construction guidance when available.
+
 Keep masters in a dedicated collection with stable component IDs. Use separate roots for multipart components; avoid an asset parent over the entire kit. Create named connector empties under each component root. Keep geometry editable and pivots meaningful. Bake scale into newly built master geometry before establishing connection frames; do not apply transforms blindly to existing rigs or linked data.
 
 Instances may share geometry and materials when they should look identical. Keep variants distinct when dimensions, handedness or appearance differ. Avoid negative-scale mirroring as an unchecked shortcut for directional or asymmetric components.
@@ -42,9 +44,9 @@ Assemble representative tests using the connection frames: a repeated run, each 
 
 ## Prepare for Marso
 
-Give components persistent material-role descriptions and grain directions. Identify faces exposed in any allowed arrangement, including connection ends and moving interiors. Keep original UVs and material intent until the texture strategy is chosen.
+Give components persistent material-role descriptions; record grain direction when the intended appearance needs it. Identify faces exposed in any allowed arrangement, including connection ends and moving interiors. Keep original UVs and material intent until the texture strategy is chosen.
 
-When a kit already has an appearance brief, retain its identity, revision and approved references in the contract. Hand it to the texture workflow with the new components' material roles and grain directions. When making style variants, retain one original source revision for all looks; never replace that source with a generated variant.
+When a kit already has an appearance brief, retain its identity, revision and approved references in the contract. Hand it to the texture workflow with the new components' material roles and any required pattern directions. When making style variants, retain one original source revision for all looks; never replace that source with a generated variant.
 
 When cloud generation is part of the task, resolve and record the relevant Studio project before submission. Use a specifically intended existing project or create/select a descriptive new one; do not let an unrelated or generic Blender destination collect the kit's outputs. Verify the saved .blend retains that choice. Geometry-only kit creation does not require a Studio project.
 

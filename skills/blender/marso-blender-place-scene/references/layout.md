@@ -44,7 +44,7 @@ Each object faces the camera: its front, taken as the -Y side of the generated m
 ## What is placed
 
 - Every member of an asset in `assets.json` is one instance: a cluster's members and an identity group's members each get their own position. Members of an identity group are flagged `identity-group`, because they may be fewer real objects; check them in review.
-- A modelled object, or one routed to reuse without a recorded library asset, becomes a placeholder box, or is left out with `--placeholders skip`. Library assets recorded in `assets.json` are placed like generated assets.
+- A modelled object starts as a placeholder, retaining its plan id for the [modelled handoff](hierarchy.md#modelled-handoff), or is left out with `--placeholders skip`. A reuse route without a recorded source also remains a placeholder. Library assets recorded in `assets.json` are placed like generated assets.
 - `part-of` objects are made with their parent and are skipped. `unconfirmed` readings are skipped unless `--unconfirmed boxes`. Anything whose parent is skipped is skipped too, so nothing floats.
 
 ## Correcting placement.json

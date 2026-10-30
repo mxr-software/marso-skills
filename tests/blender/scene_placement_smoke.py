@@ -156,12 +156,66 @@ class PlacementTests(unittest.TestCase):
         self.assertTrue(result["not_imported"])
         self.assertEqual(mesh.matrix_world, before)
 
+    def test_modelled_handoff_reruns_and_linked_copies(self):
+        model = row("model")
+        model.update(kind="placeholder", route="model")
+        copy = row("copy", location=(6, 3, 0), order=2)
+        copy.update(kind="placeholder", route="model")
+        self.plan["objects"] = [model, copy]
+        self.run_place()
+        root = bpy.data.objects.new("working_root", None)
+        bpy.context.scene.collection.objects.link(root)
+        mesh = self.cube("working_part")
+        mesh.parent = root
+        imports = {"asset": {"objects": [root.name]}}
+        result = self.run_place(imports)
+        self.assertEqual(result["boxes"], [])
+        self.assertEqual(len(result["duplicated"]), 1)
+        for gid in ("model", "copy"):
+            group = self.owned(gid, "geometry")
+            self.assertEqual(group["marso_content"], "modelled")
+            self.assertEqual(len([o for o in group.children_recursive if o.get("marso_role") == "part"]), 2)
+            self.assertTrue(self.owned(gid, "retired-placeholder").hide_render)
+        before = len(bpy.data.objects)
+        self.owned("model", "geometry").scale = (1.2, 1, 1)
+        for _ in range(3):
+            self.assertEqual(self.run_place(imports)["boxes"], [])
+        self.assertEqual(len(bpy.data.objects), before)
+        self.assertVector(self.owned("model", "geometry").scale, (1.2, 1, 1))
+
+    def test_legacy_modelled_group_not_reset_and_box_excluded_from_bounds(self):
+        model = row("model")
+        model.update(kind="placeholder", route="model", dimensions_m=[100, 100, 100])
+        self.plan["objects"] = [model]
+        self.run_place()
+        group = self.owned("model", "geometry")
+        mesh = self.cube("existing_model")
+        mesh.parent = group
+        group["marso_content"] = "modelled"
+        before = len(bpy.data.objects)
+        result = self.run_place()
+        self.assertEqual(result["boxes"], [])
+        self.assertEqual(len(bpy.data.objects), before)
+        self.assertEqual(group["marso_content"], "modelled")
+        self.assertVector(result["placed"][-1]["dimensions_m"], (2, 2, 2))
+
     def test_cycle_rejected_before_scene_changes(self):
         self.plan["objects"] = [row("one", "two"), row("two", "one", order=2)]
         count = len(bpy.data.objects)
         with self.assertRaises(ValueError):
             self.run_place()
         self.assertEqual(len(bpy.data.objects), count)
+
+    def test_unpicked_support_has_no_mesh_but_keeps_its_selected_child(self):
+        support = row("table", asset=None)
+        support['kind'] = 'support'
+        self.plan['objects'] = [support, row('bowl', 'table', 'bowl', (.2,3,2), 2)]
+        mesh = self.cube('bowl_mesh')
+        self.run_place({'bowl': {'objects': [mesh.name]}})
+        self.assertEqual(self.owned('table').type, 'EMPTY')
+        self.assertEqual(len(self.owned('table', 'geometry').children_recursive), 0)
+        self.assertIs(self.owned('bowl').parent, self.owned('table'))
+        self.assertVector(self.owned('bowl').matrix_world.translation, (.2,3,2))
 
     def test_ownership_survives_rename_collection_nesting_and_save_reopen(self):
         mesh = self.cube("source")

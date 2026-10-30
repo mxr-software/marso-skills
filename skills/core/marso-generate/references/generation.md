@@ -4,18 +4,13 @@ Use this route when the user wants generation, or the brief favours an organic/c
 
 ## Select a supported generator
 
-Before generating an object the user's library might already hold, check the library unless the user asked for a new asset; read [library](library.md). Generate only when nothing suitable came back or the user declines what did.
+Before generating an object the user's library might already hold, check the library unless the user asked for a new asset; use `marso-library` when installed or verified connection search tools. Respect an exact selected asset or an already delegated reuse decision. Generate when no suitable asset is selected and generation fits the brief.
 
 First establish the source (description, one object image, or consistent views of that same object), required geometric detail and intended use. A fabric swatch is a look reference, not the object to reconstruct. A whole-room image needs an object extraction workflow rather than being treated as one prop: decompose it into a scene graph (`marso-scene-decompose`) and generate each object from its own reference brief (`marso-scene-graph`), when those skills are installed.
 
 Inspect the installed Blender `generate_state` model catalogue and `create_3d_asset` schema, or Studio `get_capabilities` with `section: "generation_3d_models"` and full detail. Refresh after a capability error. Model availability and option names can differ between routes and versions. Use catalogue IDs, not guessed names. The catalogue's source support does not prove that a particular tool accepts that input directly.
 
-Select in this order:
-
-1. Honour the user's explicit supported model and settings.
-2. Keep a compatible saved/panel preference.
-3. Filter by required input and supported polygon/texture settings; use the route's advertised default if it satisfies those constraints.
-4. If constraints exclude the default, select a compatible catalogue entry and state why. If several remain and the user has no preference, a current offered version in the qualifying family is a starting choice, not a claim of superior quality. Do not run a model comparison unless requested.
+Apply [preferences and budgets](preferences.md): explicit task choice, recorded user preference, compatible panel state, then a supported advertised default. Establish an unknown preference once and retain user choices for later runs. A fallback is not a comparative quality claim. Do not run a model comparison unless requested.
 
 Filter polygon counts, source modes and texture options against the live catalogue and the chosen tool's schema. Do not rely on a saved catalogue or an example model ID as a current default. A higher polygon count does not establish cleaner topology or better articulation. Texture resolution/quality controls appearance sampling, not geometric accuracy. Do not infer "best for furniture" or "best for organics" rankings from version numbers or option lists; those preferences need representative tests or user-provided evidence.
 

@@ -171,6 +171,27 @@
   .gt figcaption { font-size:10px; color:var(--dim); margin-top:3px; overflow:hidden;
                    text-overflow:ellipsis; white-space:nowrap; }
   .gt.sel figcaption { color:var(--ink); }
+  .planning { padding:8px 14px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+    border-bottom:1px solid var(--line); background:var(--panel); }
+  .planning button, .picker button, .picker select, .picker input, .picker textarea, .planning select {
+    font:inherit; color:var(--ink); background:#171e29; border:1px solid #364259;
+    border-radius:5px; padding:7px 9px; }
+  button { cursor:pointer; }
+  button:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-visible {
+    outline:2px solid var(--accent); outline-offset:2px; }
+  .picker h2 { margin:0; font-size:15px; }
+  .picker .routes { display:grid; grid-template-columns:1fr 1fr; gap:7px; margin:10px 0; }
+  .picker .routes button { text-align:left; min-height:58px; }
+  .picker button[aria-pressed=true] { border-color:var(--accent); background:#16403e; }
+  .picker label { display:block; margin:9px 0; }
+  .picker input[type=text], .picker textarea { width:100%; margin-top:4px; }
+  .picker textarea { min-height:60px; resize:vertical; }
+  .picker .candidate { display:flex; gap:8px; align-items:center; margin-top:8px; }
+  .candidate img { width:60px; height:60px; object-fit:contain; }
+  .routebadge { display:block; color:var(--accent); font-size:10px; }
+  .row.planned .nm::after { content:' •'; color:var(--accent); }
+  #choiceStatus { color:var(--dim); }
+  #chosenList { max-height:130px; overflow:auto; }
   /* Narrow windows: the graph needs room, so drop the side rails to a stacked layout. */
   @media (max-width: 1180px) {
     main { grid-template-columns:minmax(0,1fr) 340px; }
@@ -218,6 +239,14 @@
     <input type="search" id="q" placeholder="filter objects">
   </span>
 </header>
+<div class="planning" aria-label="Scene creation plan">
+  <strong id="choiceCount">0 objects picked</strong>
+  <label>Editing as <select id="choiceActor" aria-label="Editing as"><option value="user">User</option><option value="agent">Agent proposal</option></select></label>
+  <button id="exportChoices">Export choices</button>
+  <button id="importChoices">Import choices</button>
+  <input type="file" id="choiceFile" accept=".json,application/json" hidden>
+  <span id="choiceStatus" role="status">Pick an object, then choose how to make it. No jobs start here.</span>
+</div>
 <main>
   <div class="col l">
     <div class="sec pad">
@@ -241,6 +270,8 @@
     <div class="hint" id="hint">scroll to zoom · drag to pan · double-click to fit</div>
   </div>
   <div class="col r">
+    <div class="sec pad picker" id="picker"></div>
+    <details class="sec pad"><summary>Picked objects</summary><div id="chosenList"></div></details>
     <div class="sec pad" id="detail"></div>
     <div class="sec pad"><p class="up" style="margin:0 0 2px">Source images</p><div id="shots"></div></div>
     <div class="pad" id="issues"></div>
@@ -737,7 +768,7 @@ function select(id) {
   for (const a of chain(id)) collapsed.delete(a.global_id);   // unfold the way to it
   applyFolds();
   const row = rowEls.get(id); if (row) row.scrollIntoView({ block: 'nearest' });
-  detail(n); labels();
+  detail(n); labels(); renderPicker();
   if (MODE === 'views') paintViews();
   if (MODE === 'gallery') markGallery();
   // The camera stays where the reader put it: selecting traces the lineage, it does not
@@ -939,6 +970,9 @@ function paintGallery() {
   fillCrops(galleryEl);
 
   for (const fig of galleryEl.querySelectorAll('.gt')) {
+    fig.tabIndex = 0; fig.setAttribute('role','button');
+    fig.setAttribute('aria-label','Select ' + byId.get(fig.dataset.id).label + ' ' + fig.dataset.id + ' from gallery');
+    fig.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(fig.dataset.id); } };
     fig.addEventListener('click', () => select(fig.dataset.id));
     fig.addEventListener('pointerenter', () => hover(fig.dataset.id));
     fig.addEventListener('pointerleave', () => hover(null));
@@ -947,7 +981,12 @@ function paintGallery() {
   markGallery();
 }
 function markGallery() {
-  for (const fig of galleryEl.querySelectorAll('.gt')) fig.classList.toggle('sel', fig.dataset.id === sel);
+  for (const fig of galleryEl.querySelectorAll('.gt')) {
+    fig.classList.toggle('sel', fig.dataset.id === sel);
+    let badge = fig.querySelector('.routebadge');
+    if (!badge) { badge = document.createElement('span'); badge.className = 'routebadge'; fig.append(badge); }
+    badge.textContent = choices[fig.dataset.id] ? ROUTES[choices[fig.dataset.id].route] : 'Not picked';
+  }
 }
 
 /* ---------- panels ---------- */
@@ -1020,9 +1059,142 @@ function clear() {
   const showAll = document.getElementById('tAll').checked;
   for (const [, list] of boxEls) for (const b of list) { b.classList.remove('on'); b.style.display = showAll ? '' : 'none'; b.style.opacity = .8; }
   blank();
+  renderPicker();
   labels();
   if (MODE === 'views') paintViews();
 }
+/* Creation choices are a portable handoff, never an instruction to start a cloud job. */
+const ROUTES = {model:'Model + Marso texture', generate:'Generate in Marso',
+  instance:'Instance + retexture', kit:'Build modular part'};
+const storageKey = 'marso-choices-' + DATA.graph_key;
+let choices = {};
+const status = message => { document.getElementById('choiceStatus').textContent = message; };
+const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function choiceDocument() { return {schema:'marso/scene-choices@1', graph_key:DATA.graph_key, choices}; }
+function validateChoices(doc) {
+  if (!doc || doc.schema !== 'marso/scene-choices@1' || doc.graph_key !== DATA.graph_key ||
+      !doc.choices || typeof doc.choices !== 'object' || Array.isArray(doc.choices))
+    throw Error('These choices do not match this graph revision.');
+  for (const [id, c] of Object.entries(doc.choices)) {
+    if (!byId.has(id) || byId.get(id).unconfirmed || !c || !Object.hasOwn(ROUTES,c.route) ||
+        typeof c.search_library !== 'boolean' || !['user','agent'].includes(c.decided_by) ||
+        !['scene','library'].includes(c.source_kind) || typeof c.source_ref !== 'string' || typeof c.notes !== 'string')
+      throw Error('Invalid choice for ' + id);
+  }
+  for (const group of DATA.identity_groups || []) {
+    const values = group.members.map(id => doc.choices[id] || null);
+    if (values.some(v => JSON.stringify(v) !== JSON.stringify(values[0])))
+      throw Error('Resolve conflicting choices for uncertain identities first.');
+  }
+  return doc.choices;
+}
+try {
+  const stored = DATA.choices || JSON.parse(localStorage.getItem(storageKey) || 'null');
+  if (stored) { choices = validateChoices(stored); status('Choices restored. Export to hand them to your agent.'); }
+} catch (e) { status('Could not restore choices: ' + e.message + ' Use Import choices if needed.'); }
+function saveChoices() {
+  try { localStorage.setItem(storageKey, JSON.stringify(choiceDocument()));
+    status('Draft saved in this browser. Export choices for the agent; no jobs have started.');
+  } catch { status('Browser storage unavailable. Export choices to keep your changes.'); }
+  renderChoices();
+}
+function identityMembers(id) {
+  const ids = new Set([id]); let changed = true;
+  while (changed) { changed = false;
+    for (const group of DATA.identity_groups || []) if (group.members.some(m => ids.has(m)))
+      for (const m of group.members) if (!ids.has(m)) { ids.add(m); changed = true; }
+  }
+  return [...ids];
+}
+function setChoice(id, value) {
+  if (value && identityMembers(id).some(gid => byId.get(gid)?.unconfirmed)) {
+    status('Resolve the unconfirmed members of this identity group before picking it.'); return;
+  }
+  for (const gid of identityMembers(id)) {
+    if (value) choices[gid] = {...value}; else delete choices[gid];
+  }
+  saveChoices();
+}
+function renderChoices() {
+  document.getElementById('choiceCount').textContent = Object.keys(choices).length + ' detections picked';
+  const list = document.getElementById('chosenList'); list.replaceChildren();
+  for (const [id,c] of Object.entries(choices)) {
+    const button = document.createElement('button'); button.className = 'chip';
+    button.textContent = byId.get(id).label + ' · ' + ROUTES[c.route];
+    button.onclick = () => select(id); list.append(button);
+  }
+  for (const [id,row] of rowEls) row.classList.toggle('planned', !!choices[id]);
+  markGallery();
+}
+function renderPicker() {
+  const pane = document.getElementById('picker'), n = byId.get(sel);
+  if (!n) { pane.innerHTML = '<h2>What should we make?</h2><p class="dim">Click an object in the graph, gallery or photo. Pick its creation route here, then export your choices.</p>'; return; }
+  if (n.unconfirmed) { pane.innerHTML = '<h2>Unconfirmed detection</h2><p>Resolve this detection in the scene graph before selecting it for creation.</p>'; return; }
+  const c = choices[sel];
+  const candidateList = (DATA.library_candidates || {})[sel] || [];
+  pane.innerHTML = `<h2>${esc(n.label)}</h2><span class="dim">${esc(n.global_id)} · ${c ? 'Picked' : 'Not picked'}</span>
+    <div class="routes">${Object.entries(ROUTES).map(([key,label]) => `<button data-route="${key}" aria-pressed="${c?.route === key}">${label}</button>`).join('')}</div>
+    ${c ? `<label><input id="searchLibrary" type="checkbox" ${c.search_library ? 'checked' : ''}> Find similar in Marso before making it</label>
+    ${c.route === 'instance' ? `<label>Source <select id="sourceKind" aria-label="Source type"><option value="scene">Existing scene mesh</option><option value="library">Marso library asset</option></select></label>
+    <label>Mesh name or library asset ID<input type="text" id="sourceRef" value="${esc(c.source_ref)}" placeholder="Choose a match below, or identify the mesh"></label>` : ''}
+    <label>Notes for this object<textarea id="choiceNotes" placeholder="Material, style, kit family or what needs changing">${esc(c.notes)}</textarea></label>
+    <button id="removeChoice">Remove from plan</button>
+    ${(clusterOf.get(sel)?.kind === 'instances') ? '<button id="repeatChoice">Apply to repeated objects</button>' : ''}
+    <p class="dim">${c.route === 'model' || c.route === 'kit' ? 'Model preview and approval come before Marso texturing.' : c.route === 'instance' ? 'Keep the source mesh; isolate the new instance’s materials before retexturing.' : 'The agent reviews the reference and generation settings before starting.'}</p>` : ''}
+    ${identityMembers(sel).length > 1 ? '<p class="dim">Uncertain identities share this choice so the same physical object is not planned twice.</p>' : ''}
+    <div id="candidates">${candidateList.length ? '<strong>Similar assets from Marso</strong>' : '<p class="dim">Library matches appear here after the agent runs Find similar and refreshes this viewer.</p>'}</div>`;
+  for (const button of pane.querySelectorAll('[data-route]')) button.onclick = () => {
+    const current = choices[sel];
+    setChoice(sel, {route:button.dataset.route, search_library:current?.search_library ?? true,
+      source_kind:current?.source_kind || 'scene', source_ref:button.dataset.route === 'instance' ? (current?.source_ref || '') : '',
+      notes:current?.notes || '', decided_by:document.getElementById('choiceActor').value}); renderPicker();
+  };
+  if (c) {
+    const update = patch => setChoice(sel, {...choices[sel], ...patch, decided_by:document.getElementById('choiceActor').value});
+    pane.querySelector('#searchLibrary').onchange = e => update({search_library:e.target.checked});
+    pane.querySelector('#choiceNotes').oninput = e => update({notes:e.target.value});
+    pane.querySelector('#removeChoice').onclick = () => { setChoice(sel,null); renderPicker(); };
+    if (c.route === 'instance') {
+      pane.querySelector('#sourceKind').value = c.source_kind;
+      pane.querySelector('#sourceKind').onchange = e => update({source_kind:e.target.value, source_ref:''});
+      pane.querySelector('#sourceKind').addEventListener('change', renderPicker);
+      pane.querySelector('#sourceRef').oninput = e => update({source_ref:e.target.value});
+    }
+    const repeat = pane.querySelector('#repeatChoice');
+    if (repeat) repeat.onclick = () => {
+      for (const id of clusterOf.get(sel).members) if (!byId.get(id)?.unconfirmed) setChoice(id, {...choices[sel]});
+      renderPicker();
+    };
+  }
+  for (const candidate of candidateList) {
+    const card = document.createElement('div'); card.className = 'candidate';
+    if (candidate.thumbnail_src) { const img = document.createElement('img'); img.src = candidate.thumbnail_src; img.alt = candidate.name || 'Library asset'; card.append(img); }
+    const button = document.createElement('button');
+    button.textContent = 'Instance + retexture: ' + (candidate.name || candidate.pbr_asset_id) + ' (' + (candidate.verdict || 'unrated') + ')';
+    button.onclick = () => { setChoice(sel, {route:'instance', search_library:false, source_kind:'library',
+      source_ref:candidate.pbr_asset_id, notes:choices[sel]?.notes || '', decided_by:document.getElementById('choiceActor').value}); renderPicker(); };
+    card.append(button); pane.querySelector('#candidates').append(card);
+  }
+}
+document.getElementById('exportChoices').onclick = () => {
+  const url = URL.createObjectURL(new Blob([JSON.stringify(choiceDocument(), null, 2)], {type:'application/json'}));
+  const a = document.createElement('a'); a.href = url; a.download = 'scene_choices.json'; a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  status('Choices exported. Give scene_choices.json to your agent to update the asset plan.');
+};
+document.getElementById('importChoices').onclick = () => document.getElementById('choiceFile').click();
+document.getElementById('choiceFile').onchange = async e => {
+  try { const file = e.target.files[0]; if (!file) return;
+    choices = validateChoices(JSON.parse(await file.text())); saveChoices(); renderPicker();
+  } catch (error) { status('Import rejected: ' + error.message); }
+  e.target.value = '';
+};
+// Semantic controls give keyboard users and UI agents the same selection path.
+for (const [id,row] of rowEls) {
+  row.tabIndex = 0; row.setAttribute('role','button'); row.setAttribute('aria-label','Select ' + byId.get(id).label + ' ' + id);
+  row.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(id); } };
+}
+renderChoices();
 svg.addEventListener('click', () => { if (sel) clear(); });
 clear();
 layout();

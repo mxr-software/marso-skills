@@ -1,0 +1,3 @@
+interface:
+  display_name: "Marso Blender Render"
+  short_description: "Optimize rendering, memory and asset instancing"

@@ -63,11 +63,15 @@ def empty(name, coll, run_id, gid, role, parent=None):
 
 
 def parts(group):
-    return [o for o in group.children_recursive if o.get("marso_role") != "retired-placeholder"]
+    return [o for o in group.children_recursive if o.get("marso_role") not in
+            {"placeholder", "retired-placeholder"}]
 
 
 def bounds(group):
-    points = [o.matrix_world @ Vector(c) for o in parts(group)
+    geometry = parts(group)
+    if not geometry and group.get("marso_content") == "placeholder":
+        geometry = [o for o in group.children if o.get("marso_role") == "placeholder"]
+    points = [o.matrix_world @ Vector(c) for o in geometry
               if o.type in {"MESH", "CURVE", "SURFACE", "META", "FONT"} for c in o.bound_box]
     if not points:
         points = [group.matrix_world.translation.copy()]
@@ -227,11 +231,12 @@ def place(placement_path, imports_path=None, collection_name=None, photo=True):
             wall.data.clear_geometry()
             wall.data.from_pydata(row["corners"], [], [(0, 1, 2, 3)])
             wall.data.update()
-        elif row in anchors:
+        elif row in anchors or row["kind"] == "support":
             pass
-        elif group.get("marso_content") != "asset":
+        elif group.get("marso_content") not in {"asset", "modelled"}:
             available = pools.get(aid)
-            if row["kind"] == "asset" and (available or aid in first):
+            modelled = row.get("route") == "model" or row["kind"] == "model"
+            if (row["kind"] == "asset" or modelled) and (available or aid in first):
                 old = owned(coll, run_id, gid, "placeholder")
                 if old:
                     old["marso_role"] = "retired-placeholder"
@@ -242,13 +247,22 @@ def place(placement_path, imports_path=None, collection_name=None, photo=True):
                 else:
                     duplicate(first[aid], group, coll, run_id, gid)
                     report["duplicated"].append(entity.name)
+                if modelled:
+                    group["marso_content"] = "modelled"
             else:
                 box = placeholder(group, row["dimensions_m"], coll, run_id, gid)
                 report["boxes"].append(box.name)
                 if row["kind"] == "asset":
                     report["not_imported"].append(entity.name)
-        if aid and group.get("marso_content") == "asset":
-            first.setdefault(aid, group)
+        if group.get("marso_content") in {"asset", "modelled"}:
+            old = owned(coll, run_id, gid, "placeholder")
+            if old:
+                old["marso_role"] = "retired-placeholder"
+                old.hide_viewport = old.hide_render = True
+            if not parts(group):
+                report["warnings"].append(f"{gid}: owned geometry is empty; reconcile its source before continuing")
+            elif aid:
+                first.setdefault(aid, group)
         entity.matrix_world = Matrix.Translation(Vector(row.get("location") or (0, 0, 0))) @ \
                               Matrix.Rotation(math.radians(row.get("rotation_z_deg", 0)), 4, "Z")
         bpy.context.view_layer.update()

@@ -3,13 +3,13 @@
 
 Usage:
     crop_objects.py <scene_graph.json> --manifest manifest.json --plan asset_plan.json
-                    --out <dir> [--ids g001 a002 ...] [--pad 0.15] [--mask-children]
+                    --out <dir> [--ids g001 a002 ...] [--pad 0.15] [--shape square|context] [--mask-children]
                     [--exclude-parent] [--image-root dir] [--force] [--all-routes]
 
 Writes <out>/<asset_id>/crop.png, search.png and brief.json for every asset routed to
 `generate` (or every asset with --all-routes), plus <out>/index.json. Boxes in
-the brief are in the crop's own pixel frame, origin top-left. Children of the
-the crop is unmasked, with the subject's box drawn on it as a red outline. Masking is
+the brief are in the crop's own pixel frame, origin top-left. The default crop is
+square and unmasked, with the subject's box drawn on it as a red outline. Masking is
 opt-in: --mask-children fills the subject's children with flat black, and
 --exclude-parent blacks out the parent's box outside the subject's box. search.png is the
 subject's own box with no margin and no marking, for a library search by image: a wider crop
@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import pathlib
 import sys
 
@@ -76,6 +77,19 @@ def padded(box, pad: float, width: int, height: int) -> tuple[int, int, int, int
     x0, y0, x1, y1 = box
     margin = int(round(pad * max(x1 - x0, y1 - y0)))
     return (max(0, x0 - margin), max(0, y0 - margin), min(width, x1 + margin), min(height, y1 + margin))
+
+
+def square_window(box, pad, width, height):
+    """Keep the subject in a square; coordinates outside the image need neutral padding."""
+    longest = max(box[2] - box[0], box[3] - box[1])
+    side = max(1, longest + 2 * round(pad * longest))
+    origins = []
+    for start, end, extent in ((box[0], box[2], width), (box[1], box[3], height)):
+        origin = round((start + end - side) / 2)
+        if side <= extent:
+            origin = min(max(origin, 0), extent - side)
+        origins.append(origin)
+    return (*origins, origins[0] + side, origins[1] + side)
 
 
 def intersect(a, b):
@@ -152,6 +166,8 @@ def build_prompt(asset: dict, label: str, others: list[dict], truncated) -> str:
                  + (f" ({asset.get('size_basis')})." if asset.get("size_basis") else "."))
     if truncated:
         lines.append("@crop cuts it off at the image edge; complete the missing part.")
+    lines.append("Centre the whole object prominently in a square image with a small clear margin "
+                 "on every side; retain thin tips and handles without clipping them.")
     lines.append(WHOLE_OBJECT)
     return " ".join(lines)
 
@@ -189,12 +205,16 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--out", required=True, help="folder to write crops and briefs into")
     parser.add_argument("--ids", nargs="*", default=[], help="asset_ids or global_ids to crop; default all")
     parser.add_argument("--pad", type=float, default=0.15, help="margin as a fraction of the box's longer side")
+    parser.add_argument("--shape", choices=("square", "context"), default="square",
+                        help="square reference by default; context keeps the padded rectangle")
     parser.add_argument("--mask-children", action="store_true", help="black out the subject's children")
     parser.add_argument("--exclude-parent", action="store_true", help="black out the parent outside the subject's box")
     parser.add_argument("--image-root", help="folder that relative manifest paths are under")
     parser.add_argument("--all-routes", action="store_true", help="crop every asset, not only generate")
     parser.add_argument("--force", action="store_true", help="overwrite existing crops and briefs")
     args = parser.parse_args(argv)
+    if not math.isfinite(args.pad) or not 0 <= args.pad <= 1:
+        parser.error("--pad must be finite and between 0 and 1")
 
     try:
         from PIL import Image, ImageDraw
@@ -225,6 +245,8 @@ def main(argv: list[str] | None = None) -> int:
     planned = {m for a in plan["assets"] if a.get("route") == "generate" for m in a.get("members") or []}
     selected = []
     for asset in plan["assets"]:
+        if plan.get("selection_mode") and asset.get("route") == "skip":
+            continue
         if wanted:
             if asset.get("asset_id") in wanted or wanted & set(asset.get("members") or []):
                 selected.append(asset)
@@ -267,8 +289,15 @@ def main(argv: list[str] | None = None) -> int:
             continue
 
         subject_px = to_pixels(view["bbox"], width, height)
-        crop_px = padded(subject_px, args.pad, width, height)
-        crop = source.crop(crop_px)
+        subject_px = intersect(subject_px, (0, 0, width, height))
+        if subject_px is None:
+            problems.append(f"{asset_id}: subject box has no pixels inside the image")
+            continue
+        crop_px = (square_window(subject_px, args.pad, width, height) if args.shape == "square"
+                   else padded(subject_px, args.pad, width, height))
+        crop = Image.new("RGB", (crop_px[2] - crop_px[0], crop_px[3] - crop_px[1]), (128, 128, 128))
+        visible = intersect(crop_px, (0, 0, width, height))
+        crop.paste(source.crop(visible), (visible[0] - crop_px[0], visible[1] - crop_px[1]))
         draw = ImageDraw.Draw(crop)
         subject_in_crop = shift(subject_px, crop_px)
 
@@ -386,6 +415,9 @@ def main(argv: list[str] | None = None) -> int:
                 "crop_px": list(crop_px),
                 "crop_size": [crop_px[2] - crop_px[0], crop_px[3] - crop_px[1]],
                 "pad": args.pad,
+                "shape": args.shape,
+                "subject_source_size_px": [subject_px[2] - subject_px[0], subject_px[3] - subject_px[1]],
+                "subject_long_side_fraction": round(max(subject_px[2] - subject_px[0], subject_px[3] - subject_px[1]) / max(crop.size), 4),
                 "occluded": bool(view.get("occluded")),
                 "truncated": view.get("truncated") or [],
             },

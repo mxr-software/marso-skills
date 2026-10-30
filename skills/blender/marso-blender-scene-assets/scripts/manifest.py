@@ -3,7 +3,7 @@
 
 Usage:
     manifest.py init <asset_plan.json> --references <references/index.json> --out <assets.json>
-                     [--project NAME] --project-id ID [--model tripo_h3_1] [--polycount 40000] [--texture standard]
+                     [--project NAME] --project-id ID --model MODEL [--polycount COUNT] [--texture OPTION]
                      [--ids a001 a002 ...] [--skip-library] [--force]
     manifest.py record <assets.json> --stage library <asset_id> (--result found.json | --json '{...}')
     manifest.py choose <assets.json> --reuse a001=<pbr_asset_id> ... | --make a002 ... [--note TEXT]
@@ -39,8 +39,7 @@ import sys
 import uuid
 
 SCHEMA = "marso/scene-assets@1"
-STAGES = ("library", "choose", "reference", "review", "mesh", "mint", "import")
-DEFAULTS = {"model": "tripo_h3_1", "polygon_count": 40000, "texture": "standard"}
+STAGES = ("library", "choose", "handoff", "reference", "review", "mesh", "mint", "import")
 MINT_STATES = ("minted", "minting", "failed", "not_minted")
 
 # The fields each finished job must return, as the add-on's bridge commands report them.
@@ -97,6 +96,7 @@ def new_entry(asset: dict, row: dict, brief: dict | None, settings: dict, librar
         "global_id": asset.get("global_id"),
         "label": asset.get("label"),
         "route": asset.get("route"),
+        "creation_choice": asset.get("creation_choice"),
         "count": asset.get("count"),
         "count_at_least": asset.get("count_at_least"),
         "count_at_most": asset.get("count_at_most"),
@@ -106,11 +106,11 @@ def new_entry(asset: dict, row: dict, brief: dict | None, settings: dict, librar
         "search_crop": row.get("search_crop"),
         "brief": row.get("brief"),
         "prompt": (brief or {}).get("prompt"),
-        "settings": {
-            "model": settings["model"],
-            "polygon_count": asset.get("polygon_count") or settings["polygon_count"],
-            "texture": settings["texture"],
-        },
+        "settings": {key: value for key, value in {
+            "model": asset.get("model", settings["model"]),
+            "polygon_count": asset.get("polygon_count", settings["polygon_count"]),
+            "texture": asset.get("texture", settings["texture"]),
+        }.items() if value is not None},
         "library": {"status": "pending"} if library else {"status": "make", "note": "library check skipped"},
         "reference": {"status": "pending"},
         "review": {"status": "pending"},
@@ -139,6 +139,9 @@ def cmd_init(args) -> int:
         print("error: --project-id must be the verified Save to project id", file=sys.stderr)
         return 1
 
+    if args.polycount is not None and args.polycount <= 0:
+        print("error: --polycount must be positive", file=sys.stderr)
+        return 1
     settings = {"model": args.model, "polygon_count": args.polycount, "texture": args.texture}
     plan_assets = {a.get("asset_id"): a for a in plan["assets"] if a.get("asset_id")}
     wanted = set(args.ids or [])
@@ -151,9 +154,12 @@ def cmd_init(args) -> int:
         if asset is None:
             problems.append(f"{asset_id}: in the references index but not in the plan")
             continue
-        if asset.get("route") not in ("generate", None) and not wanted:
+        if asset.get("route") == "skip":
+            problems.append(f"{asset_id}: not selected for creation; left out")
+            continue
+        if asset.get("route") not in ("generate", None) and not wanted and not plan.get("selection_mode"):
             problems.append(f"{asset_id}: routed {asset.get('route')!r} in the plan; left out "
-                            "(name it with --ids to generate it anyway)")
+                            "(name it with --ids to record its specialist handoff)")
             continue
         brief = None
         if row.get("brief"):
@@ -163,11 +169,16 @@ def cmd_init(args) -> int:
             brief = read_json(brief_path) if brief_path.exists() else None
         if brief is None or not brief.get("prompt"):
             problems.append(f"{asset_id}: no brief with a prompt; rerun the crop step for it")
-        entries.append(new_entry(asset, row, brief, settings, library=not args.skip_library))
-    missing = sorted(a for a, asset in plan_assets.items() if asset.get("route") == "generate"
+        search = (asset.get("creation_choice") or {}).get("search_library", True)
+        entries.append(new_entry(asset, row, brief, settings, library=not args.skip_library and search))
+    if any(e["route"] == "generate" and not str(e["settings"].get("model", "")).strip() for e in entries):
+        print("error: --model or per-asset model must be selected from live capabilities and user preferences", file=sys.stderr)
+        return 1
+    missing = sorted(a for a, asset in plan_assets.items() if (asset.get("route") == "generate"
+                     or (plan.get("selection_mode") and asset.get("route") != "skip"))
                      and a not in {e["asset_id"] for e in entries} and (not wanted or a in wanted))
     for asset_id in missing:
-        problems.append(f"{asset_id}: routed to generation but has no crop in the references index")
+        problems.append(f"{asset_id}: selected for creation but has no crop in the references index; crop all selected routes")
     if not entries:
         print("error: no assets to record; check the references index and --ids", file=sys.stderr)
         for line in problems:
@@ -179,6 +190,7 @@ def cmd_init(args) -> int:
         entry["row"] = row
     doc = {
         "schema": SCHEMA,
+        "graph_key": plan.get("graph_key"),
         "project": args.project,
         "project_id": args.project_id,
         "run_id": str(uuid.uuid4()),
@@ -348,8 +360,19 @@ def cmd_record(args) -> int:
         return 1
     if args.stage == "library":
         return record_library(args, doc, asset, result)
+    if args.stage in ("reference", "mesh") and asset.get("route") not in ("generate", None):
+        print("error: this creation route requires a specialist handoff, not a generation job", file=sys.stderr)
+        return 1
     stage = asset[args.stage]
     if args.job:
+        if stage.get("status") == "submitted":
+            if stage.get("job_id") != args.job:
+                print("error: reconcile the submitted job before replacing it", file=sys.stderr)
+                return 1
+            print(json.dumps({"asset_id": args.asset_id, "stage": args.stage, "status": "submitted"}))
+            return 0
+        if stage.get("status") not in {None, "pending"}:
+            asset.setdefault("attempts", {}).setdefault(args.stage, []).append(dict(stage))
         asset[args.stage] = stage = {"status": "submitted", "job_id": args.job, "submitted": now()}
         if args.stage == "reference":
             asset["review"] = {"status": "pending"}  # a new image needs a new look
@@ -371,7 +394,8 @@ def cmd_record(args) -> int:
         print("error: give --job, --result, --json or --error", file=sys.stderr)
         return 1
     doc["log"].append({"at": now(), "asset_id": args.asset_id, "stage": args.stage,
-                       "status": stage["status"], "job_id": stage.get("job_id")})
+                       "status": stage["status"], "job_id": stage.get("job_id"),
+                       "record": dict(stage)})
     write_json(pathlib.Path(args.manifest), doc)
     print(json.dumps({"asset_id": args.asset_id, "stage": args.stage, "status": stage["status"]}, indent=2))
     return 0
@@ -417,6 +441,8 @@ def pending(assets: dict) -> dict:
             out["library"].append(asset_id)
         elif library == "checked":
             out["choose"].append(asset_id)
+        elif asset.get("route") not in ("generate", None):
+            out["handoff"].append(asset_id)
         elif library == "reuse":
             if asset.get("minted") not in ("minted", "failed"):
                 out["mint"].append(asset_id)
@@ -439,6 +465,10 @@ def pending(assets: dict) -> dict:
         # What to send find_in_library for each asset still to check: its label and its search crop.
         "library_searches": [{"asset_id": a, "query": assets[a].get("label"),
                               "image_path": assets[a].get("search_crop")} for a in out["library"]],
+        "handoffs": [{"asset_id": a, "route": assets[a].get("route"),
+                      "creation_choice": assets[a].get("creation_choice"),
+                      "chosen_library_asset": (assets[a].get("library") or {}).get("chosen")}
+                     for a in out["handoff"]],
         "reused": sorted(a for a, asset in assets.items() if (asset.get("library") or {}).get("status") == "reuse"),
         "running": running,
         "failed": failed,
@@ -461,6 +491,7 @@ def cmd_pending(args) -> int:
                   **({"running": report["running"][args.stage], "failed": report["failed"][args.stage]}
                      if args.stage in report["running"] else {}),
                   **({"library_searches": report["library_searches"]} if args.stage == "library" else {}),
+                  **({"handoffs": report["handoffs"]} if args.stage == "handoff" else {}),
                   **({"mint_status_asset_ids": report["mint_status_asset_ids"],
                       "mint_failed": report["mint_failed"]} if args.stage == "mint" else {})}
     report.update(project=doc.get("project"), project_id=doc["project_id"], run_id=doc.get("run_id"))
@@ -508,10 +539,10 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--out", required=True, help="runs/<job>/assets.json")
     p.add_argument("--project", help="the Marso Studio project name the user gave")
     p.add_argument("--project-id", help="stable project id from save_to_state")
-    p.add_argument("--model", default=DEFAULTS["model"])
-    p.add_argument("--polycount", type=int, default=DEFAULTS["polygon_count"],
+    p.add_argument("--model", help="live-selected model; required for generated entries without a plan override")
+    p.add_argument("--polycount", type=int,
                    help="used where the plan gives no polygon_count")
-    p.add_argument("--texture", default=DEFAULTS["texture"])
+    p.add_argument("--texture", help="omit when unsupported; no model-specific default is injected")
     p.add_argument("--ids", nargs="*", help="only these asset ids")
     p.add_argument("--skip-library", action="store_true", help="make every asset without a library check")
     p.add_argument("--force", action="store_true")

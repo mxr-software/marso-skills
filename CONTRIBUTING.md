@@ -20,6 +20,8 @@ Publish general lessons and concise verification limits. Keep detailed trial jou
 
 For modelling, texturing and kits, use [workflow acceptance cases](tests/blender/workflow-cases.md). The local Blender smoke script checks the snapping helper and can probe a maintainer's add-on checkout without registering it or contacting Marso. It does not replace assistant-driven or cloud acceptance tests.
 
+For routing and orchestration changes, run [blind workflow checks](tests/routing/README.md) with fresh context. Keep transcripts local and report simulated versus live results separately. CI checks all isolated packages and scene helpers with `python -m unittest discover -s tests/scene` (Pillow and PyYAML required).
+
 ## Before submitting
 
 - Validate the YAML frontmatter against the [Agent Skills specification](https://agentskills.io/specification).

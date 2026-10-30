@@ -4,6 +4,10 @@ One `brief.json` and one `crop.png` per asset, written by `crop_objects.py` into
 
 ## What the brief holds
 
+Reference crops default to square, with the existing fractional margin around the subject's longest side. The window shifts within the source where possible; areas beyond the source are neutral grey. `crop_px` can therefore extend outside the source image. `--shape context` retains the old rectangular framing when deliberately needed. Search images remain tight, unmarked rectangular crops.
+
+The brief records `subject_source_size_px` and `subject_long_side_fraction`. Inspect source detail and occlusion: small or blurry source pixels remain uncertain after upscaling. These measurements describe a bounding box, not occupied pixel area or a service acceptance threshold. Thin objects can fill the long axis while occupying little area. Review the generated reference separately: square input and framing instructions cannot guarantee its output framing.
+
 - `subject`: the asset's label, description and category, and its real size in metres with the `size_basis` that produced it. Size is the one thing a crop cannot show, so it is always stated.
 - `view`: the source `image_id`, the crop rectangle in source pixels, the crop's pixel size and the `pad` used.
 - `subject_box`: the subject's box in the crop's own frame, pixels, origin top-left.
@@ -29,7 +33,7 @@ The prompt is written for an image-generation node in object mode whose linked i
 4. Other exclusions as instructions: `Leave out the <children>: they rest on it and are not part of it.`; `Only the <label>, not the <parent> it sits in.` (the verb follows the relation: sits on, hangs on, is fixed to, leans against); `Leave out the <others>: they only share the frame.`; then `Everything outside the red box is context, not part of the <label>.`, and, only when masking was asked for, that the black areas are removed objects.
 5. The real size, with its basis.
 6. When the crop is cut by the image edge, an instruction to complete the missing part.
-7. That the visible side must match `@crop`, the unseen sides follow from it, and the crop's framing, pose, lighting and background are not copied; it ends `Do not draw the red box.`
+7. A prominent centred subject in a square image with clear margins, retaining thin tips and handles; then that the visible side must match `@crop`, the unseen sides follow from it, and the crop's framing, pose, lighting and background are not copied. It ends `Do not draw the red box.`
 
 If the route that receives the brief names its linked image differently, replace `@crop` throughout; do not remove the exclusions.
 

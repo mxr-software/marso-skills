@@ -48,4 +48,6 @@ Use short calls and follow existing jobs. Return control to Blender between call
 
 State the installed versions, connection route, settings changed, and checks actually completed. Give useful folder locations without secrets. For an update, report the loaded version after installation, not just the download's name.
 
+For an ongoing asset/scene task, also save a short setup report in its local run folder: checks, versions, timestamps, exact non-secret errors and unresolved items. Do not rely on chat alone for cache or connection diagnostics. A cache symptom needs a reproducible request and outcome; an old summary without evidence is not a confirmed add-on defect.
+
 If desktop setup succeeded but the assistant cannot connect, report those as separate outcomes. If a live-library check is inconclusive, say so and name the next check. Finish with any specific user action still required; otherwise hand back a ready setup without creating geometry, importing assets, or running generation.
