@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://marso.app/"><img src="docs/assets/marso-skills.png" alt="Marso Skills — create in 3D with your AI agent, then texture and reuse your assets." width="100%"></a>
+  <a href="https://marso.app/"><img src="docs/assets/marso-skills-car.png" alt="Marso Skills — an agent-modelled car progresses from floating wireframe parts to an assembled mesh with realistic Marso PBR materials." width="100%"></a>
 </p>
 
 <table>

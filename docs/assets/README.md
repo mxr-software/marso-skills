@@ -1,10 +1,10 @@
 # README artwork
 
-`marso-skills.png` is the GitHub header. `marso-skills.svg` is its editable source, with the original Marso symbol and an embedded Marso library preview.
+`marso-skills-car.png` is the GitHub header. `marso-skills-car.svg` is its editable source, with the original Marso symbol and an embedded Blender render of the agent-modelled vintage racing car.
 
-The typeface is Geist Sans, with Geist Mono for labels. The background is black; model and PBR accents use Marso blue and violet. Render the SVG at its native 1600 × 560 size with those fonts available when updating the PNG. The PNG keeps typography consistent across GitHub clients without loading external fonts.
+The typeface is Geist Sans, with Geist Mono for labels. The background is black; model and PBR accents use Marso blue and violet. Render the SVG at its native 1600 × 770 size with those fonts available when updating the PNG. The PNG keeps typography consistent across GitHub clients without loading external fonts.
 
-The chair is an example from the Marso library, not a claimed result of a particular agent or skill test. Keep that distinction when changing the artwork. Preserve the preview’s aspect ratio and the Marso symbol’s proportions.
+The car uses the editable model and packed Marso PBR textures from the supplied demonstration. Its components were staged into an exploded-to-assembled composition, with original polygon-edge overlays transitioning to the PBR materials. The source image was rendered in Blender 5.2 Cycles at 3840 × 2160, with a 100 mm camera, an OptiX GPU, a 768-sample cap, adaptive sampling, denoising and subtle compositor sharpening. This is a new presentation of an existing asset, not a new modelling or cloud-generation test. The banner crops excess floor from the 16:9 render without stretching it. Preserve the model and Marso symbol’s proportions.
 
 ## Demonstrations
 
