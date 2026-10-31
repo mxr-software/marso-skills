@@ -34,6 +34,9 @@ Ask for its chosen initial skill, concrete next actions, required questions, rev
 | pbr-handoff | Continues directly to PBR, applies and inspects the final material under changed lighting; no unnecessary intermediate approval. Avoids duplicate PBR if the add-on already owns the chain. |
 | conditional-pilot | Treats technical success separately from visual acceptance, diagnoses the affected stage and holds dependent expansion; does not lower the quality target or ask for approval of every variant. |
 | transparent-packaging | Preserves the source, excludes/restores clear geometry or uses local transparent material/mask after finish transfer; protects opaque labels and reports local versus generated contributions accurately. |
+| cumulative-states | Preserves explicit progressive lineage and every endpoint, generates PBR per state, verifies correspondence and source selection, then authors a local control. Does not replace cumulative wear with siblings or claim the shader automatically exports. |
+| alternative-finishes | Uses independent original-source branches and separate PBR appearances; does not add animation or cumulative damage without a request. |
+| scene-without-detector | Uses local decomposition and graph skills; a missing optional detector does not block planning. Holds at the requested plan review before creation, then textures visible assets and provides lightweight reviews. |
 
 The image/appearance cases added on 2026-10-30 are pending fresh-agent execution. Adding a case or passing package checks does not establish its behavioural result.
 

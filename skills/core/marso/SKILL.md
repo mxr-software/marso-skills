@@ -21,6 +21,7 @@ An explicit request to generate or model takes precedence over the defaults belo
 | Keep its current appearance and add PBR | Existing-appearance PBR route; do not silently restyle or regenerate the shape. |
 | Populate a scene with differently labelled/finished cans, boxes or other repeated shapes | Group by actual geometry; one master per shape family, multiple appearances, then instances. Use the texture skill's appearance-families route. Different weapon/shield silhouettes remain distinct geometry; identical chairs need ordinary instances. |
 | Make N styles of the same asset | One preserved source, independent Restyle branches for each look; use the texture skill's variants workflow. |
+| Animate or control a change from clean to dirty, rusty, wet or scorched | Source-based PBR states, then the Blender texture skill's appearance-state workflow for a slider/mask. Geometry damage and physical simulation are separate tasks. |
 | Build components that fit together or decompose a reference into reusable parts | Kit design with explicit dimensions and interfaces; `marso-blender-kit` in Blender. |
 | Arrange an existing kit | Composition with the kit's real connectors and material assignments; `marso-blender-compose` in Blender. |
 | Break photographs of a room or environment into its objects, or get a scene graph from images | Scene decomposition; `marso-scene-decompose` when installed. Do not send a whole-room image straight to 3D generation. |
@@ -45,6 +46,8 @@ For recurring generation, establish the user's preferred model/options once and 
 For a set, keep the same appearance-brief identity and approved reference across tasks, with each component's material roles and grain direction. The Blender texture skill maintains that brief with the asset or kit. An appearance reference guides similarity; it does not lock pixels across module boundaries.
 
 Distinguish shape variants from style variants. Style variants branch from the unchanged original mesh, UVs and source appearance, not from the previous Restyle result. A request to refine a specific returned version may deliberately use that version as the new source; record that choice. Keep a clear source-to-result mapping and descriptive style labels. Keep managed material names stable during jobs and on legacy name-based prepared state; rename after application only with verified identity-based tracking or a supported rename operation.
+
+Explicit cumulative appearance states are a separate route: state 1 may feed state 2, then state 3, with PBR for every state. Preserve the original and intermediate results, record the selected lineage, and use the texture skill's state workflow to verify correspondence and controls. Independent finishes still default to sibling branches.
 
 For agent-modelled assets that will be textured, show neutral-clay previews and wait for the user's approval of the current geometry before Marso Retexture or PBR. Honour an explicit review waiver or existing approval of unchanged geometry. A finished-asset request alone does not waive model review; directly retexturing an existing unchanged asset needs no extra model-approval step.
 

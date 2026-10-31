@@ -1,6 +1,6 @@
 {
   "name": "marso",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Marso workflows for images, 3D generation, library reuse, Blender modelling, texturing, kits, render optimization and complete scenes.",
   "author": {
     "name": "M-XR"

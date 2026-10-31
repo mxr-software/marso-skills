@@ -115,6 +115,21 @@
     "context": "The first final PBR pilot passed correspondence checks but has raised-looking printed lettering and obvious colour bleed. It was marked conditional. The original brief requires realistic close-up materials; the other appearances are not submitted."
   },
   {
+    "id": "cumulative-states",
+    "prompt": "Make this approved metal bucket gradually become worn then rusty in Blender. Make the wear accumulate from the preceding version; keep all three looks and give me a slider.",
+    "context": "Retexture and PBR are available. An approved prepared baseline exists. Source selection and returned lineage can be inspected."
+  },
+  {
+    "id": "alternative-finishes",
+    "prompt": "Make three alternative upholstery finishes from this approved chair and show them side by side.",
+    "context": "The original source is available. No transition or cumulative wear has been requested."
+  },
+  {
+    "id": "scene-without-detector",
+    "prompt": "Build a finished editable Blender room from these photos. Show me the scene plan first.",
+    "context": "Blender control and Marso 1.12.1 commands are available, but no Marso Detect Objects command is exposed."
+  },
+  {
     "id": "transparent-packaging",
     "prompt": "Texture this display fridge and its labelled clear bottles.",
     "context": "Marso cannot generate transparency. Editable glass objects and bottle material regions exist locally; opaque labels must remain visible. The source meshes are approved."

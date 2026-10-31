@@ -2,6 +2,8 @@
 
 Use this when the user requests a built/reconstructed scene, not just an inventory or a detection viewer. For a text brief without photographs, build a direct asset/placement plan; skip image decomposition and do not manufacture detected graph ids. Graph-dependent helpers require real inputs; verified application controls can implement a direct plan. Retain the original requested outcome across specialist handoffs. Discover installed companions by name; never assume sibling files exist.
 
+For reference photographs, default to the installed decomposition and scene-graph skills, then build and place through Blender. Marso's built-in Detect Objects tool is optional when requested or useful; it is not a required cloud stage before local decomposition. Convert any tool detections into the same reviewed identity/support/route plan rather than treating boxes as a finished scene graph.
+
 ## Keep one record
 
 Use one run folder for graph, asset plan, choices, references, generation records, imports and placement. Record the relevant Studio project id, selected routes, user preferences, provisional scene budget, approvals and unresolved items. Resume from observed records; never repeat an uncertain submission or overwrite an active run to advance a stage.

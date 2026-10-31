@@ -18,6 +18,7 @@ Read [commands and jobs](references/commands.md) before invoking Marso. Discover
 | --- | --- |
 | New appearance from a description or style reference | `retexture`: edit appearance, generate PBR and apply maps. |
 | Many differently labelled/finished copies of the same shape | Read [appearance families](references/appearance-families.md): one master per geometry family, independent looks, then instances. The edited-grid option needs a pilot. |
+| Make an asset change condition over time, or blend clean/worn/rusty states with a slider or mask | Read [appearance states](references/appearance-states.md): source-based PBR states, a local transition material and verified controls. |
 | Keep the existing base-colour appearance and derive PBR maps | Auto PBR via `pbr_generate`, after inspecting the queue. |
 | Make a reusable surface material from a flat fabric, wood or other swatch | `image_material`; create without automatic application when only selected slots should change. |
 
@@ -50,6 +51,8 @@ For reusable components, read [kit texturing](references/kits.md). Resolve surfa
 ## 3. Describe and run the change
 
 For a kit, a coordinated set or a look that will be reused, save a compact [appearance brief](references/appearance.md) with the asset. For multiple looks of the same mesh, read [source-based variants and material naming](references/variants.md): branch each look from the preserved original/prepared baseline, never from the previous generated look. This is a finite requested set, not an automatic refinement loop.
+
+For explicitly requested progressive states, use [appearance states](references/appearance-states.md) instead: the user may want sibling states or a cumulative edit chain, with PBR on every state. Preserve and record the selected lineage before authoring a local slider or mask.
 
 Read [appearance prompts and image handoff](references/prompts.md) before authoring a new look. Write a concise visual brief: material roles, colour, finish, fine detail and condition. Keep UV/topology preservation and export checks in local preparation/validation, outside the Retexture prompt. For requested image-guided looks, use `marso-image` when installed and inspect the returned image before transfer; the local reference also supports this skill on its own.
 

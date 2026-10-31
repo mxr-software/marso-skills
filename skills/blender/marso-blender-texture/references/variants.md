@@ -4,6 +4,8 @@ Use for "make N looks", colourways, alternative finishes or material versions of
 
 For many same-shaped objects with distinct labels or designs, read [appearance families](appearance-families.md). It covers blank material-region guides, optional edited contact sheets, crop checks and shared masters. Different shape packs belong to modelling/generation; identical geometry and appearance use ordinary instances.
 
+For a material changing over time or under a mask, use [appearance states](appearance-states.md). It supports either siblings from the original or an explicitly intended cumulative sequence, with PBR for every state. The default sibling rule here is for alternative looks, not a prohibition on requested progressive damage. Separate alternative appearances do not automatically require a transition shader.
+
 ## Preserve and branch
 
 1. Identify and save the original source geometry, UVs, material assignments and base appearance. If preparation is required, make one prepared baseline from it and preserve that too. Record the source revision in the [appearance brief](appearance.md). A current Restyle output is not automatically the original; if the original cannot be found, disclose that before claiming source-based variants.

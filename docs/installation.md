@@ -30,7 +30,7 @@ npx skills add mxr-software/marso-skills --skill '*' --agent codex claude-code -
 
 Keep only the agent name you use. To explicitly select `main` instead of following the default branch, replace `mxr-software/marso-skills` with `https://github.com/mxr-software/marso-skills/tree/main`.
 
-The command installs the complete skill collection on `main`: the workflow coordinator, generation and library routes, Blender creation/render workflows, and four scene skills. The scene workflows remain development previews with additional requirements listed below. Future skills published on `main` are included when you run the command again; unmerged changes on other branches are not.
+The command installs the complete skill collection on `main`: the workflow coordinator, generation and library routes, Blender creation/render workflows, and four scene skills. Scene generation/import requires the add-on capabilities listed below. Future skills published on `main` are included when you run the command again; unmerged changes on other branches are not.
 
 **Verify:** run `npx skills list --agent codex claude-code` in the same project (add `--global` for a global installation), then start a session in that project. Ask the assistant to list its available Marso skills and use `marso-blender-setup` to check Blender. If a skill is missing, check the install scope and restart the client. A successful file installation does not verify Blender access.
 
@@ -89,7 +89,7 @@ These are recommended combinations of existing folders, not separate packages. I
 
 The two scene skills run Python scripts from their own folders and need Python 3.10+ with Pillow (`pip install Pillow`) and a host that can run shell commands and look at local images. They need no application connection or network access. `marso-blender-scene-assets` and `marso-blender-place-scene` run standard-library Python scripts and need Blender with the official MCP and a Marso add-on that provides the scene commands they name.
 
-The four scene skills are included on `main` as development previews. The two scene workflows in Blender require a development add-on with their named commands; a release version number alone is insufficient. See [compatibility](compatibility.md). Each preview folder has its own proprietary licence permitting installation and use with Marso; its terms apply separately from the Apache-2.0 skills.
+The four scene skills are included on `main`. The decomposition/graph workflow runs locally with the agent; it does not require Marso's Detect Objects service. Use public **Marso 1.12.1 or later on Blender 5.2 or later** for the Blender scene route. The setup skill checks the loaded scene-generation/import commands; a separate development build is not required. See [Blender setup](blender-setup.md) and [compatibility](compatibility.md). Each scene folder has its own proprietary licence permitting installation and use with Marso; its terms apply separately from the Apache-2.0 skills.
 
 If you prefer to install from a local checkout, run these commands in your working project directory:
 

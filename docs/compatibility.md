@@ -1,5 +1,19 @@
 # Compatibility
 
+## Public setup and appearance-state guidance
+
+Updated 2026-10-31. The public setup baseline is Marso 1.12.1 on Blender 5.2, with customer availability confirmed by the maintainer. Source `b25579a` exposes `scene_reference`, `scene_mesh`, `mint_status`, `import_scene_asset` and native batch commands. Verify those capabilities in the loaded add-on; a source version is not an inspection of a user's session. The agent-led scene route starts with local decomposition and planning skills; Marso Detect Objects is optional.
+
+The same source reads minted USD enrichment, rigid-body/mass/collision schemas, material density/friction/restitution and semantic labels. PBR completion and USD mint completion are distinct states, and a basic USD fallback can exist without enrichment. Documentation describes the minted product package without promising automatically validated articulation or engine-specific interactive behaviour.
+
+Appearance-state guidance extends the texture skill with independent source-based looks or explicitly cumulative edit states, PBR for every state, then Blender controls and masks. `tests/blender/appearance_states_smoke.py` passed in disposable Blender 5.2.0 with rendered endpoints and midpoint, a protected black mask, independent materials on shared geometry, unchanged UVs, saved driver targets and image values after reopening. The fixture uses synthetic colours and maps; it does not validate live Marso state-generation quality, a blind agent's decisions or export of the interactive shader to USD/game engines.
+
+README videos are supplied Marso product demonstrations, not a new end-to-end execution of this skill release. The pictured Retexture panel is labelled with its recorded version. Installation instructions distinguish local skills, Claude account plugins and application connections.
+
+A fresh-context agent passed three offline routing checks: cumulative appearance states, independent alternative finishes and a complete scene without the optional Detect Objects command. It selected the expected workflows, preserved lineage and review gates, and distinguished local shader controls from cloud results. No live Blender or service actions were part of that routing check. Plugin metadata is updated to 0.2.1; fresh host installation remains a separate check.
+
+All 416 scene/helper tests passed, including isolated packaging of all 14 skills. Documentation links and anchors, plus decoding of the supplied silent demonstration excerpts, were checked locally.
+
 ## Modelling and UV acceptance revision
 
 Updated 2026-10-30. The asset and kit workflows require an inspected geometry checkpoint before final UV/bake work and distinguish model quality, mesh validity, UV readiness and user approval. UV guidance now covers lower-resolution strip sampling, deliberate detail allocation, alternate layouts for wasteful rings/strips, and rebaking after atlas revisions. Image handoff checks distinguish changed canvas framing from changed object proportions.
@@ -46,7 +60,7 @@ Claude Code 2.1.312 validated the marketplace and plugin manifests and installed
 | Claude API agent | Custom skill upload/attachment or host-managed skill loading | Host must expose the required application tools; live API integration not tested here. |
 | ChatGPT / Claude desktop | Client's supported custom-skill or plugin workflow | Availability and application access depend on the client/account; fresh installation remains unverified. |
 
-The collection is publicly available. Development-preview features are identified separately below. Structural validation does not certify model behaviour or photorealistic output.
+The collection is publicly available. Workflow-specific capability and verification limits are identified below. Structural validation does not certify model behaviour or photorealistic output.
 
 The Skills CLI discovered the six published Blender and entry skills and installed them into isolated Codex and Claude Code project directories. All twelve installed copies matched their source resources. Frontmatter, standalone ZIP packages, package-local links and public repository links passed validation. This checks distribution and file accessibility, not live model execution.
 
@@ -109,4 +123,4 @@ Placement uses run-owned entity Empties with separate geometry groups. Support e
 
 Validation on 2026-10-28: 391 scene script tests passed; all ten skills passed frontmatter checks; 58 package-local links and 23 command-line helpers were checked in isolated skill copies. Eight native placement checks passed in Blender 4.5.1 LTS and 5.2.0 LTS, including save/reopen and object renaming.
 
-The hierarchy is a foundation for future USD Xforms, not a USD exporter or physics validator. Placement remains an estimate from photographs; support contacts, imported dimensions, mesh orientation and rig/physics behaviour need review. No fresh end-to-end OpenAI/Claude host trial or live cloud regression was performed for this revision. These scene features remain a development preview requiring the supporting add-on; this limitation does not restrict access to the public collection.
+The hierarchy is a foundation for USD Xforms, not a USD exporter or physics validator. Placement remains an estimate from photographs; support contacts, imported dimensions, mesh orientation and rig/physics behaviour need review. No fresh end-to-end OpenAI/Claude host trial or live cloud regression was performed for this revision. Public Marso 1.12.1 includes the inspected scene commands; use capability checks rather than requiring a separate development build.

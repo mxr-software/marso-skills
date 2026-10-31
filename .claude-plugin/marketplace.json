@@ -8,7 +8,7 @@
     {
       "name": "marso",
       "source": "./",
-      "description": "The complete Marso skill collection for asset creation, reuse, texturing, Blender rendering and preview scene workflows."
+      "description": "The complete Marso skill collection for asset creation, reuse, texturing, Blender rendering and editable scene workflows."
     }
   ]
 }

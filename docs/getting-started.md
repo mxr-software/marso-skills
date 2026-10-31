@@ -16,7 +16,7 @@ Say **model** when you want editable, structured geometry; say **generate** when
 
 For newly modelled assets, the assistant shows neutral-clay previews and waits for you to approve the model before Marso texturing. You can request geometry changes at that point, or explicitly ask it to proceed without review. Existing assets you directly ask to retexture do not need an extra model-approval step.
 
-The public collection covers setup, asset modelling, texturing and modular kits. It also includes photographed-scene decomposition and reconstruction as development previews with additional requirements; see [availability](installation.md#choose-by-outcome).
+The public collection covers setup, asset modelling, texturing, modular kits and scene workflows. Use Marso 1.12.1 with Blender 5.2 as the public baseline for the Blender scene commands. Start with the [Blender connection guide](blender-setup.md), then try the [learning prompts and advanced recipes](workflows.md).
 
 ## Start with a small task
 

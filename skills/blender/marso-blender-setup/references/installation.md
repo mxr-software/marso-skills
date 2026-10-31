@@ -6,7 +6,7 @@ The **Marso add-on** provides the Library, Auto PBR, Retexture, Create, and Stud
 
 Use [Blender Lab's official MCP page](https://www.blender.org/lab/mcp-server/) and its linked project for the Blender connection. Other projects also use the name "Blender MCP"; identify the provider rather than substituting one silently.
 
-The inspected Marso add-on 1.7.1 requires Blender 5.2.0 or later. Read the downloaded release's manifest or current release information before installation; a newer package can have different requirements. Blender Lab's MCP has its own requirements, so satisfy both. Do not describe 1.7.1 as the latest release without checking.
+Public Marso 1.12.1 on Blender 5.2 is the inspected baseline for the documented scene route. Read the downloaded release's manifest or current release information before installation; a newer package can have different requirements. Blender Lab's MCP has its own requirements, so satisfy both. Do not describe the inspected version as the latest without checking.
 
 ## Install or enable Marso
 
