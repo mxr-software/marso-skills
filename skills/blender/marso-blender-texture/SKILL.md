@@ -1,12 +1,14 @@
 ---
 name: marso-blender-texture
-description: "Texture, retexture or restyle Blender assets with Marso, create appearance packs, or add PBR. Includes UV preparation and material checks. Preserve geometry; use asset modelling for new shapes."
+description: "Validate and texture Blender assets with Marso: Retexture, PBR-only and appearance packs. Use even when custom scripts, scenes or presentation workflows made the geometry."
 license: Apache-2.0
 ---
 
 # Texture and restyle with Marso
 
 Use Marso to create the requested appearance on the existing asset. Treat "add a texture", "change the texture", "retexture" and "restyle" as entry points to this workflow. Prepare geometry only as needed for texturing; preserve dimensions, shape, hierarchy, pivots and kit connections.
+
+Use this workflow for Marso finishing even when another skill or script built the asset. Before submission, follow [the validated handoff](references/validated-handoff.md). A helper's success, packed atlas, prepared flag or existing PBR material is not proof of valid input. Keep failed checks local and repair their cause; do not submit known-invalid geometry or hide a normal-map defect with a blanket correction.
 
 ## 1. Inspect and choose the operation
 
@@ -40,7 +42,7 @@ With Blender control available, prefer agent-authored seams, unwrapping and pack
 
 Check that the geometry can support the requested appearance at its intended viewing distance. Large recesses, openings, panel depth and prominent hardware should already exist when they are essential to the reference. Do not compensate with requests for intricate painted machinery. If a texture-only task needs modelling to meet the reference, explain that limitation rather than silently rebuilding the asset.
 
-For Retexture, require non-mirrored, non-overlapping UVs on textured faces. Exclude faces only when they remain hidden across all intended views, movements and kit arrangements. Temporary occlusion or being off-camera is insufficient. Keep editable source geometry when simplifying a texture/export copy.
+For Retexture and PBR-only generation, require non-mirrored, non-overlapping UVs on textured faces of each submitted target. Audit the complete evaluated/uploaded target, including every repeated part; a valid master or good-looking colour texture is insufficient. For repeated parts or a normal-direction defect, read [normals and repeated geometry](references/normals-and-repeats.md). Exclude faces only when they remain hidden across all intended views, movements and kit arrangements. Temporary occlusion or being off-camera is insufficient. Keep editable source geometry when simplifying a texture/export copy.
 
 For a scene built with entity Empties, select only the intended geometry group or its parts. Do not prepare the entity/support Empty recursively: its children can include separate supported assets. Keep support transforms and metadata outside the texture target.
 

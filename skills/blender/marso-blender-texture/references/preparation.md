@@ -10,7 +10,7 @@ The inspected assembly path creates a fresh Smart UV layout; retaining older UV 
 
 ## Single mesh
 
-Inspect faces, active/render UV layers, material slots, source images and evaluated modifiers. A UV layer's existence does not prove a usable unwrap. Retexture needs unique, non-mirrored, non-overlapping UV coverage for every surface being textured. Unstack mirrored/repeated islands on a working copy even when their final appearance should repeat; shared materials or instancing can be restored after generation. Check degenerate islands, coverage, padding, scale and direction with a checker where useful.
+Inspect faces, active/render UV layers, material slots, source images and evaluated modifiers. A UV layer's existence does not prove a usable unwrap. Retexture and PBR-only generation need unique, non-mirrored, non-overlapping UV coverage for every surface being textured in the submitted target. Unstack mirrored/repeated islands on a working copy even when their final appearance should repeat; alternatively generate a reusable master separately. Check degenerate islands, coverage, padding, scale and direction with a checker where useful. Read [normals and repeated geometry](normals-and-repeats.md) before choosing how finished maps can be reused.
 
 Read [UV acceptance](uv-acceptance.md) for the deterministic audit, authored-UV preparation and permanently hidden surfaces. Inspect a UV layout as well as the numerical result; packing coverage alone is not a quality score.
 
@@ -26,7 +26,19 @@ Every exported part used by 3D Asset Edit needs a usable colour texture. A plain
 
 Check the export's actual object and material inventory, especially with multiple scenes or an unfamiliar add-on build. Selection in the current view layer alone may not establish the exporter scope. Unintended objects can introduce untextured materials even when the intended target is valid. Use a recoverable, isolated working export when necessary, restoring temporary selection/visibility changes afterwards. Do not delete unrelated objects to make validation pass.
 
+Reopen the actual upload in an isolated Blender process and audit its material-bound UV layout across all included parts. A single joined object, independent mesh datablocks, correct face orientation or a successful colour bake does not establish unique UV coverage. Retain the overlap result and any justified hidden-face exclusions before submission; do not infer success from a prepared flag. If the live upload proxy cannot be inspected, report that gap rather than claiming it passed. A PBR-only request does not bypass this check.
+
 If the service returns `ASSET_EDIT_INVALID_INPUT`, retain the original response and inspect the uploaded file and named material. Correct the export or colour-texture preparation before another submission; retrying the same invalid input cannot fix it. The service's suggestion to run PBR is an alternative operation, not evidence that the requested Retexture succeeded. Report add-on preflight gaps separately rather than describing a skill workaround as an add-on fix.
+
+## Asset frame and round-trip placement
+
+An asset's authored anchor/pivot is distinct from its placement in the current scene. A portable library asset should preserve geometry relative to that anchor, not inherit an arbitrary scene offset. Check the actual upload's vertex bounds as well as its object transform: an object at `(0, 0, 0)` may have offset coordinates baked into its vertices. Do not require the user to build every source asset at world origin.
+
+Before publishing/reusing an assembly through the library, record its intended anchor, real dimensions and relative part transforms. Reopen the export in an isolated scene and verify those properties. On a supporting route, test that moving the whole source assembly elsewhere does not change the asset-relative result. Keep the original scene placement recoverable; temporary export copies must not relocate source geometry or change pending targets.
+
+Versions before 1.12.0 could bake world-space placement into an identity-transform upload proxy. Versions 1.12.0 and 1.12.1 include asset-relative export handling; verify the installed route and actual output rather than assuming older library assets were corrected. For an affected build, use a verified isolated working-copy route with a recorded asset-to-scene transform and map correspondence, or report the limitation. Changing upload orientation also changes the coordinate frame of world/object-space diagnostic normals; account for that rather than blindly copying vector maps.
+
+Check a returned multipart import before placing or instancing it: part separation, rotations, dimensions and pivots must survive. Correct a verified placement-only offset by transforming the complete asset through one shared Empty/anchor. Do not zero every part's location, discard rotations or force uniform scale to make the asset appear centred. If the importer already changed internal geometry/relative transforms, return to the source file or a verified import route; moving the group cannot reconstruct lost relationships. Keep visual bounds, authored pivots and articulation requirements distinct.
 
 ## Transparent parts
 
@@ -49,7 +61,7 @@ When loose objects really form one asset, `group_as_asset` can establish a root.
 
 `prepare_assembly` adds `MarsoAtlas` to each part, packs one shared 0-1 layout, optionally bakes current colours (default enabled), and replaces all slots with a shared material. The inspected sizes are 2048 and 4096, default 4096. Existing UV layers and separate objects remain. A temporary joined, evaluated copy is used for upload; original objects are not joined.
 
-The layout accounts for world-space scale, but linked mesh duplicates share their UV islands. Make repeated mesh data independent within a single Retexture target before preparation so surfaces do not stack in the upload. Differently scaled linked instances also cannot be assumed to have consistent density. Check for users outside the target before changing data. Separately placed instances can reuse a textured master afterwards.
+Assembly preparation in 1.12.0 and 1.12.1 gives linked occurrences independent atlas space; earlier builds could share those islands. This does not repair stacks already present in a single mesh. For repeated parts included in one generation target, verify unique UV regions across every occurrence. Copying mesh data or joining objects alone leaves existing coordinates unchanged. Differently scaled linked instances also cannot be assumed to have consistent density. Check for users outside the target before changing data. Separately placed instances can reuse a verified textured master afterwards; do not flatten those instances into a fresh generation target with stacked UVs.
 
 Hidden-face detection samples the current assembly and collapses those faces' atlas coordinates to a point. It is an approximation, not proof of invisibility in every view or future pose. Read [kit texturing](kits.md) for reusable or moving parts before allowing this operation.
 

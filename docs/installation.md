@@ -10,6 +10,8 @@ The public collection is on the [`main` branch](https://github.com/mxr-software/
 
 ## Install the complete collection
 
+Installing or updating the files does not prove the agent loaded them. For a new Blender project, ask: **“Use the installed Marso skills: model with `marso-blender-asset` or `marso-blender-kit`, prepare and finish through `marso-blender-texture`, then render. State which skills you loaded and report the input-validation results before Marso submission.”** This also applies to custom modelling scripts and film/tutorial workflows. Keep duplicate or older workflow copies out of the active skill installation; updating skills does not update the Blender add-on.
+
 **Choose by where you use the assistant.** For skills in your Claude account, [install the Marso plugin](#claude-desktop). For a local Codex or Claude Code installation, use the terminal command below. You do not need both. Running that command in a cloud chat's sandbox does not install skills on your computer or upload them to your Claude account.
 
 ### Codex and Claude Code

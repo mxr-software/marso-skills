@@ -8,6 +8,8 @@ license: Apache-2.0
 
 Produce reusable components that actually fit together, plus the information needed to assemble and texture them. Support starting from a brief, an image or an existing asset. Build the smallest component family that covers the requested arrangements.
 
+For requested Marso finishing, hand each approved component or geometry family to `marso-blender-texture` when installed, including components made by a custom builder or for a film. Verify the complete texture target after assembly/export; a shared atlas, single joined mesh or successful pack is not proof that repeated surfaces have unique UVs. Preserve masters and prior versions.
+
 Inspect the working Blender connection, source objects, dimensions and available references first. General modelling needs Blender control; the Marso hosted connection alone does not supply arbitrary modelling. Use `marso-blender-setup` for missing setup and `marso-blender-asset` for modelling when available. These are optional companion skills, not hidden runtime dependencies.
 
 ## Decompose around reuse

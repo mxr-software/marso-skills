@@ -56,6 +56,8 @@ Only pass parameters supported by the installed schema. These are the inspected 
 
 When Auto PBR has unrelated pending items, do not call `pbr_generate` as though it targets only your list. Resolve the queue with the user or use another appropriate isolated route; there is no inspected per-call queue exclusion parameter. Check each intended queue item and returned material application result for failures.
 
+Before PBR-only submission, run the same [upload UV and surface checks](preparation.md#verify-the-actual-upload) as for Retexture. Existing colour textures and correct-looking shading do not establish that repeated parts have unique UVs for generated normal data.
+
 For `image_material`, local images support PNG/JPEG/WebP up to 10 MiB in the inspected implementation. It does not unwrap or set physical pattern scale. `apply: true` replaces every slot on target meshes. For selected faces or material roles, use `apply: false`, then assign the returned material through Blender only to those faces/slots. Verify the face mapping, not just material names.
 
 Retexture requires UVs and a base-colour texture. Prefer agent-authored or verified existing UVs and set `auto_uv: false` on the supported single-mesh route. `auto_uv` handles missing UVs; it does not fix bad existing UVs and does not prevent automatic assembly preparation. Use the [authored-layout handoff](preparation.md#agent-authored-layouts) to preserve a curated atlas. Reference paths must resolve on Blender's machine and be accepted by the current connection; a client attachment is not automatically a local Blender path.

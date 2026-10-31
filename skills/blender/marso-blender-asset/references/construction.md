@@ -40,7 +40,7 @@ A low-poly target permits economical topology, not incorrect proportions. Increa
 | Moulded grips, rounded housings and compound surfaces | Loft matched section loops or build a sparse subdivision cage | Depth variation, section shape, support loops and smooth highlights |
 | Soft uppers, padding and organic forms | Shape a low-density cage; sculpt and retopologise when needed | Volume, panel construction and deformation where requested |
 | Openings and recesses | Planned inset/ring topology or Boolean cuts with local cleanup | Slivers, pinching, wall thickness and the evaluated bevel |
-| Repeated components | Refine one master before arraying or instancing | Master finish, spacing and fit; unique UVs on copies within a Retexture atlas |
+| Repeated components | Refine one master before arraying or instancing | Master finish, spacing and fit; texture/PBR one reusable master separately, or uniquely atlas every occurrence in a combined generation target |
 
 These methods can coexist within an asset. A Boolean is useful for a cut; it does not establish finished topology. Subdivision is useful for curvature; it does not repair an unsuitable cage. There is no universal modifier order: decide whether a cut, thickness or bevel belongs before or after smoothing from the intended surface, then inspect it.
 

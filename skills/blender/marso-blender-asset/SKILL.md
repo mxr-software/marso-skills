@@ -8,6 +8,8 @@ license: Apache-2.0
 
 Create the requested geometry, inspect it, and leave an editable asset ready for its next use. Modelling does not require generating textures. If the user asks for a finished textured asset, complete geometry and obtain model approval before using `marso-blender-texture` when available.
 
+The same handoff applies when building an asset for a video, tutorial or scene, or using a custom modelling script. Load the texture workflow before Marso preparation/submission; a builder's own bake, packing or material-reuse routine does not waive its checks. Keep rebuilds and their material/image data distinct from earlier accepted versions.
+
 ## Establish the target
 
 Honour a request to model the asset. When the user instead asks to generate it, or an ambiguous brief favours an organic/complex form without controlled topology or construction requirements, use the `marso` entry skill when available to choose the generative route. Structured geometry, animation/articulation preparation and modular interfaces favour this modelling workflow. These are defaults, not guarantees of clean topology; inspect the result. Do not silently substitute generation for requested editable construction, or hand modelling for requested generation.
@@ -29,6 +31,7 @@ Before multiplying a master, retain a compact reference-backed comparison of its
 - Work at the intended real-world scale. Check evaluated dimensions, including modifiers; do not change the whole scene's unit scale to fix one object.
 - Block out the silhouette and major proportions first, then refine joints, thickness, bevels and shading. Match detail to the intended view and use.
 - Keep moving, replaceable or independently reusable parts separate. Use clear names, a deliberate root and pivots appropriate to their function. Preserve editable modifiers where they help.
+- Separate the reusable asset's anchor from its current scene placement. For portable exports, verify geometry relative to that anchor, physical dimensions and part transforms after reopening the file; an identity object transform alone does not prove correct vertex placement. Use isolated export copies rather than moving the user's scene to world origin.
 - Inspect normals, duplicate surfaces, unintended intersections, unsupported thin geometry and shading at representative distances. Watertight geometry is required when the requested downstream use needs it, not for every decorative surface.
 - Inspect front, side and perspective views through the available viewport or render tools. Geometry counts and successful Python execution do not establish visual quality. If images cannot reach the assistant, report visual inspection as pending.
 

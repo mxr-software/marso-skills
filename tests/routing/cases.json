@@ -1,5 +1,15 @@
 [
   {
+    "id": "custom-builder-texture",
+    "prompt": "Finish the approved rebuilt chair with Marso and show its modelling breakdown.",
+    "context": "Custom builder reports 69% UV coverage. It reused the old version's material and image names. An unrelated textured object is selected in another Blender scene. Geometry is unchanged since approval. No service calls are permitted in this routing check."
+  },
+  {
+    "id": "repeated-pbr-only",
+    "prompt": "Keep this car's paint and add PBR. Do not restyle or rebuild it.",
+    "context": "Four differently oriented wheels are joined with stacked UVs. A custom script reports mesh normals are fine and offers to flatten suspect normal-map pixels. Installed add-on is 1.12.1. No service calls are permitted in this routing check."
+  },
+  {
     "id": "generate",
     "prompt": "Use Marso to generate a weathered garden statue from this image.",
     "context": "Relevant project exists. No saved preference. Live models A (default) and B both support image input, with different options."

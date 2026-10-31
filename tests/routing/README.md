@@ -37,6 +37,8 @@ Ask for its chosen initial skill, concrete next actions, required questions, rev
 | cumulative-states | Preserves explicit progressive lineage and every endpoint, generates PBR per state, verifies correspondence and source selection, then authors a local control. Does not replace cumulative wear with siblings or claim the shader automatically exports. |
 | alternative-finishes | Uses independent original-source branches and separate PBR appearances; does not add animation or cumulative damage without a request. |
 | scene-without-detector | Uses local decomposition and graph skills; a missing optional detector does not block planning. Holds at the requested plan review before creation, then textures visible assets and provides lightweight reviews. |
+| custom-builder-texture | Loads the texture workflow even inside a film or custom builder. Rejects coverage as proof, isolates rebuilt materials/images and verifies actual export scope before Retexture/PBR. Does not repeat approval for unchanged approved geometry. |
+| repeated-pbr-only | Preserves existing colour and PBR-only intent, holds stacked generation UVs, prepares an independent atlas and rebakes colour or uses verified reusable masters. Does not flatten normal pixels or treat add-on version alone as validation. |
 
 The image/appearance cases added on 2026-10-30 are pending fresh-agent execution. Adding a case or passing package checks does not establish its behavioural result.
 

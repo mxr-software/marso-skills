@@ -1,6 +1,6 @@
-# Retexture UV acceptance
+# Retexture and PBR UV acceptance
 
-Retexture preparation must provide one verified 0-1 layout for each texture target, with unique non-mirrored coverage for all textured surfaces. Authoring extra UV layers is fine; identify the exact layer used by export and materials. Apply these requirements to the upload geometry, including evaluated modifiers and repeated parts, not just the unmodified source cage.
+Retexture and PBR-only preparation must provide one verified 0-1 layout for each texture target, with unique non-mirrored coverage for all textured surfaces. Authoring extra UV layers is fine; identify the exact layer used by export and materials. Apply these requirements to the upload geometry, including evaluated modifiers and repeated parts, not just the unmodified source cage. A texture target is the full submitted mesh/assembly sharing generated maps, not each disconnected component considered separately.
 
 ## Choose an unwrap
 
@@ -29,6 +29,8 @@ Do not infer permanent invisibility from a single camera, hidden-in-viewport fla
 ## Audit
 
 The optional [audit helper](../scripts/audit_uv.py) runs inside Blender. Call `audit_uv(objects, uv_name=..., excluded_faces=...)` on the actual mesh objects comprising one texture target. `excluded_faces` maps object names to polygon indices verified permanently hidden; omission excludes nothing. The helper does not determine visibility or modify data. Run on independent evaluated copies if modifiers change the upload geometry.
+
+The helper is optional; an actual overlap check is not. Audit all repeated occurrences together, even if they share mesh data or have already been joined. Auditing one master, or each component in isolation, misses collisions between their UV regions. Check the reopened export as well as the preparation copy. For large assets, a quick exact-duplicate UV-triangle check can establish failure early, but a clean exact-match scan cannot rule out partial overlaps and must not replace the complete audit. Record the checked file/layer, scope, result and exclusions; do not describe an unexecuted checklist as validation.
 
 It reports negative UV winding (a mirrored-orientation diagnostic), zero-area triangles, out-of-tile coordinates, positive-area triangle overlaps and density. Touching island boundaries alone are not counted as overlaps. Geometry normals and negative object scale must also be checked: the winding diagnostic does not establish correct mesh orientation. Excluded faces are omitted from the area/overlap audit and counted separately, not silently accepted as textured faces.
 

@@ -8,6 +8,8 @@ license: Apache-2.0
 
 Translate the requested outcome into the appropriate workflow. Preserve the user's choice of application and working connection. Do not require the hosted Marso MCP when an application's Marso add-on already provides the needed operation.
 
+For a multi-stage task, name the workflow for each stage before executing it and load the applicable installed skill. This includes assets being built for a film, tutorial, demonstration or render. A custom builder or presentation recipe can create geometry or shots, but does not replace the Marso texture workflow's input validation, operation selection and result checks. Do not assume an installed skill was followed: retain the actual handoff and check results with the project.
+
 ## Choose from intent
 
 An explicit request to generate or model takes precedence over the defaults below. When "make an asset" is ambiguous, infer from the required result; ask only when the choice materially affects the deliverable and the brief does not resolve it.
@@ -18,7 +20,7 @@ An explicit request to generate or model takes precedence over the defaults belo
 | Generate an asset from an image or description; organic or complex forms where approximate reconstruction is acceptable | `marso-generate` when installed: live model selection and reusable user preferences. |
 | Model editable structured geometry; controlled topology, animation preparation, articulation or precise modular interfaces | Agent modelling through the target application's control tools. In Blender, use `marso-blender-asset` or `marso-blender-kit` when installed. |
 | Change an existing asset's appearance, add a texture or restyle | Retexture the existing geometry, then PBR and final material review. In Blender, use `marso-blender-texture` when installed; use `marso-image` for a requested image-reference authoring stage. |
-| Keep its current appearance and add PBR | Existing-appearance PBR route; do not silently restyle or regenerate the shape. |
+| Keep its current appearance and add PBR | In Blender, use `marso-blender-texture` and its PBR-only route, including input validation; do not silently restyle or regenerate the shape. |
 | Populate a scene with differently labelled/finished cans, boxes or other repeated shapes | Group by actual geometry; one master per shape family, multiple appearances, then instances. Use the texture skill's appearance-families route. Different weapon/shield silhouettes remain distinct geometry; identical chairs need ordinary instances. |
 | Make N styles of the same asset | One preserved source, independent Restyle branches for each look; use the texture skill's variants workflow. |
 | Animate or control a change from clean to dirty, rusty, wet or scorched | Source-based PBR states, then the Blender texture skill's appearance-state workflow for a slider/mask. Geometry damage and physical simulation are separate tasks. |
@@ -29,6 +31,7 @@ An explicit request to generate or model takes precedence over the defaults belo
 | Rebuild a photographed room or complete a Blender scene | Read [complete scene workflow](references/scene-workflow.md). Coordinate decomposition, planning, reuse/generation/modelling, placement and finish; do not stop at the graph. |
 | Generate an already reviewed scene asset plan | `marso-blender-scene-assets`; preserve non-generation routes for their own handoffs. |
 | Reduce render time or memory, use repeated assets efficiently, or render a Blender scene | `marso-blender-render` when installed. |
+| Make a build film, asset breakdown, tutorial or showcase that needs new textured Blender assets | Model through `marso-blender-asset`/`marso-blender-kit`, finish through `marso-blender-texture`, then render/presentation. Reuse accepted assets when no new asset work was requested. |
 | Use something already in the library, or check for one before generating | `marso-library` when installed: resolve a selected asset directly, or search by description/image. Do not generate a replacement for an asset the user chose to reuse. |
 
 Organic/complex forms favour generation as a starting point; structured, articulated or modular objects favour agent modelling. These are workflow defaults, not quality guarantees. Generated meshes can need retopology, part separation and scale correction; agent-built meshes still need topology and fit checks. A hybrid can generate decoration while modelling functional joints and mating surfaces. Preserve explicit user intent and explain a material tradeoff before substituting routes.

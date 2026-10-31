@@ -1,5 +1,15 @@
 # Compatibility
 
+## Texture workflow and upload validation
+
+Updated 2026-10-31. Plugin version 0.2.2 routes agent-built assets, scene work and presentation workflows through `marso-blender-texture` before Retexture or PBR-only. The handoff requires evidence for the current geometry, material/UV correspondence and exact upload scope; earlier renders and UV coverage percentages cannot establish acceptance. Returned normal maps are preserved rather than automatically flattened or clamped.
+
+Two fresh-context agents passed offline routing checks: a rebuilt asset with reused material names, and PBR-only on a painted asset with stacked repeated-part UVs. Both chose preparation and export verification before submission. These were instruction-following checks, not actual Claude installation tests or live asset generation. All 416 scene/helper tests, including isolated skill packages, passed. The repeated-UV native Blender regression also passed a real GLB round trip and a uniquely packed control.
+
+The customer baseline remains Marso 1.12.1. Its selected-object exporter can include selections from other scenes, and its prepared status is not a complete evaluated-UV validation. Until a corrected add-on is installed, use an isolated working file/process and verify the actual upload. Updating skills does not update Blender's add-on. New export isolation, UV rejection and mirrored-assembly preparation changes are maintained in the add-on repository; their source/tests do not establish a public binary release.
+
+The reported external asset and its submitted GLB were unavailable. No claim is made that its exact normal defect was reproduced, or that local regression tests validate live Marso normal prediction. The earlier dated source findings below describe the revisions tested then.
+
 ## Public setup and appearance-state guidance
 
 Updated 2026-10-31. The public setup baseline is Marso 1.12.1 on Blender 5.2, with customer availability confirmed by the maintainer. Source `b25579a` exposes `scene_reference`, `scene_mesh`, `mint_status`, `import_scene_asset` and native batch commands. Verify those capabilities in the loaded add-on; a source version is not an inspection of a user's session. The agent-led scene route starts with local decomposition and planning skills; Marso Detect Objects is optional.
@@ -13,6 +23,14 @@ README videos are supplied Marso product demonstrations, not a new end-to-end ex
 A fresh-context agent passed three offline routing checks: cumulative appearance states, independent alternative finishes and a complete scene without the optional Detect Objects command. It selected the expected workflows, preserved lineage and review gates, and distinguished local shader controls from cloud results. No live Blender or service actions were part of that routing check. Plugin metadata is updated to 0.2.1; fresh host installation remains a separate check.
 
 All 416 scene/helper tests passed, including isolated packaging of all 14 skills. Documentation links and anchors, plus decoding of the supplied silent demonstration excerpts, were checked locally.
+
+## Repeated geometry and PBR normals
+
+Updated 2026-10-31. Texture preparation now explicitly applies complete-target UV validation to PBR-only runs as well as Retexture. Repeated parts must either receive distinct generation-atlas regions or be textured as a separate reusable master. Copying mesh data or joining objects is not sufficient to remove pre-existing UV overlaps. Normal diagnostics distinguish mesh orientation, atlas conflicts and map coordinate conventions; world-space debug images are not tangent-space material maps.
+
+Blender 5.2.0 regression `tests/blender/repeated_uv_smoke.py` passed for linked repeats with opposing normals, independent copies retaining their overlaps, joined geometry, a real GLB round trip, and a uniquely packed positive control. The existing overlap helper detects these failures when called on the complete target. Package isolation/link checks passed for all 14 skills. These are local checks; no new cloud generation or fresh blind-agent execution was performed for this revision. A separate disposable Blender probe of add-on source `9d17e2f` reproduced overlapping atlas regions through `unwrap_atlas` on linked parts. Instructions require verified working-target preparation rather than claiming the add-on automatically prevents this conflict.
+
+The same source probe reproduced world-placement offsets baked into an assembly upload proxy, persisting through a real GLB round trip. A synthetic USD containing those coordinates retained the offset through the add-on importer. A separate multipart USD retained its arrangement through Blender's native import but lost part separation and intentional nonuniform scale through the add-on's post-import processing. This tests local source behavior, not the cloud minting path or an installed release. Skills now check asset-relative export bounds and imported part transforms; these checks are safeguards, not fixes to the add-on implementation.
 
 ## Modelling and UV acceptance revision
 
