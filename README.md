@@ -2,13 +2,17 @@
   <a href="https://marso.app/"><img src="docs/assets/marso-skills.png" alt="Marso Skills — create in 3D with your AI agent, then texture and reuse your assets." width="100%"></a>
 </p>
 
+<table>
+<tr>
+<td width="64%" valign="top">
+
 # Marso Skills
 
 **Make an asset. Give it realistic materials. Keep it in a library your agent can use again.**
 
 Marso connects image and 3D generation, Retexture, PBR and asset search. These skills teach your agent how to use that toolkit—and how to model, build modular kits and assemble editable scenes in Blender.
 
-[Get started](#get-started) · [See what you can make](#see-what-you-can-make) · [Learn by doing](docs/workflows.md) · [Advanced workflows](#go-further) · [All skills](#available-skills)
+[**Get started →**](#get-started) · [Learn by doing →](docs/workflows.md)
 
 ## Who is it for?
 
@@ -16,9 +20,38 @@ For **3D artists and designers** exploring materials and building reusable asset
 
 You can start from a sentence, a photograph or an existing mesh. Choose generation when you want a new asset from an image. Choose agent modelling when editable construction, articulation or precise modular connections matter. Blender is the first supported application in this collection.
 
-## See what you can make
+</td>
+<td width="36%" valign="top">
 
-[Model an asset](#agents-model-in-blender-marso-textures--finishes-with-pbr) · [Generate an asset](#generate-an-asset-from-an-image-complete-with-pbr) · [Sim-ready USD](#get-a-usd-asset-you-can-render-find-and-simulate) · [Search and reuse](#find-similar-assets-in-your-own-library) · [Multiple looks](#one-shape-many-appearances) · [Modular kits](#build-a-kit-assemble-many-layouts) · [Scenes](#turn-reference-images-into-an-editable-scene)
+### On this page
+
+**🚀 Start here**
+
+- [Install and connect](#get-started)
+- [Learn with your agent](docs/workflows.md)
+- [Keep everything updated](#stay-up-to-date)
+
+**✨ Explore the workflows**
+
+- [Model in Blender](#agents-model-in-blender-marso-textures--finishes-with-pbr)
+- [Generate an asset + PBR](#generate-an-asset-from-an-image-complete-with-pbr)
+- [Sim-ready USD](#get-a-usd-asset-you-can-render-find-and-simulate)
+- [Search and reuse assets](#find-similar-assets-in-your-own-library)
+- [Retexture and appearance states](#one-shape-many-appearances)
+- [Build modular kits](#build-a-kit-assemble-many-layouts)
+- [Rebuild a scene from photos](#turn-reference-images-into-an-editable-scene)
+
+**📚 Go further**
+
+- [Advanced workflows](#go-further)
+- [All 14 skills](#available-skills)
+- [Help and contributing](#help-and-contributing)
+
+</td>
+</tr>
+</table>
+
+## See what you can make
 
 ---
 
