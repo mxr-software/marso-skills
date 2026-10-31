@@ -26,7 +26,7 @@ You can start from a sentence, a photograph or an existing mesh. Choose generati
 
 **Build the right shape first. Then give it the right surface.** The agent models editable geometry in Blender: proportions, separate parts, pivots and modular connections. You review the model before Marso Retexture and PBR finish it.
 
-[![Actual Blender views of the same agent-modelled car: solid geometry, then the Marso PBR material](docs/assets/explain/model-to-pbr.png)](docs/assets/demos/agent-car-to-pbr.mp4?raw=true)
+[![The agent-modelled car before texturing and with its finished Marso PBR materials](docs/assets/explain/model-to-pbr.png)](docs/assets/demos/agent-car-to-pbr.mp4?raw=true)
 
 **🛠️ Skills:** [Model an asset](skills/blender/marso-blender-asset/SKILL.md) → [Retexture + PBR](skills/blender/marso-blender-texture/SKILL.md)
 
@@ -42,23 +42,17 @@ You can start from a sentence, a photograph or an existing mesh. Choose generati
 
 **Generate image → Generate 3D → Generate PBR → minted USD + your library.** Start with your own reference or ask Marso to generate one. The agent keeps the work in a relevant Marso Studio project so you can revisit its graph.
 
-[![Generated reference, a clay view of the resulting geometry and its final PBR appearance](docs/assets/explain/generation-workflow.png)](docs/assets/demos/generated-pbr-turntable.mp4?raw=true)
+[![A Marso-generated coffee-grinder reference, the resulting PBR asset rendered in Cycles, and its base-colour, roughness, metallic and IOR passes](docs/assets/explain/generation-workflow.png)](docs/assets/demos/generated-grinder-cycles.jpg)
 
 **✨ Skills:** [Generate an image](skills/core/marso-image/SKILL.md) → [Generate an asset + PBR](skills/core/marso-generate/SKILL.md)
 
 **💬 Try asking:**
 
-> Use Marso to make a weathered ceramic plant pot. Show me the generated image before making the 3D asset, then add PBR and save it to my Garden Props project.
+> Use Marso to make a vintage coffee grinder with worn walnut, aged brass and black iron. Show me the generated image before making the 3D asset, then add PBR and save it to my Kitchen Props project.
 
 Already have a mesh? Use PBR to finish its existing appearance, or Retexture first to change it. [Try your first generated asset →](docs/workflows.md#start-here-generate-your-first-asset)
 
-### A finish you can relight
-
-**PBR—physically based rendering—lets the finished surface respond to changing light.** Roughness controls the spread of reflections; metallic distinguishes metal from paint or rubber; colour and IOR contribute to the material's appearance. Marso predicts these properties and delivers a complete material set.
-
-![Fully shaded PBR asset beside base-colour, roughness, metallic and IOR passes displayed on the 3D model](docs/assets/explain/pbr-material.png)
-
-The large image is the final asset; the smaller views show its PBR passes on the model. Inspect the surface under different lighting and retain its maps for reuse. [▶ Watch the PBR turntable](docs/assets/demos/generated-pbr-turntable.mp4?raw=true). [Understand PBR and its outputs →](docs/pbr-and-usd.md#what-is-pbr)
+**PBR—physically based rendering—gives the asset a material you can relight.** Colour, roughness, metallic and IOR describe its surface; the smaller views above show material passes on the finished mesh. [Understand PBR and its outputs →](docs/pbr-and-usd.md#what-is-pbr)
 
 ---
 
@@ -91,15 +85,15 @@ Your application connects these fields to its behaviour: material labels can sel
 
 Search with a description, an image, or both. The reference can be a photograph of the kind of object you want; it does not need to be the asset's original thumbnail. Review relevant matches, choose the saved asset, then import and reuse it.
 
-![Generated chair reference beside a nine-asset library, two highlighted candidates and one chosen chair to import](docs/assets/explain/library-search.png)
+![A text query beside nine example assets, two highlighted monitor matches and one selected monitor for import](docs/assets/explain/library-search.png)
 
 **🔎 Skill:** [Search and reuse your library](skills/core/marso-library/SKILL.md)
 
 **💬 Try asking:**
 
-> Find a woven wooden lounge chair similar to this photo in my Marso library. Show me two good matches, then import the one I choose into Blender.
+> Find a worn CRT monitor with a chunky beige shell in my Marso library. Show me two good matches, then import the one I choose into Blender.
 
-*Illustrative search flow: the input photo is generated; the candidate previews are real Marso assets. It is not a recording of a live search.* Reuse preserves asset identity and avoids generating a replacement when the right object already exists.
+*Illustrative search flow using supplied Marso asset imagery; not a recording of a live search.* Reuse preserves asset identity and avoids generating a replacement when the right object already exists.
 
 ---
 
@@ -135,7 +129,7 @@ In Blender, a slider or mask can blend the finished materials—for example, inc
 
 **Model and texture the masters once, then reuse them.** The agent plans dimensions, connectors and join positions before building. This is useful for architectural parts, furniture systems and other assets that need to fit together precisely.
 
-[![Modular duct kit progressing from modelled parts to PBR masters and an assembled duct network](docs/assets/explain/modular-workflow.png)](docs/assets/demos/modular-ducts.mp4?raw=true)
+[![Six finished modular duct parts beside a connected layout built from the kit](docs/assets/explain/modular-workflow.png)](docs/assets/demos/modular-ducts.mp4?raw=true)
 
 **🧩 Skills:** [Build a kit](skills/blender/marso-blender-kit/SKILL.md) → [Compose with it](skills/blender/marso-blender-compose/SKILL.md)
 
@@ -151,7 +145,9 @@ In Blender, a slider or mask can blend the finished materials—for example, inc
 
 **Photos → scene graph → reviewed asset plan → Blender scene.** The agent identifies objects across photographs, matches repeated views and records what rests on what. You can choose what to model, generate, reuse, instance or build as a kit before creation begins.
 
-![Scene workflow: identify objects and relationships, choose creation or reuse routes, then place, texture and inspect the editable scene](docs/assets/explain/scene-workflow.png)
+![An office reference photo with detected objects beside its recorded support hierarchy: floor, coffee table, vase and flowers, with other tabletop props](docs/assets/explain/scene-workflow.png)
+
+This excerpt from a scene-decomposition test shows how a photograph becomes a support graph: the table supports the vase, and the vase holds the flowers. Those relationships guide placement while keeping each asset independently editable.
 
 The scene stays editable: replace furniture, change finishes or build another layout. Empty-based groups prevent a table's mesh scale from also resizing objects supported by it. The skills-led route uses local decomposition; Marso Detect Objects is an optional aid.
 

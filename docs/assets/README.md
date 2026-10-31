@@ -14,8 +14,9 @@ The `demos/` clips are short, silent excerpts of Marso demonstrations. They show
 | --- | --- |
 | `agent-car-to-pbr.mp4` | The supplied agent-built vintage racing car demonstration, from Blender construction through its Marso finish. |
 | `generated-pbr-turntable.mp4` | A turntable encoded from the supplied PBR raygun render sequence. |
+| `generated-grinder-cycles.jpg` | A fresh Marso image → Hunyuan 3D 3.1 Pro → Marso PBR result, rendered in Blender 5.2 Cycles at 2400 × 2400 with an OptiX GPU, adaptive sampling, a 512-sample cap and denoising. The lighting, AgX contrast, display gamma and material roughness gamma were adjusted for presentation; the downloaded maps remain unchanged. |
 | `agent-model-to-pbr.*` | An agent modelling a bucket in Blender, followed by Marso texturing and the finished appearance. |
-| `modular-ducts.*` | A reusable duct kit and assembled layouts. |
+| `modular-ducts.mp4` | The revised-lighting v2 duct-kit film, showing finished parts and assembled layouts. |
 | `appearance-states.*` | A chair's appearance changing from clean to scorched. This is not a combustion or geometry-damage demonstration. |
 | `sim-ready.*` | Marso assets in an Isaac Sim demonstration. Numeric metadata overlays in this film are illustrative. |
 | `retexture-blender.*` | The single-mesh and multipart sections of the Blender Retexture tutorial, recorded with Marso 1.6. Newer UI can differ. |
@@ -31,16 +32,16 @@ The `explain/` SVGs are editable diagrams; the matching PNGs provide consistent 
 
 | Graphic | Evidence and meaning |
 | --- | --- |
-| `model-to-pbr` | Fresh captures of the supplied agent-built car scene in Blender 5.2, shown in solid and material-preview modes at the same frame. The original scene and materials were not changed on disk. This is a presentation of an existing asset, not a new modelling or cloud run. |
-| `generation-workflow` | The generated reference plus clay and PBR views of the resulting example asset illustrate the image-to-3D-to-PBR route. The clay view was rendered from the supplied asset's unchanged geometry for this diagram; it is not a new cloud generation. |
-| `pbr-material` | The finished 3D asset beside its base-colour, roughness, metallic and IOR display passes. No UV sheets or texture atlases are shown. |
+| `model-to-pbr` | Clay and finished PBR frames from the supplied agent-built vintage-car demonstration. Views differ to show the construction and material detail. This is a presentation of an existing asset, not a new modelling or cloud run. |
+| `generation-workflow` | The freshly generated coffee-grinder reference, its actual generated mesh with Marso PBR rendered in Cycles, and four material display passes. This example completed the image, 3D and PBR stages; it is not a blind-agent or fresh-installation benchmark. |
+| `pbr-material` | The same coffee grinder beside its original base-colour, roughness, metallic and IOR maps displayed on the 3D model. The final beauty image includes presentation adjustments described above. No UV sheets or texture atlases are shown. |
 | `usd-data` | A conceptual table pairing USD package contents with their uses. No asset-specific numeric values or automatic application behaviours are claimed. See the USD guide for fields and use cases. |
-| `library-search` | A generated reference photograph, nine real asset previews in an illustrative collection, two highlighted candidates and one chosen asset for import. No live result ranking or similarity score is claimed. |
+| `library-search` | A text query, nine supplied Marso reference images, two highlighted monitor candidates and one selected monitor. Collection membership, result ranking and the import step are illustrative; this is not a live query or UI capture. |
 | `banana-looks` | Four fruit appearances from the supplied banana demonstration; the corresponding silent clip is `demos/banana-looks.mp4`. |
 | `chair-states` | Clean, worn and scorched frames from the supplied chair transition, with a conceptual state control. Camera angles vary across the original video. |
-| `modular-workflow` | Modelled duct pieces, finished masters and a network from the supplied modular-kit film. |
-| `scene-workflow` | A process diagram covering decomposition, route selection, construction and review. It is not a claim of a new scene-generation test. |
+| `modular-workflow` | Six individually cropped PBR masters and an assembled network from the revised-lighting v2 renders. The connected film uses that same version. |
+| `scene-workflow` | An office reference photo and object crops from an actual scene-decomposition test. The diagram follows its recorded table, vase, flowers and tabletop-prop support relationships. It depicts the support graph, not Blender mesh parenting or a newly generated scene. |
 
-`search-reference.png` was made with the built-in image-generation tool solely as an illustrative search input. It is not a Marso generation or library asset. The candidate and selected-asset images remain real Marso previews. Keep this distinction if reusing the graphic.
+`search-reference.png` is an unused alternative made with the built-in image-generation tool solely as an illustrative search input. It is not a Marso generation or library asset.
 
-The four leather-chair thumbnails were rendered from the supplied Marso meshes and their corresponding colour, roughness and metallic maps. The library layout is explanatory, not a screenshot of the product or a claim about search ranking.
+Earlier leather-chair thumbnails were rendered from supplied Marso meshes and their corresponding colour, roughness and metallic maps. The current library diagram uses supplied reference imagery instead. The layout is explanatory, not a screenshot of the product or a claim about search ranking.
