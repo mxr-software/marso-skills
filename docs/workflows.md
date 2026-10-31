@@ -61,7 +61,7 @@ For many variants, the agent can prepare a labelled image grid, author looks thr
 
 > Build a modular ventilation kit in Blender: straight duct, elbow, junction and vent. Agree dimensions and connectors first. Show the modelled parts, then texture them with Marso as used galvanised steel. Assemble two layouts from the same masters.
 
-[![Modelled duct parts, finished PBR masters and an assembled network](assets/explain/modular-workflow.png)](assets/demos/modular-ducts.mp4?raw=true)
+[![Finished modular PBR masters and an assembled network](assets/explain/modular-kit-v2.png)](assets/demos/modular-ducts.mp4?raw=true)
 
 [Watch the modular kit example →](assets/demos/modular-ducts.mp4?raw=true)
 

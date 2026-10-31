@@ -26,7 +26,7 @@ You can start from a sentence, a photograph or an existing mesh. Choose generati
 
 **Build the right shape first. Then give it the right surface.** The agent models editable geometry in Blender: proportions, separate parts, pivots and modular connections. You review the model before Marso Retexture and PBR finish it.
 
-[![The agent-modelled car before texturing and with its finished Marso PBR materials](docs/assets/explain/model-to-pbr.png)](docs/assets/demos/agent-car-to-pbr.mp4?raw=true)
+[![The agent-modelled car before texturing and with its finished Marso PBR materials](docs/assets/explain/modelled-car-pbr.png)](docs/assets/demos/agent-car-to-pbr.mp4?raw=true)
 
 **🛠️ Skills:** [Model an asset](skills/blender/marso-blender-asset/SKILL.md) → [Retexture + PBR](skills/blender/marso-blender-texture/SKILL.md)
 
@@ -42,7 +42,7 @@ You can start from a sentence, a photograph or an existing mesh. Choose generati
 
 **Generate image → Generate 3D → Generate PBR → minted USD + your library.** Start with your own reference or ask Marso to generate one. The agent keeps the work in a relevant Marso Studio project so you can revisit its graph.
 
-[![A Marso-generated coffee-grinder reference, the resulting PBR asset rendered in Cycles, and its base-colour, roughness, metallic and IOR passes](docs/assets/explain/generation-workflow.png)](docs/assets/demos/generated-grinder-cycles.jpg)
+[![A Marso-generated coffee-grinder reference, the resulting PBR asset rendered in Cycles, and its base-colour, roughness, metallic and IOR passes](docs/assets/explain/generation-coffee-grinder.png)](docs/assets/demos/generated-grinder-cycles.jpg)
 
 **✨ Skills:** [Generate an image](skills/core/marso-image/SKILL.md) → [Generate an asset + PBR](skills/core/marso-generate/SKILL.md)
 
@@ -85,7 +85,7 @@ Your application connects these fields to its behaviour: material labels can sel
 
 Search with a description, an image, or both. The reference can be a photograph of the kind of object you want; it does not need to be the asset's original thumbnail. Review relevant matches, choose the saved asset, then import and reuse it.
 
-![A text query beside nine example assets, two highlighted monitor matches and one selected monitor for import](docs/assets/explain/library-search.png)
+![A text query beside nine example assets, two highlighted monitor matches and one selected monitor for import](docs/assets/explain/library-monitor-search.png)
 
 **🔎 Skill:** [Search and reuse your library](skills/core/marso-library/SKILL.md)
 
@@ -129,7 +129,7 @@ In Blender, a slider or mask can blend the finished materials—for example, inc
 
 **Model and texture the masters once, then reuse them.** The agent plans dimensions, connectors and join positions before building. This is useful for architectural parts, furniture systems and other assets that need to fit together precisely.
 
-[![Six finished modular duct parts beside a connected layout built from the kit](docs/assets/explain/modular-workflow.png)](docs/assets/demos/modular-ducts.mp4?raw=true)
+[![Six finished modular duct parts beside a connected layout built from the kit](docs/assets/explain/modular-kit-v2.png)](docs/assets/demos/modular-ducts.mp4?raw=true)
 
 **🧩 Skills:** [Build a kit](skills/blender/marso-blender-kit/SKILL.md) → [Compose with it](skills/blender/marso-blender-compose/SKILL.md)
 
@@ -145,7 +145,7 @@ In Blender, a slider or mask can blend the finished materials—for example, inc
 
 **Photos → scene graph → reviewed asset plan → Blender scene.** The agent identifies objects across photographs, matches repeated views and records what rests on what. You can choose what to model, generate, reuse, instance or build as a kit before creation begins.
 
-![An office reference photo with detected objects beside its recorded support hierarchy: floor, coffee table, vase and flowers, with other tabletop props](docs/assets/explain/scene-workflow.png)
+![An office reference photo with detected objects beside its recorded support hierarchy: floor, coffee table, vase and flowers, with other tabletop props](docs/assets/explain/office-support-hierarchy.png)
 
 This excerpt from a scene-decomposition test shows how a photograph becomes a support graph: the table supports the vase, and the vase holds the flowers. Those relationships guide placement while keeping each asset independently editable.
 

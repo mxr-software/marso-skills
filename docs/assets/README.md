@@ -32,15 +32,15 @@ The `explain/` SVGs are editable diagrams; the matching PNGs provide consistent 
 
 | Graphic | Evidence and meaning |
 | --- | --- |
-| `model-to-pbr` | Clay and finished PBR frames from the supplied agent-built vintage-car demonstration. Views differ to show the construction and material detail. This is a presentation of an existing asset, not a new modelling or cloud run. |
-| `generation-workflow` | The freshly generated coffee-grinder reference, its actual generated mesh with Marso PBR rendered in Cycles, and four material display passes. This example completed the image, 3D and PBR stages; it is not a blind-agent or fresh-installation benchmark. |
-| `pbr-material` | The same coffee grinder beside its original base-colour, roughness, metallic and IOR maps displayed on the 3D model. The final beauty image includes presentation adjustments described above. No UV sheets or texture atlases are shown. |
+| `modelled-car-pbr` | Clay and finished PBR frames from the supplied agent-built vintage-car demonstration. Views differ to show the construction and material detail. This is a presentation of an existing asset, not a new modelling or cloud run. |
+| `generation-coffee-grinder` | The freshly generated coffee-grinder reference, its actual generated mesh with Marso PBR rendered in Cycles, and four material display passes. This example completed the image, 3D and PBR stages; it is not a blind-agent or fresh-installation benchmark. |
+| `grinder-pbr-passes` | The same coffee grinder beside its original base-colour, roughness, metallic and IOR maps displayed on the 3D model. The final beauty image includes presentation adjustments described above. No UV sheets or texture atlases are shown. |
 | `usd-data` | A conceptual table pairing USD package contents with their uses. No asset-specific numeric values or automatic application behaviours are claimed. See the USD guide for fields and use cases. |
-| `library-search` | A text query, nine supplied Marso reference images, two highlighted monitor candidates and one selected monitor. Collection membership, result ranking and the import step are illustrative; this is not a live query or UI capture. |
+| `library-monitor-search` | A text query, nine supplied Marso reference images, two highlighted monitor candidates and one selected monitor. Collection membership, result ranking and the import step are illustrative; this is not a live query or UI capture. |
 | `banana-looks` | Four fruit appearances from the supplied banana demonstration; the corresponding silent clip is `demos/banana-looks.mp4`. |
 | `chair-states` | Clean, worn and scorched frames from the supplied chair transition, with a conceptual state control. Camera angles vary across the original video. |
-| `modular-workflow` | Six individually cropped PBR masters and an assembled network from the revised-lighting v2 renders. The connected film uses that same version. |
-| `scene-workflow` | An office reference photo and object crops from an actual scene-decomposition test. The diagram follows its recorded table, vase, flowers and tabletop-prop support relationships. It depicts the support graph, not Blender mesh parenting or a newly generated scene. |
+| `modular-kit-v2` | Six individually cropped PBR masters and an assembled network from the revised-lighting v2 renders. The connected film uses that same version. |
+| `office-support-hierarchy` | An office reference photo and object crops from an actual scene-decomposition test. The diagram follows its recorded table, vase, flowers and tabletop-prop support relationships. It depicts the support graph, not Blender mesh parenting or a newly generated scene. |
 
 `search-reference.png` is an unused alternative made with the built-in image-generation tool solely as an illustrative search input. It is not a Marso generation or library asset.
 

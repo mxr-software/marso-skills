@@ -6,7 +6,7 @@
 
 PBR means **physically based rendering**. A colour texture describes what a surface looks like; PBR describes how it responds to light. That is why brushed metal, worn leather and painted wood can feel different even when they have similar colours.
 
-![Final PBR asset alongside base-colour, roughness, metallic and IOR passes displayed on its geometry](assets/explain/pbr-material.png)
+![Final PBR asset alongside base-colour, roughness, metallic and IOR passes displayed on its geometry](assets/explain/grinder-pbr-passes.png)
 
 | Surface information | What you see |
 | --- | --- |
