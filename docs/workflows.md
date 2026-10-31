@@ -39,9 +39,9 @@ Each appearance branches from one preserved baseline. That prevents wear and det
 
 This is a material-state workflow: clean → dirty, painted → weathered, intact surface → scorched finish. A state parameter can be animated or driven by your own time, exposure or gameplay logic. A spatial mask lets the change happen in selected regions.
 
-[![A chair transitioning from clean to scorched](assets/demos/appearance-states.jpg)](assets/demos/appearance-states.mp4)
+[![A chair transitioning from clean to scorched](assets/demos/appearance-states.jpg)](assets/demos/appearance-states.mp4?raw=true)
 
-[Watch the appearance-state example →](assets/demos/appearance-states.mp4) This demonstrates appearance change; combustion, smoke, deformation and broken geometry are separate effects.
+[Watch the appearance-state example →](assets/demos/appearance-states.mp4?raw=true) This demonstrates appearance change; combustion, smoke, deformation and broken geometry are separate effects.
 
 Generate and inspect the PBR states before building the transition. Use aligned UVs and consistent map roles. Blender shader controls do not automatically become interactive controls in a game engine or a minted USD; export the maps and recreate or bake the required material behaviour for the target.
 
@@ -59,9 +59,9 @@ For many variants, the agent can prepare a labelled image grid, author looks thr
 
 > Build a modular ventilation kit in Blender: straight duct, elbow, junction and vent. Agree dimensions and connectors first. Show the modelled parts, then texture them with Marso as used galvanised steel. Assemble two layouts from the same masters.
 
-[![A reusable duct kit](assets/demos/modular-ducts.jpg)](assets/demos/modular-ducts.mp4)
+[![A reusable duct kit](assets/demos/modular-ducts.jpg)](assets/demos/modular-ducts.mp4?raw=true)
 
-[Watch the modular kit example →](assets/demos/modular-ducts.mp4)
+[Watch the modular kit example →](assets/demos/modular-ducts.mp4?raw=true)
 
 The agent plans join positions, dimensions and repeated interfaces before modelling. Seams can sit under flanges, trim or other natural boundaries. Reusable parts keep surfaces that may become visible in another arrangement. Textured masters can then form multiple layouts and return through the library for future work.
 

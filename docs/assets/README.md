@@ -8,7 +8,7 @@ The chair is an example from the Marso library, not a claimed result of a partic
 
 ## Demonstrations
 
-The `demos/` clips are short, silent excerpts of Marso demonstrations. They show the product and example results; they are not recordings of a fresh installation of this skill release. Posters open the corresponding MP4 rather than loading every movie with the README. Aspect ratios are preserved.
+The `demos/` clips are short, silent excerpts of Marso demonstrations. They show the product and example results; they are not recordings of a fresh installation of this skill release. Posters link directly to the corresponding MP4 rather than loading every movie with the README. GitHub serves these repository videos as raw files; a browser may download them for playback. Aspect ratios are preserved.
 
 | Files | What they show |
 | --- | --- |

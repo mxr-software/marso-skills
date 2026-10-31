@@ -37,9 +37,9 @@ This enrichment is what Marso calls **sim-ready**. An application still needs to
 
 **Wait for minting to finish.** PBR maps may be ready while USD enrichment is still running. A basic USD fallback is not evidence that enrichment succeeded. Ask your agent to verify the minted result and retain its library identity.
 
-[![Marso assets in an Isaac Sim demonstration](assets/demos/sim-ready.jpg)](assets/demos/sim-ready.mp4)
+[![Marso assets in an Isaac Sim demonstration](assets/demos/sim-ready.jpg)](assets/demos/sim-ready.mp4?raw=true)
 
-[Watch the simulation excerpt →](assets/demos/sim-ready.mp4) The film shows Marso assets in Isaac Sim. Its numeric metadata overlays are illustrative; inspect your own minted file for its actual values.
+[Watch the simulation excerpt →](assets/demos/sim-ready.mp4?raw=true) The film shows Marso assets in Isaac Sim. Its numeric metadata overlays are illustrative; inspect your own minted file for its actual values.
 
 ## Use the information for more than rendering
 

@@ -20,10 +20,10 @@ You can start from a sentence, a photograph or an existing mesh. Choose generati
 
 | Model with an agent, finish with Marso | Build a kit, assemble many layouts |
 | --- | --- |
-| [![Agent-modelled bucket finished with Marso](docs/assets/demos/agent-model-to-pbr.jpg)](docs/assets/demos/agent-model-to-pbr.mp4) | [![Modular ventilation pieces with PBR materials](docs/assets/demos/modular-ducts.jpg)](docs/assets/demos/modular-ducts.mp4) |
-| [Watch: modelling → Retexture/PBR](docs/assets/demos/agent-model-to-pbr.mp4) · 18 seconds | [Watch: reusable duct kit → assembly](docs/assets/demos/modular-ducts.mp4) · 32 seconds |
+| [![Agent-modelled bucket finished with Marso](docs/assets/demos/agent-model-to-pbr.jpg)](docs/assets/demos/agent-model-to-pbr.mp4?raw=true) | [![Modular ventilation pieces with PBR materials](docs/assets/demos/modular-ducts.jpg)](docs/assets/demos/modular-ducts.mp4?raw=true) |
+| [Watch: modelling → Retexture/PBR](docs/assets/demos/agent-model-to-pbr.mp4?raw=true) · 18 seconds | [Watch: reusable duct kit → assembly](docs/assets/demos/modular-ducts.mp4?raw=true) · 32 seconds |
 
-Short, silent excerpts from Marso demonstrations. Click a preview to open the video. [More examples and repeatable prompts →](docs/workflows.md)
+Short, silent excerpts from Marso demonstrations. Click a preview to open or download the MP4; GitHub does not play these repository files inline. [More examples and repeatable prompts →](docs/workflows.md)
 
 ### Create an asset from an idea
 
@@ -44,9 +44,9 @@ Describe an object, explore its image, turn the chosen image into a mesh, then g
 
 After PBR, Marso automatically **mints an enriched USD asset**. Alongside the mesh and textures, the package can carry scale, semantic labels, material descriptions, colliders and physical properties such as mass, density, friction and restitution. This is the foundation of Marso's sim-ready assets.
 
-[![Marso assets interacting in an Isaac Sim demonstration](docs/assets/demos/sim-ready.jpg)](docs/assets/demos/sim-ready.mp4)
+[![Marso assets interacting in an Isaac Sim demonstration](docs/assets/demos/sim-ready.jpg)](docs/assets/demos/sim-ready.mp4?raw=true)
 
-[Watch the simulation example →](docs/assets/demos/sim-ready.mp4) · [Understand PBR, minting and USD →](docs/pbr-and-usd.md)
+[Watch the simulation example →](docs/assets/demos/sim-ready.mp4?raw=true) · [Understand PBR, minting and USD →](docs/pbr-and-usd.md)
 
 That information is useful beyond rendering: a game can use material labels to select impact sounds, or a simulator can consume physics properties. Your application connects the data to its behaviour; joints, special effects and target-specific validation remain deliberate work. The demo's numeric overlays are illustrative; your agent should inspect the actual minted file.
 
@@ -74,9 +74,9 @@ This gives you a scene you can improve and rearrange: replace the furniture, cha
 
 Retexture an existing mesh without rebuilding its shape or UV layout. Give it different finishes, create a family of product labels, or show an object becoming dirty, rusty or scorched. Each look gets its own PBR material set.
 
-<p align="center"><a href="docs/assets/demos/appearance-states.mp4"><img src="docs/assets/demos/appearance-states.jpg" alt="A leather chair changing to a weathered and scorched appearance" width="480"></a></p>
+<p align="center"><a href="docs/assets/demos/appearance-states.mp4?raw=true"><img src="docs/assets/demos/appearance-states.jpg" alt="A leather chair changing to a weathered and scorched appearance" width="480"></a></p>
 
-[Watch the 8-second appearance transition →](docs/assets/demos/appearance-states.mp4)
+[Watch the 8-second appearance transition →](docs/assets/demos/appearance-states.mp4?raw=true)
 
 Use independent branches from the original for alternative looks. For cumulative wear, use **state 1 → state 2 → state 3**, with PBR generated for each state. In Blender, a slider or mask can control the transition between the finished materials.
 
@@ -88,7 +88,7 @@ An agent can build an editable asset in Blender with deliberate dimensions, pivo
 
 > Model a cabinet with independently movable doors. Show me the proportions and pivots before texturing. Then use Marso for worn walnut and blackened steel fittings, and save the result for reuse.
 
-For kits, the agent plans connectors and joins before building the parts. Texture the masters once, then assemble multiple arrangements. [Watch the Blender Retexture walkthrough](docs/assets/demos/retexture-blender.mp4) or [try a modular-kit recipe](docs/workflows.md#build-a-modular-kit-then-use-it).
+For kits, the agent plans connectors and joins before building the parts. Texture the masters once, then assemble multiple arrangements. [Watch the Blender Retexture walkthrough](docs/assets/demos/retexture-blender.mp4?raw=true) or [try a modular-kit recipe](docs/workflows.md#build-a-modular-kit-then-use-it).
 
 ## Get started
 
