@@ -12,6 +12,8 @@ The `demos/` clips are short, silent excerpts of Marso demonstrations. They show
 
 | Files | What they show |
 | --- | --- |
+| `agent-car-to-pbr.mp4` | The supplied agent-built vintage racing car demonstration, from Blender construction through its Marso finish. |
+| `generated-pbr-turntable.mp4` | A turntable encoded from the supplied PBR raygun render sequence. |
 | `agent-model-to-pbr.*` | An agent modelling a bucket in Blender, followed by Marso texturing and the finished appearance. |
 | `modular-ducts.*` | A reusable duct kit and assembled layouts. |
 | `appearance-states.*` | A chair's appearance changing from clean to scorched. This is not a combustion or geometry-damage demonstration. |
@@ -29,14 +31,16 @@ The `explain/` SVGs are editable diagrams; the matching PNGs provide consistent 
 
 | Graphic | Evidence and meaning |
 | --- | --- |
-| `model-to-pbr` | Clay and finished renders of the same agent-built bucket, with the geometry review and Marso finish stages between them. |
+| `model-to-pbr` | Fresh captures of the supplied agent-built car scene in Blender 5.2, shown in solid and material-preview modes at the same frame. The original scene and materials were not changed on disk. This is a presentation of an existing asset, not a new modelling or cloud run. |
 | `generation-workflow` | The generated reference plus clay and PBR views of the resulting example asset illustrate the image-to-3D-to-PBR route. The clay view was rendered from the supplied asset's unchanged geometry for this diagram; it is not a new cloud generation. |
 | `pbr-material` | The finished 3D asset beside its base-colour, roughness, metallic and IOR display passes. No UV sheets or texture atlases are shown. |
-| `usd-data` | A conceptual field map of a minted USD package. The pictured asset is illustrative; there are no fabricated numeric property values. See the USD guide for fields and use cases. |
-| `library-search` | A generated reference photograph, real library previews as illustrative candidates, and repeated use of the selected asset. No live result ranking or similarity score is claimed. |
+| `usd-data` | A conceptual table pairing USD package contents with their uses. No asset-specific numeric values or automatic application behaviours are claimed. See the USD guide for fields and use cases. |
+| `library-search` | A generated reference photograph, nine real asset previews in an illustrative collection, two highlighted candidates and one chosen asset for import. No live result ranking or similarity score is claimed. |
 | `banana-looks` | Four fruit appearances from the supplied banana demonstration; the corresponding silent clip is `demos/banana-looks.mp4`. |
 | `chair-states` | Clean, worn and scorched frames from the supplied chair transition, with a conceptual state control. Camera angles vary across the original video. |
 | `modular-workflow` | Modelled duct pieces, finished masters and a network from the supplied modular-kit film. |
 | `scene-workflow` | A process diagram covering decomposition, route selection, construction and review. It is not a claim of a new scene-generation test. |
 
 `search-reference.png` was made with the built-in image-generation tool solely as an illustrative search input. It is not a Marso generation or library asset. The candidate and selected-asset images remain real Marso previews. Keep this distinction if reusing the graphic.
+
+The four leather-chair thumbnails were rendered from the supplied Marso meshes and their corresponding colour, roughness and metallic maps. The library layout is explanatory, not a screenshot of the product or a claim about search ranking.
