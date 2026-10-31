@@ -10,7 +10,7 @@
 
 **Make an asset. Give it realistic materials. Keep it in a library your agent can use again.**
 
-Marso connects image and 3D generation, Retexture, PBR and asset search. These skills teach your agent how to use that toolkit—and how to model, build modular kits and assemble editable scenes in Blender.
+Marso is a platform for image and 3D generation, Retexture, PBR and asset search. These skills are workflow instructions that teach your agent how to use Marso—and how to model, build modular kits and assemble editable scenes in Blender.
 
 [**Get started →**](#get-started) · [Learn by doing →](docs/workflows.md)
 
@@ -73,7 +73,7 @@ You can start from a sentence, a photograph or an existing mesh. Choose generati
 
 ## Generate an asset from an image, complete with PBR
 
-**Generate image → Generate 3D → Generate PBR → minted USD + your library.** Start with your own reference or ask Marso to generate one. The agent keeps the work in a relevant Marso Studio project so you can revisit its graph.
+**Generate image → Generate 3D → Generate PBR → enriched USD + your library.** Start with your own reference or ask Marso to generate one. The agent keeps the work in a relevant Marso Studio project so you can revisit its graph.
 
 [![A Marso-generated coffee-grinder reference, the resulting PBR asset rendered in Cycles, and its base-colour, roughness, metallic and IOR passes](docs/assets/explain/generation-coffee-grinder.png)](docs/assets/demos/generated-grinder-cycles.jpg)
 
@@ -91,9 +91,11 @@ Already have a mesh? Use PBR to finish its existing appearance, or Retexture fir
 
 ## Get a USD asset you can render, find and simulate
 
-**After PBR, Marso mints an enriched USD asset.** USD—Universal Scene Description—holds the asset and its structured data; USDZ packages its dependencies. The result carries useful information about what the object is, what it is made of, its scale and how it can interact physically.
+**After PBR, Marso packages and enriches the asset as USD—a process called minting.** USD—Universal Scene Description—holds the asset and its structured data; USDZ packages its dependencies. The result carries useful information about what the object is, what it is made of, its scale and how it can interact physically.
 
 ![USD package contents paired with practical uses: rendering, placement, simulation, search and interactions](docs/assets/explain/usd-data.png)
+
+The table describes the available information groups. Fields depend on the asset and completed enrichment; your agent should verify the delivered USD, since PBR maps can finish before minting does.
 
 | What travels with the asset | What you can use it for |
 | --- | --- |
@@ -115,6 +117,8 @@ Your application connects these fields to its behaviour: material labels can sel
 ## Find similar assets in your own library
 
 **Each finished asset makes the next project faster.** Assets that complete the Marso PBR pipeline become reusable content in your personal library—including work modelled or retextured through the Blender add-on.
+
+Your Studio project holds the creation graph; your library lets you find its finished assets again. Save the editable Blender scene separately as a `.blend` file.
 
 Search with a description, an image, or both. The reference can be a photograph of the kind of object you want; it does not need to be the asset's original thumbnail. Review relevant matches, choose the saved asset, then import and reuse it.
 
@@ -182,7 +186,7 @@ In Blender, a slider or mask can blend the finished materials—for example, inc
 
 This excerpt from a scene-decomposition test shows how a photograph becomes a support graph: the table supports the vase, and the vase holds the flowers. Those relationships guide placement while keeping each asset independently editable.
 
-The scene stays editable: replace furniture, change finishes or build another layout. Empty-based groups prevent a table's mesh scale from also resizing objects supported by it. The skills-led route uses local decomposition; Marso Detect Objects is an optional aid.
+The scene stays editable: replace furniture, change finishes or build another layout. Empty-based groups prevent a table's mesh scale from also resizing objects supported by it. The agent analyses the photographs and uses the skills' local scripts to build the scene graph; Marso Detect Objects is an optional aid.
 
 **🏗️ Skills:** [Decompose references](skills/core/marso-scene-decompose/SKILL.md) → [Plan the graph](skills/core/marso-scene-graph/SKILL.md) → [Build assets](skills/blender/marso-blender-scene-assets/SKILL.md) → [Place the scene](skills/blender/marso-blender-place-scene/SKILL.md)
 
@@ -196,6 +200,8 @@ The scene stays editable: replace furniture, change finishes or build another la
 
 
 ## Get started
+
+You need a Marso account for cloud generation, texturing and your library. Installing the skills supplies workflow instructions; connect the tools separately in step 2.
 
 ### 1. Install the skills 📦
 
@@ -224,15 +230,32 @@ Use this instead of a duplicate standalone installation. For OpenAI, the documen
 
 ### 2. Connect the tools
 
-For agent modelling in Blender, install **[Marso for Blender](https://marso.app/dashboard/plugins)** and the **[official Blender Lab MCP](https://www.blender.org/lab/mcp-server/)**. The add-on supplies Marso operations; Blender MCP lets the agent control Blender. A separate hosted Marso MCP is optional for this route.
+Choose the route for what you want to do:
 
-[Follow the Blender setup guide →](docs/blender-setup.md) Then ask:
+| Your workflow | Connect these tools |
+| --- | --- |
+| Model, texture or assemble scenes in Blender | Use an assistant with local Blender control. Install [Marso for Blender](https://marso.app/dashboard/plugins) and the [official Blender Lab MCP](https://www.blender.org/lab/mcp-server/). The add-on supplies Marso operations; Blender MCP controls Blender. A separate hosted Marso MCP is optional. |
+| Generate images/assets or search your library without Blender | Connect the hosted Marso MCP to your Marso account in an assistant that supports it. Blender is not required for these cloud operations. Ask the agent to verify its Marso connection and choose a Studio project before creating anything. |
+
+**Claude web/desktop:** installing the Marso plugin loads the skills, but does not by itself connect to Blender. Local modelling needs a client/session that can use Blender MCP; a cloud-only chat can use supported hosted Marso tools. Check the [client-specific installation guide](docs/installation.md) and [Blender connection guide](docs/blender-setup.md) before starting a Blender task.
+
+**Blender route:** [follow the setup guide](docs/blender-setup.md), then ask:
 
 > Use marso-blender-setup to check my Blender connection, Marso account, storage folders and library without generating anything. Tell me what is ready and what is missing.
 
+**Cloud route:** ask:
+
+> Check my hosted Marso connection and list my Studio projects without generating anything. Tell me which image, 3D, PBR and library tools are available.
+
 ### 3. Make something—and understand it
 
+**With Blender:**
+
 > Teach me while we make a small side table in Blender. Explain the modelling choices, show me the geometry before texturing, then use Marso for realistic materials and PBR. Save the file and show me where the asset lives in my library.
+
+**Without Blender:**
+
+> Use Marso to generate a weathered ceramic pot in a project called Garden Props. Explain each step, show me the image before generating 3D, then add PBR and show me the finished asset in my library.
 
 [Your first project →](docs/getting-started.md) · [Learning prompts and recipes →](docs/workflows.md)
 
@@ -246,7 +269,7 @@ Rerun the skills installation command with the same agent and scope, or update t
 | --- | --- |
 | Learn the full image → 3D → PBR route | [Generate your first asset](docs/workflows.md#start-here-generate-your-first-asset) |
 | Make reusable props with controlled geometry | [Learn modelling with an agent](docs/workflows.md#learn-modelling-with-an-agent) |
-| Drive damage or wear with a material parameter | [Appearance states and transitions](docs/workflows.md#appearance-changes-over-time) |
+| Change the appearance of damage or wear with a material parameter | [Appearance states and transitions](docs/workflows.md#appearance-changes-over-time) |
 | Fill shelves with many looks from a few shapes | [Appearance families](docs/workflows.md#stock-a-scene-without-rebuilding-every-object) |
 | Build larger structures from reusable pieces | [Modular kits](docs/workflows.md#build-a-modular-kit-then-use-it) |
 | Reconstruct and improve a photographed environment | [Scene workflow](docs/workflows.md#rebuild-a-reference-scene-in-blender) |
@@ -292,9 +315,9 @@ Rerun the skills installation command with the same agent and scope, or update t
 | [marso-blender-scene-assets](skills/blender/marso-blender-scene-assets/SKILL.md) | Create the planned scene assets in Marso through Blender. |
 | [marso-blender-place-scene](skills/blender/marso-blender-place-scene/SKILL.md) | Import and place assets with an editable transform hierarchy. |
 
-See [compatibility and verification status](docs/compatibility.md) for required capabilities and testing limits.
-
 </details>
+
+See [compatibility and verification status](docs/compatibility.md) for required capabilities and testing limits across the collection.
 
 ## Help and contributing
 
