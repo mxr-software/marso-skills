@@ -39,7 +39,7 @@ Each appearance branches from one preserved baseline. That prevents wear and det
 
 This is a material-state workflow: clean → dirty, painted → weathered, intact surface → scorched finish. A state parameter can be animated or driven by your own time, exposure or gameplay logic. A spatial mask lets the change happen in selected regions.
 
-[![A chair transitioning from clean to scorched](assets/demos/appearance-states.jpg)](assets/demos/appearance-states.mp4?raw=true)
+[![Clean, worn and scorched chair states with a controllable transition](assets/explain/chair-states.png)](assets/demos/appearance-states.mp4?raw=true)
 
 [Watch the appearance-state example →](assets/demos/appearance-states.mp4?raw=true) This demonstrates appearance change; combustion, smoke, deformation and broken geometry are separate effects.
 
@@ -53,13 +53,15 @@ Choose how the states relate. For independent finishes, create each from the ori
 
 Separate **shape families** from **appearance families**. A short can and a tall can need different masters. Twelve identical chairs need instances, not twelve Retexture jobs. Twelve different labels can share a can master with different material sets. Different weapon or shield silhouettes are a geometry pack, not a texture-variation task.
 
+[![One banana form with unripe, ripe, overripe and rotten appearances](assets/explain/banana-looks.png)](assets/demos/banana-looks.mp4?raw=true)
+
 For many variants, the agent can prepare a labelled image grid, author looks through Marso image editing and split the results back into references. Check a representative final Retexture/PBR result before expanding the method. A convincing image is only the first half of that pipeline.
 
 ## Build a modular kit, then use it
 
 > Build a modular ventilation kit in Blender: straight duct, elbow, junction and vent. Agree dimensions and connectors first. Show the modelled parts, then texture them with Marso as used galvanised steel. Assemble two layouts from the same masters.
 
-[![A reusable duct kit](assets/demos/modular-ducts.jpg)](assets/demos/modular-ducts.mp4?raw=true)
+[![Modelled duct parts, finished PBR masters and an assembled network](assets/explain/modular-workflow.png)](assets/demos/modular-ducts.mp4?raw=true)
 
 [Watch the modular kit example →](assets/demos/modular-ducts.mp4?raw=true)
 

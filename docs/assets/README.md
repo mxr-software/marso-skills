@@ -22,3 +22,21 @@ The `demos/` clips are short, silent excerpts of Marso demonstrations. They show
 | `detect-objects.jpg` | An example of the optional Marso Detect Objects output. The agent-led scene workflow uses the decomposition skills by default. |
 
 When replacing UI images, capture the supported version, omit credentials, account balances and private paths, and update the caption. Keep demonstration lineage separate from evidence that the current client, add-on and skills have passed an end-to-end test.
+
+## Explanatory graphics
+
+The `explain/` SVGs are editable diagrams; the matching PNGs provide consistent typography in GitHub. They combine real source media with captions and workflow arrows. Their images retain the source aspect ratio. Use Geist Sans and Geist Mono when rendering the SVGs. These are explanations, not product-UI screenshots or execution benchmarks.
+
+| Graphic | Evidence and meaning |
+| --- | --- |
+| `model-to-pbr` | Clay and finished renders of the same agent-built bucket, with the geometry review and Marso finish stages between them. |
+| `generation-workflow` | The generated reference plus clay and PBR views of the resulting example asset illustrate the image-to-3D-to-PBR route. The clay view was rendered from the supplied asset's unchanged geometry for this diagram; it is not a new cloud generation. |
+| `pbr-material` | The finished 3D asset beside its base-colour, roughness, metallic and IOR display passes. No UV sheets or texture atlases are shown. |
+| `usd-data` | A conceptual field map of a minted USD package. The pictured asset is illustrative; there are no fabricated numeric property values. See the USD guide for fields and use cases. |
+| `library-search` | A generated reference photograph, real library previews as illustrative candidates, and repeated use of the selected asset. No live result ranking or similarity score is claimed. |
+| `banana-looks` | Four fruit appearances from the supplied banana demonstration; the corresponding silent clip is `demos/banana-looks.mp4`. |
+| `chair-states` | Clean, worn and scorched frames from the supplied chair transition, with a conceptual state control. Camera angles vary across the original video. |
+| `modular-workflow` | Modelled duct pieces, finished masters and a network from the supplied modular-kit film. |
+| `scene-workflow` | A process diagram covering decomposition, route selection, construction and review. It is not a claim of a new scene-generation test. |
+
+`search-reference.png` was made with the built-in image-generation tool solely as an illustrative search input. It is not a Marso generation or library asset. The candidate and selected-asset images remain real Marso previews. Keep this distinction if reusing the graphic.

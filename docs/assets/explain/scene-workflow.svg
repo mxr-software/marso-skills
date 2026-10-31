@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1600" height="680" viewBox="0 0 1600 680" role="img"><title>A scene starts with a plan you can edit.</title><rect width="1600" height="680" fill="#08090c"/>
+<text x="55" y="75" fill="#f8f8fb" font-family="Geist" font-size="46" font-weight="500">A scene starts with a plan you can edit.</text>
+<text x="55" y="120" fill="#b1b7c1" font-family="Geist" font-size="26" font-weight="500">Identify the objects, review how each will be made, then build and inspect the scene.</text>
+<rect x="55" y="210" width="470" height="315" rx="18" fill="#111318" stroke="#30343b"/>
+<text x="77" y="265" fill="#f8f8fb" font-family="Geist" font-size="30" font-weight="500">Read the references</text>
+<text x="77" y="327" fill="#b1b7c1" font-family="Geist" font-size="25" font-weight="500">Find objects across photos</text>
+<text x="77" y="382" fill="#b1b7c1" font-family="Geist" font-size="25" font-weight="500">Match repeated appearances</text>
+<text x="77" y="437" fill="#b1b7c1" font-family="Geist" font-size="25" font-weight="500">Record support relationships</text>
+<rect x="565" y="210" width="470" height="315" rx="18" fill="#111318" stroke="#30343b"/>
+<text x="587" y="265" fill="#f8f8fb" font-family="Geist" font-size="30" font-weight="500">Choose how to build</text>
+<text x="587" y="327" fill="#b1b7c1" font-family="Geist" font-size="25" font-weight="500">Search the existing library</text>
+<text x="587" y="382" fill="#b1b7c1" font-family="Geist" font-size="25" font-weight="500">Model · generate · reuse</text>
+<text x="587" y="437" fill="#b1b7c1" font-family="Geist" font-size="25" font-weight="500">Instance · build a modular kit</text>
+<rect x="1075" y="210" width="470" height="315" rx="18" fill="#111318" stroke="#30343b"/>
+<text x="1097" y="265" fill="#f8f8fb" font-family="Geist" font-size="30" font-weight="500">Build the editable scene</text>
+<text x="1097" y="327" fill="#b1b7c1" font-family="Geist" font-size="25" font-weight="500">Place entity groups</text>
+<text x="1097" y="382" fill="#b1b7c1" font-family="Geist" font-size="25" font-weight="500">Texture visible assets</text>
+<text x="1097" y="437" fill="#b1b7c1" font-family="Geist" font-size="25" font-weight="500">Check scale, contacts and views</text>
+<path d="M525,365 L560,365 m-12,-8 l12,8 l-12,8" stroke="#b1b7c1" stroke-width="3" fill="none"/>
+<path d="M1035,365 L1070,365 m-12,-8 l12,8 l-12,8" stroke="#b1b7c1" stroke-width="3" fill="none"/>
+<text x="55" y="598" fill="#cdb2ff" font-family="Geist" font-size="27" font-weight="500">Review the graph before creation. Keep geometry under separate transforms for safe editing.</text>
+<text x="55" y="654" fill="#b1b7c1" font-family="Geist Mono" font-size="18" font-weight="500">MARSO WORKFLOW GUIDE</text>
+<text x="1380" y="654" fill="#f8f8fb" font-family="Geist" font-size="24" font-weight="500">marso.app</text>
+</svg>
