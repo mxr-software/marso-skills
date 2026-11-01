@@ -36,6 +36,8 @@ Inspect the clearest crop for each proposed family and the members whose proport
 
 For compound groups, distinguish placement identity from modelling work units. A shelf of containers or a board of tools can retain its group in the scene plan while its different object families receive separate master briefs in the existing run record. For each master, record its route, reference/design basis, defining construction, intended view/reuse and acceptance status. Share a master only where shape and construction permit it. Do not create a separate task for every fastener or instance, or change graph identities just to organise modelling. Hand these briefs to the modelling workflow; accepting the group layout does not accept its component geometry.
 
+For a reference assortment, record shape families, appearance variants and placements separately. A rack of many objects may need several silhouettes as well as repeats. Compare the group's size range, family mix and visible arrangement with the reference before accepting its master inventory; a high instance count or many colours is not evidence that the assortment is covered. Inferred identities remain labelled as design choices.
+
 ## Hard rules
 
 For a photographed room, resolve material ambiguities in shell shape, corner angles and major object identity at the plan checkpoint, before bulk asset creation. Record known measurements separately from estimated dimensions. Have the application workflow show a rough top-down layout and check all source views; the establishing view alone cannot account for objects visible only elsewhere.

@@ -1,4 +1,4 @@
-# Review a photographed scene
+# Review a scene against its photograph or concept
 
 ## Establish the room before filling it
 
@@ -23,3 +23,5 @@ Bounding-box/convex-hull overlap is a broad screening test, not proof of interpe
 ## Completion evidence
 
 Compare the photo and scene from matched viewpoints, plus a top-down overview. Report missing objects, placeholders, inferred areas and remaining contact or scale errors. For a finished scene, include a material-shaded review after approved assets are textured; final high-quality rendering is a separate requested step. Do not label an unreviewed layout or base-colour screenshot photorealistic.
+
+For an accepted generated concept, make the same visible comparison while treating ambiguous detail as design intent rather than measured evidence. Inspect dense groups in a closer view: distinct silhouettes, relative sizes, counts, clustering, spacing, orientation and support. A uniform grid of a few masters does not match a varied assortment merely because the total count is similar. Appearance variants solve style variety; missing shape families go back to asset planning. Fix material departures in these groups before the requested final render, and retain the comparison in the local review.
