@@ -66,6 +66,8 @@ Mirror completed stage results into the existing manifest using `manifest.py rec
 
 Record the user's image decision locally with `manifest.py review` as well as in `batch_review`, retaining mesh approval evidence in the batch snapshots. For a chain starting at mesh, retain the existing approved reference record rather than manufacturing an image-stage result. Store exact failures through `--error` on the corresponding manifest stage (mesh or PBR failures map to its combined `mesh` stage); retain their actual stage details separately. Do not mark a failure as a successful result.
 
+For a completed prompt-only `generate_scene_image` result, first verify `mode: "object"`; scene-mode images are not mesh inputs. Save its raw result, then record a normalized reference with `generation_node_id` from `node.node_id`, plus its actual `image_asset_id` and `image_path`. Retain `source_kind: "prompt-object"` and the request/execution ids as provenance. `crop_asset_id` and `image_node_id` describe an uploaded crop and are optional when no crop was uploaded; never invent them. Record actual image review or delegated agent acceptance before using `start_at: "mesh"`. Do not run another image job merely to satisfy the crop-based field names.
+
 Then check mint status and use the existing import/placement handoff. A successful PBR stage does not replace the mint check. A completed batch does not mean its assets have been imported or visually accepted.
 
 ## Pause, recovery and limits

@@ -45,7 +45,7 @@ MINT_STATES = ("minted", "minting", "failed", "not_minted")
 # The fields each finished job must return, as the add-on's bridge commands report them.
 RESULT_FIELDS = {
     "library": ("results",),
-    "reference": ("crop_asset_id", "image_node_id", "generation_node_id", "image_asset_id", "image_path"),
+    "reference": ("generation_node_id", "image_asset_id", "image_path"),
     "mesh": ("mesh_node_id", "pbr_node_id", "pbr_asset_id"),
     "import": ("objects", "dimensions_m"),
 }

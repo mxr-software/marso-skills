@@ -10,6 +10,8 @@ Turn a reviewed asset plan into minted Marso assets, one per unique asset, throu
 
 Inputs, from the `marso-scene-graph` skill's run folder: `asset_plan.json`, and `references/index.json` with each asset's `crop.png`, `search.png` and `brief.json`. If they do not exist, run that skill first. `<skill>` in the commands below stands for this skill folder's path; its script needs Python 3.10+ and nothing else. If the Blender connection or the Marso add-on is missing or not configured, use `marso-blender-setup` when installed; do not work around it.
 
+For direct designs without photographs, the index can instead point `crop` and `search_crop` at a real, unmarked isolated object reference produced through the image workflow, with its brief and provenance recorded. These are legacy path-field names, not a claim that a photograph was cropped. A prompt-created reference already accepted for meshing does not need another image-generation pass: use the [batch handoff](references/batches.md#keep-the-placement-handoff-current) to record its actual node/asset ids and start at mesh. Never fabricate crop upload ids or send a full-scene concept as an object mesh input.
+
 In shell examples, `python` means an installed Python 3.10+ interpreter. Check its version first; on Windows, use `py -3.13` or another installed compatible version if the default `python` is older. Blender-only scripts run in Blender instead.
 
 ## Before the first job

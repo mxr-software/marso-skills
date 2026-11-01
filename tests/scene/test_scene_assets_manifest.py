@@ -158,6 +158,29 @@ class ManifestTests(unittest.TestCase):
         self.assertTrue(all(a["settings"] == {} for a in doc["assets"]))
         self.assertEqual(len(self.pending("handoff")["pending"]), 2)
 
+    def test_prompt_reference_keeps_real_ids_without_crop_and_requires_review(self):
+        self.init("--skip-library")
+        aid = self.ids["bowl"]
+        reference = {k: v for k, v in REFERENCE.items()
+                     if k not in ("crop_asset_id", "image_node_id")}
+        reference["source_kind"] = "prompt-object"
+        args = ("record", str(self.out), "--stage", "reference", aid)
+        for key in ("generation_node_id", "image_asset_id", "image_path"):
+            incomplete = {k: v for k, v in reference.items() if k != key}
+            self.assertEqual(self.mf(*args, "--json", json.dumps(incomplete)).returncode, 1)
+        self.assertEqual(self.mf(*args, "--json", json.dumps(reference)).returncode, 0)
+        self.assertEqual(self.pending("review")["pending"], [aid])
+        self.assertEqual(self.pending("mesh")["pending"], [])
+        self.assertEqual(self.mf("review", str(self.out), "--approve", aid,
+                                 "--note", "Agent reviewed under explicit delegation").returncode, 0)
+        self.assertEqual(self.pending("mesh")["pending"], [aid])
+        doc = json.loads(self.out.read_text(encoding="utf-8"))
+        recorded = next(a for a in doc["assets"] if a["asset_id"] == aid)["reference"]
+        self.assertEqual(recorded["generation_node_id"], reference["generation_node_id"])
+        self.assertEqual(recorded["source_kind"], "prompt-object")
+        self.assertNotIn("crop_asset_id", recorded)
+        self.assertNotIn("image_node_id", recorded)
+
     def test_the_stages_run_in_order(self):
         self.init("--skip-library")
         bowl, onion = self.ids["bowl"], self.ids["onion"]
