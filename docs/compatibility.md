@@ -20,6 +20,10 @@ A fresh blind 1.13.1 trial used the add-on's public dispatcher in disposable hea
 
 All 422 scene/helper tests pass, including isolated packaging of all 17 skills. New Blender shell/camera regressions and documentation-link checks also pass. The reusable tests cover structural and scoped execution behaviour. They do not establish universal photorealistic quality, cloud execution guarantees or support for every Blender version. Existing accepted PBR assets keep their maps; new appearances continue through the established Retexture then PBR workflow and verified library handoff.
 
+## Imported placement transforms
+
+Updated 2026-11-01. A continued mixed modelling/generation trial exposed stale import matrices during placement. The placement helper now evaluates the dependency graph before detaching external import parents. A Blender 5.2 regression with unevaluated geometry under a 0.01-scale, 90-degree X conversion parent previously lost both corrections; the fixed helper preserves the full orientation/scale matrix and expected dimensions on initial placement and resume, with or without a caller update. Custom assembly guidance also covers proxy-frame composition and inspecting the placed scene. This check does not certify every rig, constraint or importer.
+
 ## Preparation efficiency
 
 Updated 2026-11-01. Plugin 0.2.6 adds a small parameterized-chart helper for builder-authored bands/sweeps and separates ordinary preparation from exporter qualification and defect investigation. Complete current-target UV validation and final visual review remain mandatory; independent GLB/corner comparisons are conditional on an unverified, changed or suspect route. Source inspection of add-on `da92d7a` (1.12.2) confirms the same runtime export correction as `7e0bde1`; this does not verify a customer's installed build.

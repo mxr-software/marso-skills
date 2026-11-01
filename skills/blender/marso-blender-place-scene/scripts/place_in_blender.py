@@ -203,6 +203,8 @@ def place(placement_path, imports_path=None, collection_name=None, photo=True):
     report = dict(collection=coll.name, run_id=run_id, placed=[], duplicated=[], boxes=[],
                   not_imported=[], unused_imports=[], warnings=[])
     pools = {aid: import_groups(result or {}, run_id, report["warnings"]) for aid, result in imports.items()}
+    # Evaluate newly imported transforms before capturing world poses for reparenting.
+    bpy.context.view_layer.update()
     # Some importers leave duplicate parts parented to the original instance. Detach
     # cross-instance links before moving any instance, preserving each part's world pose.
     for groups in pools.values():

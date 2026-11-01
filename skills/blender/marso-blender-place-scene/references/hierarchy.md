@@ -35,6 +35,8 @@ Preserve `import_scene_asset`'s `instances`: each entry lists every object in on
 
 Placement preserves each instance's internal hierarchy and groups its root parts under its geometry Empty. Fallback duplication copies the complete tree, remaps parents, and shares mesh data. Cross-instance parent links from import are detached with world poses preserved. Assets already owned by another run are left untouched and reported. Unused imports are reported, not removed.
 
+After import/append, update Blender's dependency graph before reading world transforms or bounds. Importers may carry unit and axis corrections on parents; preserve those evaluated transforms when reparenting. When replacing a proxy through a custom script, do not accidentally combine its old geometry-group transform with the imported pose. Apply planned placement once from a known asset frame, then compare evaluated world-space dimensions and up/forward orientation against the original import and inspect the combined scene. A correct isolated render or a recorded "no scale adjustment" does not prove correct placement.
+
 At first adoption, the complete asset's bottom centre is placed at the entity origin, keeping import axis corrections. Any planned laid-flat correction applies once to geometry. The entity frame carries planned location and yaw. Reruns restore planned entity placement but keep local geometry transforms, including user scale edits. Imported rig constraints and physics are not validated by this helper.
 
 ## Modelled handoff
