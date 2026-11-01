@@ -34,6 +34,8 @@ Respect an explicit instruction to proceed without model review. Reuse approval 
 
 ## 2. Prepare the target
 
+Use the [ordinary preparation route](references/validated-handoff.md#ordinary-preparation-versus-investigation) on a verified corrected add-on. Author useful charts during construction, pack once, use native validation, bake once and submit through the supported command. Escalate to export reimport/corner comparisons only when the route is unverified, changed or suspect. A compact evidence summary is sufficient; repeated diagnostics are not part of every asset build.
+
 Read [UVs and assemblies](references/preparation.md). Save a recoverable checkpoint before replacing authored UV/material arrangements. Isolate shared data when only one instance should change; retain sharing when a change is meant to affect the whole family.
 
 Marso does not currently generate transparency. Resolve clear parts before upload using the [transparency handoff](references/preparation.md#transparent-parts): exclude and restore them, or use returned maps with a locally defined transparent region. Preserve opaque labels and material-role correspondence.

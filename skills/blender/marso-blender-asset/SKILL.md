@@ -30,6 +30,8 @@ Before multiplying a master, retain a compact reference-backed comparison of its
 
 When texturing is part of the request, test face winding and a provisional unwrap on one representative of each repeated construction family before multiplying it. Catch a faulty ring, spoke or swept-tube seam on the master, not after packing the full asset. Reuse the verified construction/seam strategy; every occurrence still needs its own atlas region when submitted together. This small local test is not final atlas preparation or permission to skip model approval.
 
+For scripted bands and sweeps, retain cumulative path/perimeter coordinates and face membership during construction so the texture workflow can author charts directly. Avoid reverse-engineering vertex order after joining, or repeatedly running a general unwrap on a known simple surface. Preserve that mapping alongside the editable source; the texture skill supplies an optional parameterized-chart helper and owns final shared packing and validation.
+
 - Work at the intended real-world scale. Check evaluated dimensions, including modifiers; do not change the whole scene's unit scale to fix one object.
 - Block out the silhouette and major proportions first, then refine joints, thickness, bevels and shading. Match detail to the intended view and use.
 - Keep moving, replaceable or independently reusable parts separate. Use clear names, a deliberate root and pivots appropriate to their function. Preserve editable modifiers where they help.

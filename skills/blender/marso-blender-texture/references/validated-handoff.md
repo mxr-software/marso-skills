@@ -6,6 +6,12 @@ Keep checks tied to the target revision. Reuse successful evidence for unchanged
 
 ## Before submission
 
+### Ordinary preparation versus investigation
+
+For a verified corrected add-on route, use one working target, one shared pack, one complete native UV validation, one colour bake and the supported export/submission. Inspect a compact layout/checker preview and the guide appearance. Keep a short pass/fail summary; do not write bespoke correspondence scripts or repeat equivalent audits just to produce more evidence. Preserve the checks below, but let the native route supply those it actually performs.
+
+Verify the loaded exporter, not just a release label: the evaluated-normal preservation correction is export revision 4. Reuse evidence that this exact export implementation preserves scope, materials, UVs, anchor and shading normals for the applicable geometry/transform types. A source checkout does not establish what a running Blender has loaded. On an older/unverified route, a changed exporter or unsupported modifier/material arrangement, or a reported defect, reopen the actual GLB and perform the relevant independent checks before submission. Never skip a current target's complete UV validity check or suppress native errors. Regression investigation is conditional; final visual review is always required.
+
 1. Record the selected operation, installed add-on capabilities, scene, target root/parts and source revision. Preserve the source. Newly built geometry needs the model review described in the skill; geometry-only tasks stop before cloud operations.
 2. Inspect the evaluated target without normal maps, then validate its actual material-bound UVs using [UV acceptance](uv-acceptance.md). Check all included occurrences and material domains, not just a master. Native primitives are not automatically valid: a cylinder's cap can have mirrored UV winding. Planar projection must produce oriented, separated charts; packing cannot repair a fold or overlap within a chart. Island count and summed area alone do not prove acceptance.
 3. Bind the correct colour guide to the current geometry and UV revision. A rebuild needs fresh, independently owned working materials/images or explicitly verified reuse. Do not fetch an old material or image by a reused object name and assume it belongs to the new mesh. Old normal/roughness/IOR links must not silently survive a fresh preparation. Preserve earlier results and write previews to version-specific paths.

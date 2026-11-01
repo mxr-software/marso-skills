@@ -2,6 +2,10 @@
 
 ## Preparation efficiency
 
+Updated 2026-11-01. Plugin 0.2.6 adds a small parameterized-chart helper for builder-authored bands/sweeps and separates ordinary preparation from exporter qualification and defect investigation. Complete current-target UV validation and final visual review remain mandatory; independent GLB/corner comparisons are conditional on an unverified, changed or suspect route. Source inspection of add-on `da92d7a` (1.12.2) confirms the same runtime export correction as `7e0bde1`; this does not verify a customer's installed build.
+
+In Blender 5.2.0, a known 199-part asset recipe rebuilt preparation from saved geometry in 42.3 seconds through native export, or 55.4 seconds including two preview renders. Independent checks outside that timed path found 62.1% atlas occupancy, no UV overlaps/winding failures, valid 2K spacing, and all 83,862 exported position/UV corner keys matched with no shading-normal mismatches. Closed-band and bent-tube helper tests covered wrap seams, winding rejection, invalid-input rollback and unchanged geometry. This is a known-recipe execution benchmark, not a fresh blind-agent timing or a new live Retexture/PBR run; it does not establish a universal speedup or resolve previously reported returned-normal defects.
+
 Updated 2026-11-01. Plugin 0.2.5 orders repeated-asset preparation around representative chart checks, a cheap atlas preview before baking, bounded packing attempts and repair of affected parts. It also distinguishes quick readiness checks from full setup, and lightweight review views from presentation rendering. Validated export and visual acceptance remain required; failed checks cannot be bypassed to meet a time target.
 
 A live modelling → Retexture → PBR trial exposed repeated local unwrap/packing repairs and duplicate review work. The resulting instructions aim to prevent that rework; no fresh timed end-to-end run has yet established a speedup. Cloud queueing/processing is recorded separately from local authoring. Isolated skill packaging and local links were checked; no new service run or customer installation was performed for this instruction revision.
