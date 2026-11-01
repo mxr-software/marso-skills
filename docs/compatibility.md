@@ -1,5 +1,13 @@
 # Compatibility
 
+## Scene acceptance and minted library reuse
+
+Updated 2026-11-01. Plugin 0.3.2 requires reference-led scene builds to reconcile visible groups before asset planning and before final rendering. Layout, master/material pilots and populated scenes have separate visual acceptance; successful jobs, valid inventories and instance counts do not establish reference coverage. Explicit render-as-is scope and existing review permissions are preserved.
+
+Scene library reuse requires a visually suitable 3D PBR candidate, verified completed minting and a usable USD. Source inspection of add-on `762eed1` (manifest 1.13.1) confirmed semantic/image search, `mint_status` and the import-time `require_minted` check. Search results do not themselves guarantee mint completion. This inspection did not install an add-on or execute a new live search/import.
+
+Fresh-context evaluations covered scene continuation, render-only scope, unsuccessful placement and delegated generated-reference review. An image-only reviewer rejected an incomplete scene and accepted a later interpretation while recording remaining fidelity differences. These are behavioural and visual checks, not a new unattended end-to-end scene build or a fresh Claude installation test. Standalone package checks passed for all 17 skills; native Blender 5.2 checks passed for shell/camera handling and imported placement transforms. Private test artifacts remain outside the published collection.
+
 ## Scene design, blockout, lighting and cameras
 
 Updated 2026-11-01. Plugin 0.3.0 expands the collection to 17 skills with `marso-scene`, `marso-blender-blockout` and `marso-blender-camera`. Complete-scene routing now distinguishes photographs, prompt concepts and accepted layouts. Blockout review normally continues automatically; approval before Marso finishing of newly modelled geometry remains separate. Functional requirements precede size heuristics, and direct design plans do not fabricate photographic detections.

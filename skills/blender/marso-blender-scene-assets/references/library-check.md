@@ -36,6 +36,7 @@ Interpret candidates in context:
 - Image similarity can rank neighbours and lookalikes highly. Scores guide review; they are not identity guarantees.
 - Check whether a result is the intended part or its whole assembly.
 - Library names may be inaccurate. Inspect thumbnails before presenting them. Show a weak candidate only when its appearance is plausibly relevant; do not turn unrelated search results into a compulsory review gallery.
+- Compare silhouette, proportions, required parts, size and intended view. Distinguish suitable unchanged, suitable geometry needing Retexture/PBR, and unsuitable geometry; a new finish does not fix a different shape. Verify completed mint state for plausible 3D PBR candidates before offering them as ready scene sources. A PBR id, search kind or high score does not prove a usable minted USD; material-only swatches and raw meshes do not qualify.
 
 ## The decision is the user's
 
@@ -47,7 +48,7 @@ manifest.py choose runs/<job>/assets.json --reuse a079=<pbr_asset_id> a088=<pbr_
 
 - `--reuse` takes a `pbr_asset_id` from that asset's own candidates; anything else is refused.
 - Reuse a selected asset or act within explicit delegated reuse authority; otherwise ask, however high the score. A library asset may be a different size, style or material than the photograph shows.
-- A reused asset skips the reference image and the mesh. It still goes through `mint_status`: an old library asset may not be minted, and then it imports without real-world scale unless the user accepts that.
+- A reused asset skips the reference image and the mesh. It still goes through `mint_status`: only `minted` qualifies for scene import. Pending, failed or unknown states remain unresolved; choose another eligible candidate or follow the agreed creation route. Import through `import_scene_asset` with `require_minted: true`, keeping its import-time check even after a successful shortlist check. Never bypass this with a generic import or label an unminted result scene-ready.
 - Changing one's mind later is `choose --make <asset_id>`, which sends the asset back to the start of the chain.
 - Nothing in the library is changed: reuse imports the asset, it does not move or copy it into the run's project.
 

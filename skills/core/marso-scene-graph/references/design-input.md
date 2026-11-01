@@ -2,6 +2,8 @@
 
 For a prompt, settled plan or accepted concept without real detections, use a design record rather than manufacturing a photographed graph. The [design adapter](../scripts/design_plan.py) emits the existing asset-plan structure and a direct placement record, retaining explicit route decisions.
 
+When a concept is supplied, inspect its whole composition before writing rows: include defining secondary groups, visible fixtures, storage contents and context as well as named hero assets. Record inferred counts and identities honestly. The adapter validates the supplied plan, not its completeness against an image; omitted rows do not imply user exclusions.
+
 ```json
 {"schema":"marso/scene-design@1","run_id":"workshop-v1","project":"Workshop",
  "assets":[{"id":"bench","label":"Workbench","route":"model","size_m":[2,0.7,0.9],

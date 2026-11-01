@@ -205,6 +205,11 @@
     "context": "Only add-on 1.12.2 generate_image and scene_reference are verified; both select object mode. No other image connection. Local Blender control works."
   },
   {
+    "id": "whole-scene-reference-coverage",
+    "prompt": "The toolboard is improved, but this scene still has lots missing compared with the accepted concept. Review it before doing another final render.",
+    "context": "The concept includes spare-wheel wall storage, dense small-bin racks, a visible ceiling light and exterior window context. The asset plan omitted these. Existing materials/jobs and file validation pass. No user instruction excluded those reference groups. Explain next actions; no cloud work for this routing evaluation."
+  },
+  {
     "id": "reference-assortment-fidelity",
     "prompt": "Finish this room to match the accepted concept. The concept's toolboard has graduated spanner banks, a screwdriver rack, several plier shapes and larger tools in different orientations. The current scene has 36 copies of three tool shapes in equal rows, with three handle colours.",
     "context": "Working Blender add-on; user has delegated routine image and mesh review. Diagnose the mismatch and plan the correction before final rendering. No cloud operations for this evaluation. Do not treat matching total count or multiple colours as matching the assortment."
@@ -213,5 +218,25 @@
     "id": "generated-tool-finishes",
     "prompt": "Dress this workshop with realistic static hand tools. Generate suitable tools rather than modelling crude approximations, and give some tools different handle colours and worn finishes.",
     "context": "No articulation or exact-fit requirement; a working Marso Blender add-on and scene controls are available. Use distinct shapes for screwdriver, pliers and mallet; compatible copies can share geometry. No cloud work for this routing evaluation."
+  },
+  {
+    "id": "scene-pilot-continuation",
+    "prompt": "The cafe blockout and pilot table look good. Complete the cafe from the accepted concept, including materials, and give me the final still. Review the generated assets yourself; I will approve any newly modelled geometry before its Marso finish.",
+    "context": "A working Blender/add-on route is available. The concept shows six tables, mixed dining chairs and counter stools, crockery on open shelves, pendant fixtures, a pastry case and street context. One table and two chair finishes are accepted. The old blockout report says completed; the asset plan has only tables, chairs and a counter. No service mutations in this routing test. Give the next actions and what would allow delivery."
+  },
+  {
+    "id": "render-existing-as-is",
+    "prompt": "Render this sparse gallery exactly as it stands at 1920x1080. Do not add props or alter the composition.",
+    "context": "The scene has accepted PBR and a camera. An old moodboard has plants, sculptures and different lights that are absent from the scene. Render skill and modelling tools are installed. No execution in this routing test."
+  },
+  {
+    "id": "scene-review-limit",
+    "prompt": "Finish matching the supplied shop reference and deliver the textured scene.",
+    "context": "After three placement iterations the diagnostics report success, but the actual preview hides a planned display behind a large cabinet. The cabinet sits on bounds computed from an archived hidden plinth. The revised camera also exposes black shelf undersides. Reference and scene preview are available. Approved Marso materials are present. No execution in this routing test."
+  },
+  {
+    "id": "delegated-scene-reference-review",
+    "prompt": "Continue the reviewed scene asset plan. Review generated references and meshes yourself and keep going. I still want to approve newly agent-modelled geometry before you texture it.",
+    "context": "Verified project and plan; legacy scene_reference and combined scene_mesh/PBR only, no native batches. Three generated props need references; another has an accepted reference with actual node IDs. A newly modelled counter awaits finishing. The first returned image crops off a handle. No service mutations in this routing test."
   }
 ]

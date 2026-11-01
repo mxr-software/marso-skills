@@ -10,6 +10,8 @@ Inspect neutral/clay form only when geometry versus material is uncertain. For m
 
 Start with a small number of named light roles and change the failing group. Keep world contribution appropriate to the setting; an excessively bright environment can wash out an interior. Diagnose light leaks and geometry thickness before multiplying fill lights. Renderer-specific indirect lighting, glass and shadow settings must be checked against the installed version.
 
+Where reference fixtures are visible, their geometry and their illumination are separate requirements. Inspect windows and reflective surfaces in the actual output for artificial fill emitters showing as bright cards or bands. Adjust only the offending light's supported ray visibility or placement when appropriate, preserving intended physical fixtures and reflections; do not globally disable reflections to hide the symptom.
+
 For a sequence, preserve coherent direction, colour and exposure intent across coverage. Compare contact sheets and a moving segment; a good still does not establish temporal stability. Where repeated balance changes justify it, Cycles light groups let the compositor rebalance existing contributions without a full rerender. They cannot reproduce changing geometry or moving a light. Do not require extra passes for a simple review frame.
 
 Use low-cost previews to resolve composition and light, then a final-quality crop/full frame appropriate to the deliverable. More samples reduce noise, not bad art direction. Compare the same camera and resolution when judging a change; preserve a clean baseline and report actual render time. Do not claim an objective photorealism score from brightness statistics.

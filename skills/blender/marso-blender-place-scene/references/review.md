@@ -20,7 +20,11 @@ For `inside`, align the actual insertion feature with the actual opening: a stem
 
 Bounding-box/convex-hull overlap is a broad screening test, not proof of interpenetration or clearance. Separate intentional support and nesting contacts from unwanted collisions, and inspect the relevant surfaces. Recheck contacts after size or pose changes. If rigid placement cannot match the source because the generated proportions are wrong, report that geometry mismatch; seek a better source or an authorized geometry correction rather than silently stretching it to match one view.
 
+Measure contact against visible evaluated geometry, excluding hidden archives and old revisions from support bounds. Move a supported assembly through its entity root when its internal fit is already accepted, then recheck external clearance. A new camera or placement can expose unreviewed backs and undersides; retain their material acceptance as pending until inspected rather than assuming that an accepted front view covers them.
+
 ## Completion evidence
+
+Reconcile the whole reference against the existing work list, not just the last corrected object. For each defining visible group, retain its reference evidence, planned asset/group, rendered evidence and status: matched, needs correction, uncertain, or excluded by user scope. Include fixtures and secondary storage/dressing that establish the scene's character. A missing plan row is a planning gap, not proof that the reference feature is out of scope. Resolve material omissions with cheap matched views before another final-quality render; do not substitute successful jobs, instance totals or packed-file checks for this comparison.
 
 Compare the photo and scene from matched viewpoints, plus a top-down overview. Report missing objects, placeholders, inferred areas and remaining contact or scale errors. For a finished scene, include a material-shaded review after approved assets are textured; final high-quality rendering is a separate requested step. Do not label an unreviewed layout or base-colour screenshot photorealistic.
 
