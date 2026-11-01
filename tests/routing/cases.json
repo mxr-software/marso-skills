@@ -190,6 +190,16 @@
     "context": "Lid must open and handle move. Do not let small size override functional modelling requirements."
   },
   {
+    "id": "compound-scene-masters",
+    "prompt": "Build a realistic workshop with a bench, repair stand, toolboard of assorted hand tools, and shelves of repeated bins. Model the structured props and keep the scene economical.",
+    "context": "The plan groups the toolboard and tools in one row. A first room preview looks plausible, but isolated handles and tool heads are generic primitives. No user geometry approval yet. Routing only; no service mutations."
+  },
+  {
+    "id": "distant-scene-masters",
+    "prompt": "Make only a distant static establishing shot of a workshop. No close-ups or reusable prop library needed; keep small dressing simple.",
+    "context": "The user explicitly limits viewing and reuse. Preserve correct silhouettes, support and visible construction without modelling invisible mechanisms or creating a task for every instance. Routing only."
+  },
+  {
     "id": "object-image-route-only",
     "prompt": "Make a room scene from this prompt, with a concept first if supported.",
     "context": "Only add-on 1.12.2 generate_image and scene_reference are verified; both select object mode. No other image connection. Local Blender control works."

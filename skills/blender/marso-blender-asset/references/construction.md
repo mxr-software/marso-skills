@@ -16,6 +16,20 @@ Before repeating a master or preparing final UVs, keep compact evidence of the s
 
 When occlusion, perspective or an illustrative source leaves a defining feature unclear, use available search/image tools to inspect complementary real-object photos, manufacturer dimensions or construction views. Record which feature each source resolves and retain one primary design. Do not average different models together, use a generated image as measurement evidence, or claim a search result was inspected without opening it. No external search is needed when supplied evidence already resolves the form; if tools cannot obtain it, state the specific assumption/limitation.
 
+## Individual masters within a scene
+
+A scene request does not lower the construction standard for its assets. Work on distinct reusable masters before dressing the room: a storage assembly may contain a shelf master, a bin master and several different tool masters. Keep genuinely different shapes separate; identical copies reuse the accepted master. A board, rack or shelf is not a reason to give every contained object one generic primitive-building recipe.
+
+Use one concise brief per master in the existing run record: reference or stated design basis, dimensions, defining shape/construction features, intended closest view and reuse, then the inspected revision and acceptance decision. A screwdriver might need a shaped grip, credible shaft insertion and an appropriate tip; a bin needs wall thickness, opening and rim; a clamp needs jaws whose contact and adjustment make sense. Choose features from the actual design, not a universal detail checklist. For missing evidence, resolve the uncertain feature before scripting the finished master.
+
+Build in a focused pass with independent roots/collections; separate files or agents are optional, not requirements. Resolve and inspect one representative of each compatible construction family before producing its variations. Do not finish all families in a monolithic script before seeing any result. Different families need their own construction decisions even when both can use a sweep or extrusion helper.
+
+Inspect each distinct master in an isolated neutral oblique view large enough to judge its shape, and a complementary view where depth or hidden connections matter. A contact sheet is sufficient if every asset remains legible. Check proportions, cross-sections, thickness, transitions, openings and attachments against the brief. Then inspect the placed assembly for contact, clearance, scale and orientation. Passing one review does not pass the other: a good shelf can still collide with its bins, and a plausible room can conceal unfinished props.
+
+Effort controls detail density and sampling, not whether the defining construction exists. A scene-ready prop can omit microscopic fasteners or hidden mechanisms; it cannot replace a shaped handle with a generic cylinder when that changes its visible design. Use the intended closest view and stated reuse rather than demanding hero detail for every distant prop. An explicitly distant-only or blockout asset can remain simpler, but record that scope before acceptance; do not invent it afterwards to excuse a weak result.
+
+Keep this efficient: inspect one master rather than every identical instance, use viewport/clay captures instead of final renders, and recheck only changed masters and affected contacts. Resolve visible form failures before final UV work or Marso submission. Preserve accepted masters and their material roles; Retexture and PBR finish their surfaces, not missing geometry. Individual acceptance is an internal agent check, followed by the existing user geometry gate when required; it adds no approval question per prop.
+
 ## Resolve form before committing to detail
 
 For realistic or reference-matched work, use the following internal checks. Scale their effort to the brief; a requested blockout need not pass a close-view finish check. They are agent inspections, not additional user permission steps.

@@ -11,6 +11,8 @@ Ask for its chosen initial skill, concrete next actions, required questions, rev
 | Case | Required behaviour |
 | --- | --- |
 | prompt-workshop | Concept-first via a scene-capable operation; coherent shell, mixed routes, library reuse, model approval before finishing, lightweight completed-scene review. No unsolicited film. |
+| compound-scene-masters | Separates grouped dressing into distinct master briefs, resolves and inspects each family before repetition, rejects primitive placeholders despite a plausible room view, and checks assembly contacts separately. Uses existing records/collections without mandatory separate files, agents or per-prop approval questions. |
+| distant-scene-masters | Respects explicit distant-only scope; uses economical but plausible silhouettes and visible construction, with legible master inspection and scene contact checks. Does not impose hero detail, invisible mechanisms or independent work on every identical copy. |
 | photo-perspective | Fits camera before changing ordinary right-angle corners; continues after its own blockout inspection but does not invent final-model approval. |
 | concept-only | Inspected images and provenance only; novel view labelled as proposal. No mesh, decomposition or PBR work. |
 | blockout-only | Direct local shell/openings and useful review; no concept or texture jobs. |

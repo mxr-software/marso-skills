@@ -20,6 +20,12 @@ A fresh blind 1.13.1 trial used the add-on's public dispatcher in disposable hea
 
 All 422 scene/helper tests pass, including isolated packaging of all 17 skills. New Blender shell/camera regressions and documentation-link checks also pass. The reusable tests cover structural and scoped execution behaviour. They do not establish universal photorealistic quality, cloud execution guarantees or support for every Blender version. Existing accepted PBR assets keep their maps; new appearances continue through the established Retexture then PBR workflow and verified library handoff.
 
+## Individual asset quality in scenes
+
+Updated 2026-11-01. Review of the mixed scene trial found that plausible room composition and technically valid meshes had concealed overly simple modelled props. Scene planning now separates compound dressing groups into distinct master briefs, with focused construction and isolated acceptance before repetition, followed by assembly contact checks. Scene-ready effort does not excuse missing defining construction; explicit distant-only scope still permits economical detail.
+
+A fresh-context instruction review chose separate tool families and reusable bin masters, rejected primitive placeholders despite a plausible room view, and retained the lower detail scope of an explicitly distant shot. It also exposed ambiguity in treating an object list as a settled design; the scene entry now explicitly retains concept-first routing for that case. All 17 isolated skill packages pass structural validation. These are instruction and package checks, not a fresh modelling result: improved visual quality and end-to-end efficiency still require another Blender build and artist review.
+
 ## Imported placement transforms
 
 Updated 2026-11-01. A continued mixed modelling/generation trial exposed stale import matrices during placement. The placement helper now evaluates the dependency graph before detaching external import parents. A Blender 5.2 regression with unevaluated geometry under a 0.01-scale, 90-degree X conversion parent previously lost both corrections; the fixed helper preserves the full orientation/scale matrix and expected dimensions on initial placement and resume, with or without a caller update. Custom assembly guidance also covers proxy-frame composition and inspecting the placed scene. This check does not certify every rig, constraint or importer.
