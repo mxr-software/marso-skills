@@ -10,6 +10,7 @@ Ask for its chosen initial skill, concrete next actions, required questions, rev
 
 | Case | Required behaviour |
 | --- | --- |
+| efficient-repeated-asset | Reuses valid session readiness; tests/repairs representative charts before expanding; previews packing before bake; uses bounded packing and targeted reruns. Still audits the full target, verifies actual upload and reviews final PBR. Does not bypass overlap failures, stack repeated generation UVs, promise a fixed cloud time or start a presentation render campaign. |
 | generate | Discovers generation directly; asks once about unknown preference, uses supported options and relevant project; does not claim an agent fallback is a saved user preference. |
 | exact-reuse | Resolves the supplied id without replacement generation or redundant candidate selection. |
 | complete-scene | Coordinates decomposition through planning, mixed creation, placement and finish; honours real review gates; saves scene and lightweight reviews. |
@@ -41,5 +42,7 @@ Ask for its chosen initial skill, concrete next actions, required questions, rev
 | repeated-pbr-only | Preserves existing colour and PBR-only intent, holds stacked generation UVs, prepares an independent atlas and rebakes colour or uses verified reusable masters. Does not flatten normal pixels or treat add-on version alone as validation. |
 
 The image/appearance cases added on 2026-10-30 are pending fresh-agent execution. Adding a case or passing package checks does not establish its behavioural result.
+
+The efficiency case added on 2026-11-01 is pending fresh-agent execution and does not establish a measured time reduction.
 
 Score each case pass, fail or blocked, citing actual decisions. A blocked capability is not a pass for execution. Report routing simulation separately from live Blender/service tests and actual Claude/OpenAI host installation. Never infer cross-host success from one model family.

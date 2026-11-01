@@ -2,6 +2,8 @@
 
 Use this before Retexture, PBR-only or their batch equivalents, regardless of which modelling, scene or presentation workflow produced the target. Use the current installed Marso workflow rather than reproducing private add-on internals from a script. Keep a compact local record; no extra user questionnaire is needed.
 
+Keep checks tied to the target revision. Reuse successful evidence for unchanged geometry, UVs, materials and export code; rerun affected checks after changes, not the entire workflow after each local repair. A supported add-on's native validation can supply a check when its tested scope covers that requirement; do not immediately repeat the same algorithm on the same data just to create a second report. Actual upload scope/correspondence, valid UVs and final visual inspection still need evidence. Keep preparation, queue/processing, transfer and review timings separate when elapsed time matters; a cloud queue is not time spent modelling or an invitation to resubmit.
+
 ## Before submission
 
 1. Record the selected operation, installed add-on capabilities, scene, target root/parts and source revision. Preserve the source. Newly built geometry needs the model review described in the skill; geometry-only tasks stop before cloud operations.

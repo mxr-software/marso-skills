@@ -1,5 +1,10 @@
 [
   {
+    "id": "efficient-repeated-asset",
+    "prompt": "Build this approved repeated-part prop and finish it with Marso. Keep quality high, but avoid unnecessary waiting and reruns.",
+    "context": "Working Blender/add-on session with a successful current project-list request and writable storage. Many box beams, wheel rings and bent ropes share construction families. A prototype bent-tube chart overlaps; a provisional box layout passes topology but has large unused gaps. No final colour bake yet. No cloud calls are permitted in this routing check. Explain preparation order, stopping conditions and review scope."
+  },
+  {
     "id": "custom-builder-texture",
     "prompt": "Finish the approved rebuilt chair with Marso and show its modelling breakdown.",
     "context": "Custom builder reports 69% UV coverage. It reused the old version's material and image names. An unrelated textured object is selected in another Blender scene. Geometry is unchanged since approval. No service calls are permitted in this routing check."

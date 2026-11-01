@@ -16,6 +16,8 @@ The default route is **official Blender MCP + Marso Blender add-on**. The MCP co
 
 Read [installation](references/installation.md) when either component is missing or the Blender connection is unverified. Read [configuration](references/configuration.md) for settings and connection choices. Read [updates](references/updates.md) for an update request, or [troubleshooting](references/troubleshooting.md) for a fault.
 
+For asset creation in an already working session, use a short readiness check: loaded capabilities, Online Access/credential presence, usable storage and relevant destination. A successful required project-list request can also establish live connectivity. Reuse valid same-session evidence; do not run update checks, download the whole library or repeat full installation verification unless setup/update/troubleshooting or actual library use requires it. New sessions, changed settings and connection failures invalidate the relevant prior evidence.
+
 Use the installed version's capabilities and current UI labels. The references describe an inspected implementation, not a guarantee that every version exposes the same commands.
 
 ## 2. Complete the missing steps

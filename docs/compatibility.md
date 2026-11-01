@@ -1,5 +1,11 @@
 # Compatibility
 
+## Preparation efficiency
+
+Updated 2026-11-01. Plugin 0.2.5 orders repeated-asset preparation around representative chart checks, a cheap atlas preview before baking, bounded packing attempts and repair of affected parts. It also distinguishes quick readiness checks from full setup, and lightweight review views from presentation rendering. Validated export and visual acceptance remain required; failed checks cannot be bypassed to meet a time target.
+
+A live modelling → Retexture → PBR trial exposed repeated local unwrap/packing repairs and duplicate review work. The resulting instructions aim to prevent that rework; no fresh timed end-to-end run has yet established a speedup. Cloud queueing/processing is recorded separately from local authoring. Isolated skill packaging and local links were checked; no new service run or customer installation was performed for this instruction revision.
+
 ## Full Retexture and PBR follow-up
 
 Updated 2026-11-01. Plugin 0.2.4 strengthens visual acceptance after export validation: use matched normal-enabled/disabled views and illuminate affected underside/contact surfaces directly. Known visible normal-dependent defects remain a failed visual check even when the service job succeeds; disabling a map is not a repair.

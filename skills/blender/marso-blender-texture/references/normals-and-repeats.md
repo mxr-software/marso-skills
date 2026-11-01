@@ -21,6 +21,8 @@ These are generation-target rules, not a ban on efficient instancing in the fina
 
 For transformed multipart assets, compare evaluated source corner normals with the reimported GLB in the same coordinate frame, matching positions and UV corners rather than vertex indices. Mirrored winding and unequal scale need special care: correct vertex positions do not prove correct shading directions. Preserve evaluated/custom normals when making a working copy; applying transforms or recalculating normals indiscriminately can change authored shading. If the installed exporter changes these directions, stop and use a corrected build or a verified working-copy export. A skills update alone cannot repair the add-on.
 
+For numeric correspondence, use explicit small position/UV tolerances appropriate to the file precision and scale, reporting maximum differences. Rounded dictionary keys can miss otherwise matching corners at bucket boundaries; use them only to find candidates, not as the final equality test. This does not permit merging surfaces or relaxing the independent UV-overlap check.
+
 ## Diagnose a returned normal error
 
 Preserve the original returned images. Do not automatically replace low-Z vectors with flat normals, clamp vector components, flip channels or apply fixed roughness/metallic gamma. A percentage of altered texels is not a measured defect rate: unused atlas space and valid grazing directions may be included. Resolve input/map correspondence before considering a bounded, explained repair.
