@@ -38,6 +38,8 @@ An explicit request to generate or model takes precedence over the defaults belo
 
 Organic/complex forms favour generation as a starting point; structured, articulated or modular objects favour agent modelling. These are workflow defaults, not quality guarantees. Generated meshes can need retopology, part separation and scale correction; agent-built meshes still need topology and fit checks. A hybrid can generate decoration while modelling functional joints and mating surfaces. Preserve explicit user intent and explain a material tradeoff before substituting routes.
 
+For an unspecified creation route, compare achievable visual quality and effort against the actual constraints, not just whether the object is manufactured. Static hand tools with shaped grips, forged heads or complex small fittings can favour library reuse or generation over basic scripted modelling. Exact mating surfaces, working articulation and controlled topology still favour modelling or a deliberate hybrid. Inspect an accepted master before reuse; independent colour, material and wear variations can then use Retexture followed by PBR from that preserved source. Different silhouettes require different masters, not texture prompts.
+
 ## Discover the connection
 
 Inspect the tools actually available. Distinguish general application control, the Marso add-on and the hosted Studio connection. An installed skill supplies instructions, not a connection. For missing Blender setup, use `marso-blender-setup` when installed. Companion skills are separately installable; do not read assumed sibling paths. If a required specialist is absent, identify it or continue only through verified tools and their documented capabilities.

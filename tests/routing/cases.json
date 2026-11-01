@@ -203,5 +203,10 @@
     "id": "object-image-route-only",
     "prompt": "Make a room scene from this prompt, with a concept first if supported.",
     "context": "Only add-on 1.12.2 generate_image and scene_reference are verified; both select object mode. No other image connection. Local Blender control works."
+  },
+  {
+    "id": "generated-tool-finishes",
+    "prompt": "Dress this workshop with realistic static hand tools. Generate suitable tools rather than modelling crude approximations, and give some tools different handle colours and worn finishes.",
+    "context": "No articulation or exact-fit requirement; a working Marso Blender add-on and scene controls are available. Use distinct shapes for screwdriver, pliers and mallet; compatible copies can share geometry. No cloud work for this routing evaluation."
   }
 ]
