@@ -30,6 +30,17 @@ def assets_doc() -> dict:
 
 
 class LayoutPlanTests(unittest.TestCase):
+    def test_accepted_wall_not_pushed_or_rebuilt(self):
+        shell=self.run_dir/'shell.json'
+        wall=next(n for n in self.graph['nodes'] if n.get('label')=='wall') if any(n.get('label')=='wall' for n in self.graph['nodes']) else next(n for n in self.graph['nodes'] if 'wall' in n.get('label','').lower())
+        shell.write_text(json.dumps({wall['global_id']:{'entity':'AcceptedWall','floor_line':[[-3,5],[3,5]],'wall_height':2.7}}))
+        result=self.layout('--shell',str(shell),code=0)
+        row=next(a for a in result['anchors'] if a['global_id']==wall['global_id'])
+        self.assertEqual(row['floor_line'],[[-3,5],[3,5]])
+        self.assertEqual(row['existing_entity'],'AcceptedWall')
+        self.assertEqual(row['object'],'empty')
+        self.assertNotIn('wall-pushed-back',row['flags'])
+
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.run_dir = pathlib.Path(self.tmp.name)

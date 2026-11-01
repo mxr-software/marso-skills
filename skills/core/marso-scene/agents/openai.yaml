@@ -1,0 +1,3 @@
+interface:
+  display_name: "Marso Scene"
+  short_description: "Build complete scenes from photos or prompts"

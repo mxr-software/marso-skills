@@ -2,6 +2,8 @@
 
 ## Establish the room before filling it
 
+Ordinary adjacent room walls default to 90 degrees in plan unless supported by real evidence or an explicit design exception. Fit camera and a coherent shared shell before deforming corners to match perspective. Preserve accepted shell geometry through the placement handoff.
+
 Separate measurements from guesses. Confirm a corner angle, room dimension or large object's identity only when ambiguity materially changes the layout; batch those questions early. Record approximate dimensions as estimates, with their source and uncertainty. Do not force an entire room to fit a rough remembered measurement.
 
 Show a simple top-down plan and a matched photo view with the shell and major furniture before making small props. Use known dimensions and repeated architectural features as anchors. Where several photographs exist, compare all of them and keep separate camera estimates. A single photo's bounding boxes do not uniquely determine room depth, camera lens and object size; changing every object to hide an incorrect camera fit is unreliable. This helper does not perform joint multi-camera reconstruction or lens-distortion calibration.

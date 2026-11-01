@@ -374,6 +374,11 @@ def build(graph: dict, assets_doc: dict, registration: dict | None, manifest: di
         return graph_dims, "graph", flags
 
     # Anchors: the floor at z=0, the ceiling at the stated height, walls from their floor line.
+    shell = read_json(pathlib.Path(opts.shell)) if getattr(opts, 'shell', None) else {}
+    if shell is None or not isinstance(shell, dict):
+        raise ValueError('Invalid shell handoff')
+    if set(shell) - set(anchors):
+        raise ValueError('Shell handoff contains unknown graph anchors')
     anchor_out, walls = [], {}
     for gid in sorted(anchors):
         node = anchors[gid]
@@ -403,6 +408,24 @@ def build(graph: dict, assets_doc: dict, registration: dict | None, manifest: di
             tall = dims[2] if dims else 0.0  # a single size_m is the wall's width as often as its height
             row["wall_height"] = tall if 1.5 < tall < 6 else opts.ceiling_height
             walls[gid] = row
+        if gid in shell:
+            fixed = shell[gid]
+            if not isinstance(fixed, dict) or not isinstance(fixed.get('entity'), str) or not fixed['entity']:
+                raise ValueError(f'{gid}: shell entity name required')
+            if fixed.get('floor_z', 0) != 0:
+                raise ValueError('Photo placement currently requires a z=0 floor frame')
+            row['existing_entity'] = fixed['entity']
+            row['object'] = 'empty'
+            row['flags'] = []
+            row['basis'] = 'accepted shell; do not rebuild or move'
+            if kind == 'wall':
+                line = fixed.get('floor_line')
+                if not isinstance(line, list) or len(line) != 2 or any(not isinstance(p, list) or len(p) != 2 or not all(isinstance(x, (int, float)) and math.isfinite(x) for x in p) for p in line) or math.dist(*line) < .001:
+                    raise ValueError(f'{gid}: two finite distinct floor-line endpoints required')
+                row['floor_line'] = line
+                row['wall_height'] = float(fixed.get('wall_height', opts.ceiling_height))
+                if not math.isfinite(row['wall_height']) or row['wall_height'] <= 0:
+                    raise ValueError('Invalid shell wall height')
         anchor_out.append(row)
 
     placed: dict[str, dict] = {}
@@ -555,6 +578,8 @@ def build(graph: dict, assets_doc: dict, registration: dict | None, manifest: di
     # A wall's box edge is not its floor line when the wall is seen at an angle, and one run put the
     # back wall through the middle of the table. A wall stands behind whatever stands in front of it.
     for wall in walls.values():
+        if wall.get('existing_entity'):
+            continue
         line = wall["floor_line"]
         if line is None:
             continue
@@ -692,6 +717,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--out", required=True, help="write placement.json here")
     parser.add_argument("--graph", help="default <run>/scene_graph.json")
     parser.add_argument("--registration", help="default <run>/registration.json, if present")
+    parser.add_argument("--shell", help="JSON keyed by graph anchor id: accepted entity, floor_line and wall_height")
     parser.add_argument("--manifest", help="default <run>/manifest.json")
     parser.add_argument("--plan", help="asset_plan.json, to name the route of objects not generated")
     parser.add_argument("--imports", help="imports.json: {asset_id: import_scene_asset result}")

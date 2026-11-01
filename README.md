@@ -44,7 +44,7 @@ You can start from a sentence, a photograph or an existing mesh. Choose generati
 **📚 Go further**
 
 - [Advanced workflows](#go-further)
-- [All 14 skills](#available-skills)
+- [All 17 skills](#available-skills)
 - [Help and contributing](#help-and-contributing)
 
 </td>
@@ -277,7 +277,7 @@ Rerun the skills installation command with the same agent and scope, or update t
 
 ## Available skills
 
-**14 skills, one collection.** Start with `marso` to coordinate a task, or use a specialist directly.
+**17 skills, one collection.** Start with `marso` to coordinate a task, or use a specialist directly.
 
 <details>
 <summary><strong>Core workflows · 4 skills</strong></summary>
@@ -292,7 +292,7 @@ Rerun the skills installation command with the same agent and scope, or update t
 </details>
 
 <details>
-<summary><strong>Blender workflows · 6 skills</strong></summary>
+<summary><strong>Blender workflows · 7 skills</strong></summary>
 
 | Skill | What it does |
 | --- | --- |
@@ -301,15 +301,18 @@ Rerun the skills installation command with the same agent and scope, or update t
 | [marso-blender-texture](skills/blender/marso-blender-texture/SKILL.md) | Prepare assets for Marso, retexture, restyle and generate PBR. |
 | [marso-blender-kit](skills/blender/marso-blender-kit/SKILL.md) | Decompose references into reusable parts and build fitting kits. |
 | [marso-blender-compose](skills/blender/marso-blender-compose/SKILL.md) | Assemble existing kits using connection frames and fit checks. |
-| [marso-blender-render](skills/blender/marso-blender-render/SKILL.md) | Optimize render settings, GPU memory and instances; create requested images. |
+| [marso-blender-camera](skills/blender/marso-blender-camera/SKILL.md) | Compose stills and checked camera moves, with deliberate focus and optional handheld motion. |
+| [marso-blender-render](skills/blender/marso-blender-render/SKILL.md) | Light, render and composite realistic images; optimize render time, memory and instances. |
 
 </details>
 
 <details>
-<summary><strong>Scene workflows · 4 skills</strong></summary>
+<summary><strong>Scene workflows · 6 skills</strong></summary>
 
 | Skill | What it does |
 | --- | --- |
+| [marso-scene](skills/core/marso-scene/SKILL.md) | Coordinate a complete scene from photographs, a prompt or an existing layout. |
+| [marso-blender-blockout](skills/blender/marso-blender-blockout/SKILL.md) | Establish room scale, coherent walls, openings and camera views before dressing. |
 | [marso-scene-decompose](skills/core/marso-scene-decompose/SKILL.md) | Identify objects in photographs and build a scene graph with an interactive viewer. |
 | [marso-scene-graph](skills/core/marso-scene-graph/SKILL.md) | Plan unique assets, counts, reference briefs and creation routes. |
 | [marso-blender-scene-assets](skills/blender/marso-blender-scene-assets/SKILL.md) | Create the planned scene assets in Marso through Blender. |

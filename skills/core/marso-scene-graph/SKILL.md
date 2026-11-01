@@ -1,10 +1,12 @@
 ---
 name: marso-scene-graph
-description: "Plan scene assets from detected objects: pick modelling, generation, instancing with retexture or modular parts. Preserve choices, counts, crops and library-search handoffs."
+description: "Plan assets from photographs or a direct scene design: choose reuse, modelling, generation, instances or kits, with effort, references and scene resource targets."
 license: Proprietary. See LICENSE.txt in this skill folder.
 ---
 
-# Plan assets from a scene graph
+# Plan scene assets
+
+For a prompt or settled design without real detections, read [direct design input](references/design-input.md). Use its adapter and explicit routes; skip the photographic graph/crop steps below. For photograph-based work, continue here. Category and size rules are provisional: explicit user choice and functional requirements take priority. Record effort from intended views, articulation, exact fit and reuse, not size alone.
 
 A scene graph is a finished inventory of a photographed scene: every object has a `global_id`, a label, a size estimate, the thing that holds it, and a box in each image that shows it. This skill turns that inventory into the work list Marso needs. It does not generate anything, and it does not re-detect objects; if the graph is wrong, fix the graph first.
 

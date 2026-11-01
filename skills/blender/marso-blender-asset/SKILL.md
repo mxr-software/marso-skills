@@ -14,7 +14,7 @@ The same handoff applies when building an asset for a video, tutorial or scene, 
 
 Honour a request to model the asset. When the user instead asks to generate it, or an ambiguous brief favours an organic/complex form without controlled topology or construction requirements, use the `marso` entry skill when available to choose the generative route. Structured geometry, animation/articulation preparation and modular interfaces favour this modelling workflow. These are defaults, not guarantees of clean topology; inspect the result. Do not silently substitute generation for requested editable construction, or hand modelling for requested generation.
 
-Inspect the connected Blender session, selection, units, existing objects and available control tools. The default is the official Blender MCP for modelling, with the Marso add-on for subsequent texturing. A Marso cloud connection alone does not establish general modelling access. If Blender control is missing, identify the missing capability; use `marso-blender-setup` if installed. Do not pretend a script delivered in chat was executed.
+Inspect the connected Blender session, selection, units, existing objects and available control tools. Keep the working Blender control connection for modelling and favour the Marso add-on for its supported operations, including texturing. General Blender control (such as the official Blender MCP) is distinct from the optional hosted Marso MCP; neither an add-on nor a cloud connection alone proves arbitrary modelling access. Do not replace a working connection. If Blender control is missing, identify the missing capability; use `marso-blender-setup` if installed. Do not pretend a script delivered in chat was executed.
 
 Use the brief and references to establish dimensions, proportions, silhouette, functional parts and required movement. Ask for a dimension only when its uncertainty materially changes the result; otherwise state an assumption. A single image does not establish hidden construction or absolute scale. Separate observed details from inferred ones.
 
@@ -46,6 +46,8 @@ If the model is merely recognisable but its defining proportions, volumes or con
 For reusable modular components that must fit together, use `marso-blender-kit` when available; establish shared dimensions, connection frames and fit tests. Same-shaped objects with different labels/finishes use one master and the texture skill's appearance-family workflow instead. Do not independently model mating pieces and hope their edges line up.
 
 ## Review the model before texturing
+
+For a geometry-only request, finish with the model and useful previews; do not ask for approval of an unrequested texture stage. The approval below applies when handing new geometry to Marso finishing.
 
 Complete the internal form and construction checks first. Show the user the saved model in neutral clay from useful angles, including an oblique view at the intended viewing distance. State dimensions and remaining geometry or shading defects; avoid lighting that hides them. Ask whether the model is ready for Marso texturing, and wait for their answer before submitting Retexture or PBR. If essential geometry is still unresolved, present it as work in progress with the specific failure, not as a texture-ready candidate. A request for a finished textured asset is not approval of an unseen model.
 

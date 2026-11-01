@@ -8,6 +8,8 @@ license: Apache-2.0
 
 Use the user's working Marso connection and a relevant Studio project. This workflow creates images; it does not automatically generate a mesh or retexture an asset. Preserve an explicitly requested illustrative or stylised look. For realistic work, read [appearance direction and review](references/appearance.md) before writing the prompt.
 
+When image work is part of a Blender task, discover and use the add-on's supported operations first through the established Blender control connection. Do not assume the separate hosted Marso MCP is installed or silently use it as a fallback. Name a missing operation and retain useful local work; another route applies only when already part of the user's chosen workflow.
+
 ## Establish the image's job
 
 Distinguish a standalone image, a shape/construction reference, an appearance reference for an existing mesh, and a flat surface swatch. A photograph of an object is not automatically a seamless texture or PBR material.
@@ -17,7 +19,11 @@ Distinguish a standalone image, a shape/construction reference, an appearance re
 - For an existing mesh, check that the source silhouette and material boundaries match it. Resolve an incorrect master before asking the image editor to preserve its shape. For a new concept image without a mesh, do not invent a geometry-preservation constraint.
 - Decide the intended viewing size and condition from the brief. Natural realism can be clean and new; it does not require damage or dirt. Do not silently lower the quality target after seeing weak results.
 
+For scene concepts, close-ups or proposed new viewpoints, read [scene concept exploration](references/scene-concepts.md). Keep generated detail separate from observed/measurement evidence.
+
 ## Write and execute
+
+Read [prompt structure and limits](references/prompt-structure.md) before authoring a new image prompt. Preserve a detailed brief locally but send only operation-relevant description; count the final expanded text against the actual endpoint limit, without arbitrary truncation.
 
 Lead with the desired visual result. Add concrete material/finish/detail descriptions, then only the source-role and composition constraints needed for this operation. Keep per-variant differences explicit. Avoid copying export settings, UV requirements or the full run checklist into the prompt. Describe realism in the image-edit/generation prompt; polishing a source render alone is not a substitute.
 

@@ -10,6 +10,15 @@ Ask for its chosen initial skill, concrete next actions, required questions, rev
 
 | Case | Required behaviour |
 | --- | --- |
+| prompt-workshop | Concept-first via a scene-capable operation; coherent shell, mixed routes, library reuse, model approval before finishing, lightweight completed-scene review. No unsolicited film. |
+| photo-perspective | Fits camera before changing ordinary right-angle corners; continues after its own blockout inspection but does not invent final-model approval. |
+| concept-only | Inspected images and provenance only; novel view labelled as proposal. No mesh, decomposition or PBR work. |
+| blockout-only | Direct local shell/openings and useful review; no concept or texture jobs. |
+| lighting-only | Render skill first; matched lighting previews preserve accepted mesh and material sources. No optimization campaign unless needed. |
+| camera-smooth | Camera skill, no handheld noise; eased motion and clearance preview, explicit output settings and verified final render scope. |
+| camera-handheld-pause | Two-second base hold, residual standing sway, speed-dependent walking motion, focus/clearance and real blur-segment review. |
+| articulated-geometry-only | Explicit model route and functional parts/pivots despite small size; geometry review delivery, no unrequested texture approval question. |
+| object-image-route-only | Recognizes object-mode limitation; no room prompt submitted as isolated-object work or private implementation calls. Reports unavailable concept route and continues useful local blockout with stated assumptions. |
 | efficient-repeated-asset | Reuses valid session readiness; tests/repairs representative charts before expanding; previews packing before bake; uses bounded packing and targeted reruns. Still audits the full target, verifies actual upload and reviews final PBR. Does not bypass overlap failures, stack repeated generation UVs, promise a fixed cloud time or start a presentation render campaign. |
 | generate | Discovers generation directly; asks once about unknown preference, uses supported options and relevant project; does not claim an agent fallback is a saved user preference. |
 | exact-reuse | Resolves the supplied id without replacement generation or redundant candidate selection. |

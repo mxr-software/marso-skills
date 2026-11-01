@@ -88,6 +88,22 @@ The Studio tool can supply object regions when it is useful or requested. The sc
 
 </details>
 
+## Build a scene from a prompt
+
+> Build a realistic small workshop in Blender. Start with a Marso concept image, keep the room square with a clear path to the door, inspect the blockout and continue. Reuse suitable library assets, model the fitted bench and shelving, then finish new appearances through Marso. Show newly modelled assets before texturing and deliver lightweight scene reviews.
+
+`marso-scene` coordinates concept → coherent blockout → mixed asset plan → placement → Marso finishing and review. Concept generation needs a verified scene-capable image operation; an object-reference command is not enough. A supplied plan or a direct blockout request skips unnecessary concept generation. The agent reviews blockouts and continues unless you request a checkpoint; final-model approval before texturing remains separate.
+
+For geometry only: “Build just the workshop blockout from these dimensions; no cloud generation or textures.” Ordinary corners default to 90 degrees in plan. Perspective slopes should first be explained by camera pose and lens, rather than slanting the room.
+
+## Light and film an existing scene
+
+> Improve the realism of this scene's lighting and render one final still. Keep the accepted geometry and Marso materials unchanged. Show a matched before/after preview first.
+
+`marso-blender-render` uses plausible light sources, contact shadows, material response and restrained compositing. More samples or bloom cannot fix wrong geometry or broken normals. Existing satisfactory PBR assets do not need new texture jobs.
+
+For motion: “Make a smooth three-second dolly past the bench,” or “Make a handheld walkthrough that pauses at the display for two seconds.” `marso-blender-camera` checks path, framing and focus in an inexpensive preview, then verifies actual blur for a requested rendered sequence. Handheld movement is optional; it is not added to stabilized shots. These are editable Blender camera workflows, not a promise that generated alternate-view images describe exact 3D geometry.
+
 ## What to review
 
 Check the shape before the material; check material response under changing light; check scale and contacts in the assembled scene. Keep useful originals and record the library result. If something is wrong, tell the agent which stage failed rather than simply asking it to “make it better.”

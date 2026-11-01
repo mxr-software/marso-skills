@@ -189,6 +189,9 @@ def route_for(node: dict, count: int) -> tuple[str, str]:
         return "model", "architecture, built-in, fitted or modular unit: planar, dimensioned and tied to the room"
     if node.get("relation") == "part-of":
         return "skip", "part of its parent: made with the parent, not separately"
+    requirements = node.get('requirements') or {}
+    if any(requirements.get(k) is True for k in ('exact_dimensions', 'articulated', 'modular_fit', 'editable_topology')):
+        return 'model', 'functional construction requirement; inspect topology and movement before finishing'
     structured = matches(text, STRUCTURED_WORDS) or side > 1.2
     if count > 1 and structured:
         return "model", f"repeated structured object: model once, instance {count}"
@@ -372,6 +375,7 @@ def build_plan(graph: dict, scores_doc: dict | None, polycount=None, choices_doc
             "best_view": view,
             "occlusion": rep.get("occlusion") or (view or {}).get("occlusion", "none"),
             "source_images": images,
+            "requirements": rep.get("requirements") or {},
             "flags": sorted(set(flags)),
         }
         if rep.get("inferred_whole"):

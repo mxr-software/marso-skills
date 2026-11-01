@@ -6,7 +6,7 @@ license: Apache-2.0
 
 # Work with Marso
 
-Translate the requested outcome into the appropriate workflow. Preserve the user's choice of application and working connection. Do not require the hosted Marso MCP when an application's Marso add-on already provides the needed operation.
+Translate the requested outcome into the appropriate workflow. Preserve the user's choice of application and working connection. For Blender tasks, favour the Blender add-on for Marso operations and inspect its capabilities first through the established Blender control route. Do not call the separate hosted Marso MCP just to discover or perform operations the add-on supports. It is not an installation requirement. If an operation is missing, report the specific gap and continue supported work; use another connection only when it is already part of the user's chosen workflow.
 
 For a multi-stage task, name the workflow for each stage before executing it and load the applicable installed skill. This includes assets being built for a film, tutorial, demonstration or render. A custom builder or presentation recipe can create geometry or shots, but does not replace the Marso texture workflow's input validation, operation selection and result checks. Do not assume an installed skill was followed: retain the actual handoff and check results with the project.
 
@@ -28,9 +28,11 @@ An explicit request to generate or model takes precedence over the defaults belo
 | Arrange an existing kit | Composition with the kit's real connectors and material assignments; `marso-blender-compose` in Blender. |
 | Break photographs of a room or environment into its objects, or get a scene graph from images | Scene decomposition; `marso-scene-decompose` when installed. Do not send a whole-room image straight to 3D generation. |
 | Decide how many assets a scene needs, what to generate or model, or write each object's reference brief from a scene graph | Asset planning from the graph; `marso-scene-graph` when installed, then the routes above for each asset. |
-| Rebuild a photographed room or complete a Blender scene | Read [complete scene workflow](references/scene-workflow.md). Coordinate decomposition, planning, reuse/generation/modelling, placement and finish; do not stop at the graph. |
+| Build a scene from a prompt, reconstruct photographs, or complete a Blender scene | Use `marso-scene` when installed; see [complete scene workflow](references/scene-workflow.md). Coordinate decomposition, planning, reuse/generation/modelling, placement and finish; do not stop at the graph. |
 | Generate an already reviewed scene asset plan | `marso-blender-scene-assets`; preserve non-generation routes for their own handoffs. |
-| Reduce render time or memory, use repeated assets efficiently, or render a Blender scene | `marso-blender-render` when installed. |
+| Block out a room, graybox or establish its shell/camera fit | `marso-blender-blockout`; stop at proxies when that is the requested deliverable. |
+| Compose a shot, make a camera move or handheld walkthrough | `marso-blender-camera`, then requested rendering. Preserve the existing scene. |
+| Light an existing scene realistically, composite, reduce render time/memory, or render a Blender scene | `marso-blender-render` when installed. |
 | Make a build film, asset breakdown, tutorial or showcase that needs new textured Blender assets | Model through `marso-blender-asset`/`marso-blender-kit`, finish through `marso-blender-texture`, then render/presentation. Reuse accepted assets when no new asset work was requested. |
 | Use something already in the library, or check for one before generating | `marso-library` when installed: resolve a selected asset directly, or search by description/image. Do not generate a replacement for an asset the user chose to reuse. |
 

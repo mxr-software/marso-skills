@@ -20,10 +20,11 @@ An exported viewer choice supplied through `--choices` takes precedence over the
 1. **Anchors** (`parent: null`) are listed under `anchors` with route `model`: floors, walls and ceilings are built as the room shell, not generated.
 2. **Architecture, built-in, fitted and modular units** route to `model`: labels or categories that name walls, floors, ceilings, doors, windows, skirting, cornices, fitted, built-in or modular units, worktops, counters, cabinet runs or cabinet units, sideboards, shelving units, radiators or stairs. These are planar, dimensioned and often tied to the room.
 3. **`part-of`** relation routes to `skip`, with the parent's asset naming it under `children`. A drawer front is made with its chest, not alone.
-4. **Repeated `instances` of structured things** route to `model`, once, with `count` instances. Structured means a category or label in the furniture, seating, table, storage, shelving, lighting, appliance, electronics or fixture families, or anything whose longest side exceeds 1.2 m.
-5. **Organic, complex and small props** route to `generate`: food, plants, textiles, cushions, ceramics, vessels, ornaments, toys, tools, bags, and anything not caught above with a longest side of 0.6 m or less, including a single small appliance or device (a kettle, a camera, a laptop).
-6. **Larger structured objects that appear once** route to `model`: furniture, appliances and fixtures over 0.6 m.
-7. **Everything else** routes to `generate`, with `route_reason` saying it was the fallback, so the review step looks at it.
+4. **Functional requirements** (`requirements.exact_dimensions`, `articulated`, `modular_fit` or `editable_topology` set to true) route to modelling before size/category heuristics. Explicit viewer choices still take precedence. Generated geometry with animation requirements needs an inspected topology/rigging handoff, not an automatic readiness claim.
+5. **Repeated `instances` of structured things** route to `model`, once, with `count` instances. Structured means a category or label in the furniture, seating, table, storage, shelving, lighting, appliance, electronics or fixture families, or anything whose longest side exceeds 1.2 m.
+6. **Organic, complex and small props** route to `generate`: food, plants, textiles, cushions, ceramics, vessels, ornaments, toys, tools, bags, and anything not caught above with a longest side of 0.6 m or less, including a single small appliance or device (a kettle, a camera, a laptop).
+7. **Larger structured objects that appear once** route to `model`: furniture, appliances and fixtures over 0.6 m.
+8. **Everything else** routes to `generate`, with `route_reason` saying it was the fallback, so the review step looks at it.
 
 Words match whole words only: `tableware` is not a table and `woven` is not an oven. `size_m` is read as the largest dimension in metres.
 
@@ -38,11 +39,11 @@ Flags never change the route; they ask the user to look.
 | `occluded-best-view` | The best view is occluded or truncated; the crop will not show the whole object. |
 | `parent-conflict` | The node appears in `parent_conflicts`. |
 | `identity-group-split` | An identity group spans two assets. |
-| `fallback-route` | Rule 7 applied. |
+| `fallback-route` | Rule 8 applied. |
 | `mostly-hidden` | Even the best member is heavily hidden; the brief leads with the inferred whole. |
 | `no-inferred-whole` | Mostly hidden, and the decompose step left no context description: ask for a better photograph or describe it with the user. |
 | `identity-group-has-unconfirmed` | A member of one of its identity groups is unconfirmed; the range was clipped. |
 
 ## In review
 
-Ask the user about every flagged asset and every `model` row that might be cheaper to generate at their quality bar. Offer `reuse` wherever the library plausibly has the object. Do not argue a generator is better than modelling or the reverse; state the default and the reason, and record the choice in `asset_plan.json`.
+Resolve flags from available evidence first. Ask a consolidated question only where unresolved identity, dimensions or construction materially changes the result; routine delegated choices need no repeated interview. Offer `reuse` wherever the library plausibly has the object. Preserve explicit modelling/generation intent and state the reason for each proposed route in `asset_plan.json`. A route decision does not waive required final-geometry review.

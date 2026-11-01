@@ -35,3 +35,7 @@ Use `marso-image` when installed for requested image generation/editing. With on
 After a successful Retexture edit, proceed directly to PBR, apply and inspect the final material. If the add-on owns that chain, do not submit a duplicate PBR job. An intermediate lit colour image is not final albedo. Keep warnings, but evaluate the final surface under changed lighting and inspect unlit base colour where useful. Explicit user-requested review holds still apply.
 
 Separate technical checks from visual acceptance. A pilot with correct geometry/UVs but unresolved visible defects is diagnostic; do not scale that method yet. Keep the original quality target, diagnose a correction and test the affected stage within the authorized scope. Do not keep rerunning unchanged requests or quietly lower the viewing standard to make a weak result pass. These internal checks do not add user approval questions for every variant.
+
+## Prompt limit
+
+Read the current operation’s prompt/enhancement limits, including documented downstream constraints. Validate the final expanded reference text and enhancement, not just the draft. Remove repeated adjectives, duplicated context and optional details before compressing essential material regions or source intent; never truncate blindly. Keep UV/export/camera workflow instructions out of Retexture. A maximum length is not a target. Preserve the full appearance brief separately and inspect the actual image-to-PBR result.

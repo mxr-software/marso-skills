@@ -1,16 +1,22 @@
 ---
 name: marso-blender-place-scene
-description: "Place modelled or imported Marso assets in Blender from photos and a scene graph. Preserve entity and geometry groups; check scale and support. Cloud imports require scene import commands."
+description: "Place modelled or imported assets in Blender from photo graphs or direct design plans. Preserve entity groups and accepted shells; check scale, support and unresolved placeholders."
 license: Proprietary. See LICENSE.txt in this skill folder.
 ---
 
 # Place a scene's assets in Blender
 
-Rebuild a photographed room in Blender from its scene graph: the floor and walls first, then the large fixed things, then everything that rests on them, each logical object represented by an Empty parented to its support Empty. Geometry lives in a separate child group; supported objects never parent to that geometry. Positions come from one photograph and a simple camera model, so they are a first layout to review, not a measurement.
+Place a scene from a photographed graph or a direct design plan. Read the matching branch below before running helpers. Establish accepted floor and walls first, then large fixed things and supported objects, each represented by an entity Empty parented to its support Empty. Geometry lives in a separate child group; supported objects never parent to that geometry. Photograph-derived positions are a first layout to review, not measurements; direct design positions are explicit assumptions to inspect.
 
-Inputs: the decompose run folder (`scene_graph.json`, `manifest.json`, `registration.json`), its `asset_plan.json`, and `runs/<job>/assets.json` from the generation run, which holds each asset's `pbr_asset_id`, minted state and members. An asset reused from the library carries the library asset's `pbr_asset_id` and imports the same way. `<skill>` in the commands below stands for this skill folder's path. Generation belongs to `marso-blender-scene-assets`; Blender connection problems to `marso-blender-setup`, when installed.
+Photograph inputs: the decompose run folder (`scene_graph.json`, `manifest.json`, `registration.json`), its `asset_plan.json`, and `runs/<job>/assets.json` from the generation run, which holds each asset's `pbr_asset_id`, minted state and members. An asset reused from the library carries the library asset's `pbr_asset_id` and imports the same way. `<skill>` in the commands below stands for this skill folder's path. Generation belongs to `marso-blender-scene-assets`; Blender connection problems to `marso-blender-setup`, when installed.
 
 In shell examples, `python` means an installed Python 3.10+ interpreter. Check its version first; on Windows, use `py -3.13` or another installed compatible version if the default `python` is older. Blender-only scripts run in Blender instead.
+
+## Accepted shell or direct design
+
+For a direct `marso/scene-design@1` plan, use the scene-graph skill’s design adapter and feed its `placement.json` straight to step 4; skip photographic steps 1–3 and do not run cropping or force a photograph camera. Supply actual model/import sources in imports.json. Review top-down and intended scene views against the design for steps 5–6 and delivery. Until imports/modelled sources are supplied, placeholders are unresolved.
+
+For photographs, establish a coherent blockout first with `marso-blender-blockout` when installed. Pass `layout_plan.py --shell shell.json`, keyed by graph anchor id, with each accepted `entity`, and each wall’s world-space `floor_line`/`wall_height`. Floor Z must be zero in the photo solver frame. Map identities explicitly. The helper preserves those anchors and projects against their lines; without this handoff its per-wall estimates are provisional and do not enforce square corners. Do not call them an accepted room shell. `existing_entity` anchors must be scene Empties; the placement script leaves them untouched.
 
 ## Workflow
 

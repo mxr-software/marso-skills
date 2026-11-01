@@ -188,6 +188,17 @@ def place(placement_path, imports_path=None, collection_name=None, photo=True):
                 raise ValueError("Cycle in placement support hierarchy")
             visited.add(current)
             current = parents[current]
+    fixed = {}
+    for row in rows:
+        if row.get('existing_entity'):
+            obj = bpy.context.scene.objects.get(row['existing_entity'])
+            if obj is None or obj.type != 'EMPTY':
+                raise ValueError('Accepted shell entity must be an existing scene Empty')
+            if row not in anchors:
+                raise ValueError('existing_entity is only supported for shell anchors')
+            fixed[row['global_id']] = obj
+    if len(set(fixed.values())) != len(fixed):
+        raise ValueError('Each shell anchor needs its own entity')
     coll = collection_for(collection_name or plan.get("project") or "placed_scene", run_id)
     report = dict(collection=coll.name, run_id=run_id, placed=[], duplicated=[], boxes=[],
                   not_imported=[], unused_imports=[], warnings=[])
@@ -203,6 +214,9 @@ def place(placement_path, imports_path=None, collection_name=None, photo=True):
     first, made = {}, {}
     for row in rows:
         gid = row["global_id"]
+        if gid in fixed:
+            made[gid] = fixed[gid]
+            continue
         entity = empty(row["name"], coll, run_id, gid, "entity")
         parent_keep(entity, None)
         entity.matrix_world = Matrix.Identity(4)
@@ -210,6 +224,8 @@ def place(placement_path, imports_path=None, collection_name=None, photo=True):
     bpy.context.view_layer.update()
     for row in rows:
         gid, entity = row["global_id"], made[row["global_id"]]
+        if gid in fixed:
+            continue
         aid = row.get("asset_id")
         entity["marso_parent_id"] = row.get("parent") or ""
         entity["marso_relation"] = row.get("relation") or ""
@@ -271,6 +287,8 @@ def place(placement_path, imports_path=None, collection_name=None, photo=True):
                                      dimensions_m=[round(v, 3) for v in high - low]))
     # Parent after placement so moving a parent's frame never double-moves its children.
     for row in rows:
+        if row['global_id'] in fixed:
+            continue
         parent = made.get(row.get("parent"))
         if row.get("parent") and parent is None:
             report["warnings"].append(f"{row['global_id']}: support parent missing; left at top level")

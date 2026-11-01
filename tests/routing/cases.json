@@ -148,5 +148,50 @@
     "id": "transparent-packaging",
     "prompt": "Texture this display fridge and its labelled clear bottles.",
     "context": "Marso cannot generate transparency. Editable glass objects and bottle material regions exist locally; opaque labels must remain visible. The source meshes are approved."
+  },
+  {
+    "id": "prompt-workshop",
+    "prompt": "Build a realistic small workshop in Blender from a text description. Use Marso, make routine design decisions, and deliver a finished scene, not a film.",
+    "context": "No settled plan. Supported image, Blender, library and material operations; verify scene-specific commands rather than assume them."
+  },
+  {
+    "id": "photo-perspective",
+    "prompt": "Rebuild this room from the photo. Inspect the blockout yourself and keep going.",
+    "context": "Ordinary rectangular interior; converging lines in photo. No evidence of unusual wall angles. Routing only: do not invent an absent image."
+  },
+  {
+    "id": "concept-only",
+    "prompt": "Make a room concept and one alternate view, nothing in 3D.",
+    "context": "Working scene-capable image operation. Alternate view is a design proposal, not measured evidence."
+  },
+  {
+    "id": "blockout-only",
+    "prompt": "Make only a 4 by 6 metre room blockout with a door and window. No cloud work.",
+    "context": "Working Blender; no need to create materials or final assets."
+  },
+  {
+    "id": "lighting-only",
+    "prompt": "Make this furnished Blender scene look realistic and render a final still. Preserve all geometry and materials.",
+    "context": "Current lighting is flat. Existing materials are accepted Marso PBR."
+  },
+  {
+    "id": "camera-smooth",
+    "prompt": "Add a smooth stabilized walkthrough to this scene.",
+    "context": "Existing accepted scene. Preserve materials and geometry; preview motion before final rendering."
+  },
+  {
+    "id": "camera-handheld-pause",
+    "prompt": "Make a handheld walkthrough that pauses at the counter for two seconds, with motion blur.",
+    "context": "Working Blender/Cycles. Need deliberate output settings, clearance and actual blur inspection."
+  },
+  {
+    "id": "articulated-geometry-only",
+    "prompt": "Model a small articulated metal kettle in Blender, scene-ready quality. No texturing.",
+    "context": "Lid must open and handle move. Do not let small size override functional modelling requirements."
+  },
+  {
+    "id": "object-image-route-only",
+    "prompt": "Make a room scene from this prompt, with a concept first if supported.",
+    "context": "Only add-on 1.12.2 generate_image and scene_reference are verified; both select object mode. No other image connection. Local Blender control works."
   }
 ]
