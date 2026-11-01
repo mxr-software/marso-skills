@@ -16,6 +16,8 @@ When separate material slots generate independent maps, validate each domain sep
 
 Retexture continues directly through PBR. Correlate target/source revision, job/result identity and material/image bindings; a stale preview or an earlier run's map cannot validate the current result. Check normals with maps disabled and enabled under more than one light/view, including backs and undersides. Retain untouched returned maps and final visual evidence before making instances or expanding a batch.
 
+For a reported shading defect, light the affected surface directly on a diagnostic copy; a beauty render can conceal underside or contact-area errors. Compare identical views and lighting with only normal strength changed. If the defect disappears with the normal disabled, report the remaining normal-dependent failure even when export validation and the service job passed. Disabling the map is a diagnostic, not a completed repair. Do not request a clean sign-off or scale the workflow while known visible defects remain unresolved.
+
 If normal directions look wrong, follow [normal diagnosis](normals-and-repeats.md). Do not automatically flatten vectors, clamp normal channels, flip green, or apply a fixed metallic/roughness gamma. Those operations cannot repair wrong UV correspondence or the wrong uploaded mesh. Any deliberate artistic adjustment remains separate from the original maps and is not described as a service correction.
 
 Report source validation, service completion and visual acceptance separately. Preserve failed evidence for diagnosis; do not repeatedly generate from unchanged invalid inputs. A render or film is downstream of these checks, not a substitute for them.

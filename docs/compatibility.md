@@ -1,5 +1,11 @@
 # Compatibility
 
+## Full Retexture and PBR follow-up
+
+Updated 2026-11-01. Plugin 0.2.4 strengthens visual acceptance after export validation: use matched normal-enabled/disabled views and illuminate affected underside/contact surfaces directly. Known visible normal-dependent defects remain a failed visual check even when the service job succeeds; disabling a map is not a repair.
+
+A fresh upload → Retexture → automatic PBR run through add-on source `7e0bde1` completed. The preflight, downloaded upload and edited PBR source had identical indexed positions, shading normals and UVs. Saved multipart Blender geometry, packed maps and the final PBR GLB reopened successfully. Main/rear views improved, but normal-dependent dark patches remained on underside surfaces. The export correction therefore does not establish resolution of all PBR shading defects. No normal-map repair, customer binary release or new client installation was performed. Trial assets and service records remain local.
+
 ## Multipart shading-normal preservation
 
 Updated 2026-11-01. Plugin 0.2.3 adds explicit source-to-export corner-normal checks and controlled PBR-only diagnostic guidance. Add-on source `7e0bde1` preserves evaluated corner normals when transforming individual exports and merged assembly proxies, including reflected and unequally scaled linked parts. Its export revision 4 invalidates older reusable uploads. This source is on a review branch; the customer baseline remains 1.12.1 and updating skills does not install the fix.
