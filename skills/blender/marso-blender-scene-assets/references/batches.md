@@ -6,7 +6,7 @@ The add-on submits eligible independent operations, monitors them internally and
 
 ## Submit after the plan and library decisions
 
-Resolve the Studio project and initialise the local asset manifest as usual. Include only generate-route assets the user chose to make. Keep library reuse, modelling, instancing and kit handoffs outside the generation batch.
+Resolve the Studio project and initialise the local asset manifest as usual. In a fresh Blender session, refresh `list_studio_projects` and wait for its job before submitting to an existing project id: a destination saved in the .blend does not populate the session's fetched project list. Reuse that current-session evidence; do not refresh before every item. If submission is explicitly refused with `no_project` before a batch is accepted, refresh/select/verify through the public commands, then retry the same saved request id. Include only generate-route assets the user chose to make. Keep library reuse, modelling, instancing and kit handoffs outside the generation batch.
 
 Save the exact request locally before sending it. Use a fresh nonempty `request_id` per new batch and reuse it with the identical request after an uncertain reply; the implementation deduplicates by id, not by payload equality. Never reuse an id for changed work. Set `key` to the local plan's stable asset id, retain its canvas `row`, and pass the verified project id explicitly. One request supports up to 1000 items in the inspected schema; that is a payload limit, not a cloud execution limit. Split larger plans without inventing dependencies between independent items.
 
