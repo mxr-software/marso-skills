@@ -1,5 +1,13 @@
 # Compatibility
 
+## Multipart shading-normal preservation
+
+Updated 2026-11-01. Plugin 0.2.3 adds explicit source-to-export corner-normal checks and controlled PBR-only diagnostic guidance. Add-on source `7e0bde1` preserves evaluated corner normals when transforming individual exports and merged assembly proxies, including reflected and unequally scaled linked parts. Its export revision 4 invalidates older reusable uploads. This source is on a review branch; the customer baseline remains 1.12.1 and updating skills does not install the fix.
+
+Blender 5.2.0 checks passed for source preservation, corner directions, GLB round trips, export-frame changes and zero-scale failure cleanup, alongside the existing texture-input, export-frame and assembly checks and 222 unit tests. The new normal regression fails with the earlier transform implementation. Isolated skill-package validation also passed.
+
+Live PBR-only trials through the add-on exercised unchanged input, explicit tangents, separate nodes, merged parts and corrected transforms. The earlier severe shading failure did not reliably reproduce on an unchanged source. These runs therefore do not establish that the packing correction resolves every returned-normal defect. Preserve raw maps, inspect backs and undersides, and distinguish verified export correctness from visual acceptance. No updated customer binary or fresh cross-client installation was tested.
+
 ## Texture workflow and upload validation
 
 Updated 2026-10-31. Plugin version 0.2.2 routes agent-built assets, scene work and presentation workflows through `marso-blender-texture` before Retexture or PBR-only. The handoff requires evidence for the current geometry, material/UV correspondence and exact upload scope; earlier renders and UV coverage percentages cannot establish acceptance. Returned normal maps are preserved rather than automatically flattened or clamped.
