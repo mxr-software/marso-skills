@@ -10,6 +10,8 @@ Use the user's working Marso connection and a relevant Studio project. This work
 
 When image work is part of a Blender task, discover and use the add-on's supported operations first through the established Blender control connection. Do not assume the separate hosted Marso MCP is installed or silently use it as a fallback. Name a missing operation and retain useful local work; another route applies only when already part of the user's chosen workflow.
 
+For Blender scene/image operations, read [the add-on command route](references/addon-images.md). Discover capabilities and local execution access before submitting.
+
 ## Establish the image's job
 
 Distinguish a standalone image, a shape/construction reference, an appearance reference for an existing mesh, and a flat surface swatch. A photograph of an object is not automatically a seamless texture or PBR material.
