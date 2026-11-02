@@ -61,6 +61,10 @@ You can start from a sentence, a photograph or an existing mesh. Choose generati
 
 [![The agent-modelled car before texturing and with its finished Marso PBR materials](docs/assets/explain/modelled-car-pbr.png)](docs/assets/demos/agent-car-to-pbr.mp4?raw=true)
 
+[![Six agent-modelled Blender props: clay and actual wireframe above, finished Marso PBR below. Left to right: leather suitcase, sticker-covered guitar case, purple handheld console, vintage camera, weathered dagger and gold-repaired porcelain bowl.](docs/assets/explain/agent-modelled-props.jpg)](docs/assets/explain/agent-modelled-props.jpg)
+
+**Blender models above. Marso Retexture + PBR below.** Worn leather, faded stickers, scratched plastic, brassed metal and glazed porcelain—six editable models, finished with material-specific detail. [Open the full-size comparison →](docs/assets/explain/agent-modelled-props.jpg)
+
 **🛠️ Skills:** [Model an asset](skills/blender/marso-blender-asset/SKILL.md) → [Retexture + PBR](skills/blender/marso-blender-texture/SKILL.md)
 
 **💬 Try asking:**

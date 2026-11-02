@@ -8,6 +8,8 @@ The car uses the editable model and packed Marso PBR textures from the supplied 
 
 ## Demonstrations
 
+`explain/agent-modelled-props.jpg` shows six agent-modelled Blender props in columns: leather suitcase, guitar case, purple handheld console, vintage camera, dagger and porcelain bowl. The top row uses neutral clay and actual mesh edges; the bottom row shows the corresponding Marso Retexture and PBR results rendered in Blender Cycles. Matching camera views preserve each model's proportions. The strip uses selected presentation views, not reference photographs or generated concept images. The camera's transparent optics remain local Blender materials. Generated artwork and small lettering are illustrative rather than exact reproductions. The dagger uses a subsequent PBR-only pass after a normal-map defect was found in its first result; its final maps are unmodified.
+
 The `demos/` clips are short, silent excerpts of Marso demonstrations. They show the product and example results; they are not recordings of a fresh installation of this skill release. Posters link directly to the corresponding MP4 rather than loading every movie with the README. GitHub serves these repository videos as raw files; a browser may download them for playback. Aspect ratios are preserved.
 
 | Files | What they show |
