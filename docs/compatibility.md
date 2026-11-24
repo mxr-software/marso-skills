@@ -1,5 +1,28 @@
 # Compatibility
 
+## Set pieces
+
+Updated 2026-11-24. Source review of Marso 1.21.0 (`641adb7`) through 1.21.2 (`f0beb45`), Blender 5.2 background checks, and live sandbox runs with Codex.
+
+- `marso-set-piece` plans without any application; its script is standard-library Python. `marso-blender-set-piece` places instances as linked duplicates and is checked by `tests/blender/place_instances_smoke.py`.
+- Live: a clothes rail with one generated T-shirt master. Three further variants were made with Edit Texture on the generated mesh's own UVs, from text alone, and twelve instances were placed from the placement list.
+- The generated mesh's UVs had no overlaps but were fragmented (about half the tile used). They were kept, and the variants read cleanly at the piece's viewing distance.
+- Variant Retextures submitted as one batch against the same source node returned source conflicts; run one after another they succeeded.
+- Marso 1.21.1 (`13c1b80`) adds `add_node: false` to `upload_image`, which uploads for an ID with no Load Image node, and stops a file being uploaded twice. Read from source; the stall run on 1.21.1 reported the option present.
+- Marso 1.21.2 changes no command or parameter. Retexture now branches from the mesh's own source record, uploads again only when Marso refuses that link, and retries a run refused as changed a moment after upload.
+- Live on 1.21.1: a market clothing stall from one image, with thirteen parts and twenty-odd variants. The harness could not collect scene facts for it, so its instance counts are the agent's own.
+- The smallest polygon option for that generation was about 30,000. Instancing keeps that cost to one mesh in Blender; a lighter master for a game target is not covered.
+
+## Scene asset generation
+
+Updated 2026-11-24. Source review of Marso 1.21.0 (`641adb7`) and one live sandbox run with Codex on Blender 5.2.
+
+- Every command, parameter and result field `marso-blender-scene-assets` uses exists unchanged in 1.21.0, and each command rejects unknown parameters.
+- Live: two planned assets (a kettle and an armchair) went through the library check, an add-on batch for references, meshes and PBR, minting and `import_scene_asset`. Both imported with image-driven PBR maps.
+- `mint_status` answers `error: <message>` for an id it could not check; the manifest helper now leaves that asset pending.
+- `manifest.py record` now accepts the asset id after `--stage`, as the skill writes it; it failed there before.
+- `scene_mesh` and the batch mesh stage take no PBR condition image.
+
 ## Modelling, UV and texture stages
 
 Updated 2026-11-21. Source review of Marso 1.20.0 (`280d219`), Blender 5.2.4 background checks and fresh-agent sandbox geometry rounds (Codex only); no new live service run.

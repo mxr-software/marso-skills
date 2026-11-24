@@ -232,6 +232,10 @@ def record_mint(doc: dict, assets: dict, result) -> list[str]:
         if not matching:
             problems.append(f"{pbr_id}: no asset in this run has that pbr_asset_id")
             continue
+        if isinstance(state, str) and state.startswith("error:"):
+            # mint_status could not reach Marso for this id: the state is unknown, so it stays pending.
+            print(f"{pbr_id}: not checked ({state}); poll it again later", file=sys.stderr)
+            continue
         if state not in MINT_STATES:
             problems.append(f"{pbr_id}: unknown mint state {state!r}")
             continue
@@ -587,7 +591,13 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--state", required=True)
     p.set_defaults(func=cmd_project)
 
-    args = parser.parse_args(argv)
+    args, extra = parser.parse_known_args(argv)
+    # `record <assets.json> --stage mesh <asset_id>` (the documented order) leaves the asset id after the
+    # options, where argparse does not fill an optional positional; take it from there.
+    if args.command == "record" and not args.asset_id and len(extra) == 1 and not extra[0].startswith("-"):
+        args.asset_id, extra = extra[0], []
+    if extra:
+        parser.error("unrecognized arguments: " + " ".join(extra))
     return args.func(args)
 
 

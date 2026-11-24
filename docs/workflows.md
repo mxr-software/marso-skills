@@ -15,9 +15,11 @@ A workflow is a short recipe you can ask for by name. It tells the agent which s
 | A low-poly asset from a picture | `marso-make-asset` | "Use the make-asset workflow to make a low-poly version of the barrel in this image." |
 | A modular kit, from a description | `marso-make-kit` | "Use the make-kit workflow to create a modular kit of stone dungeon walls." |
 | A modular kit from a picture | `marso-make-kit` | "Use the make-kit workflow to create a modular kit from the shelving in this image." |
+| One object made of many repeated parts, from a description | `marso-make-set-piece` | "Use the make-set-piece workflow to make a bookcase full of books." |
+| A set piece from a picture | `marso-make-set-piece` | "Use the make-set-piece workflow to make the market stall in this image." |
 | A realistic look for an asset already in Blender | `marso-make-realistic` | "Use the make-realistic workflow on the selected chair." |
 
-Each workflow models or checks the asset in Blender, prepares its UVs, runs Retexture, then adds PBR. It stops for you to approve the model, choose the look and review the Retexture result. To run without stopping, say so: "I approve the model unseen; choose the look yourself and run to the end."
+Each workflow models or checks the asset in Blender, prepares its UVs, runs Retexture, then adds PBR. The set piece workflow also generates one mesh for each soft or organic part, makes the looks as variants of that mesh, and places every instance. It stops for you to approve the model, choose the look and review the Retexture result. To run without stopping, say so: "I approve the model unseen; choose the look yourself and run to the end."
 
 ## Start here: generate your first asset
 

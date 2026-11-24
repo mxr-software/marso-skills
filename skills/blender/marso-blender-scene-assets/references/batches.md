@@ -33,7 +33,7 @@ Example request shape; replace paths/ids and add resolved, live-supported polygo
 
 Use `framing: "as_is"` for an already square, correctly padded crop; supported `square` framing can prepare another input but should not add redundant margins. Inspect the generated output either way. For an already approved reference, `start_at: "mesh"` requires its verified `generation_node_id` and `image_asset_id`; keep `review: ["mesh"]` unless that geometry checkpoint was explicitly waived.
 
-Each item's stages are image → mesh → PBR. Unlike standalone `scene_mesh`, the batch mesh stage does not also start PBR. Never call `scene_mesh` or another PBR operation for an item already owned by this chain. `depends_on` names other item keys in the same request and waits for those items to succeed; normal stages within one item already have their dependencies. Include only genuine additional dependencies.
+Each item's stages are image → mesh → PBR, and `review` can hold an item after any of them: `image`, `mesh` or `pbr`. Unlike standalone `scene_mesh`, the batch mesh stage does not also start PBR. Neither route takes a PBR condition image, so a photo crop cannot guide the PBR maps here. Never call `scene_mesh` or another PBR operation for an item already owned by this chain. `depends_on` names other item keys in the same request and waits for those items to succeed; normal stages within one item already have their dependencies. Include only genuine additional dependencies.
 
 ## Observe and review
 

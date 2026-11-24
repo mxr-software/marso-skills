@@ -20,13 +20,21 @@ Do not silently replace an unsupported requested setting. Explain the nearest su
 
 Use the existing authorized Blender connection. Discover Marso's enabled extension module and its command registry if no dedicated tool exposes the operation; inspect `all_commands()` / `describe()` before using `execute(name, params)`. This internal interface is version-bound. Do not assume that a source checkout's commands are installed.
 
-The reviewed implementation exposes `generate_state`, `upload_image`, `generate_image` and `create_3d_asset`. Read state and in-flight jobs first. For an object photo, upload it through the discovered `filepath` parameter; for a description, generate an object reference image. Inspect the reference before reconstruction without adding a mandatory approval pause. Use the user's requested review points.
+The reviewed implementation exposes `generate_state`, `upload_image`, `generate_image` and `create_3d_asset`. Read state and in-flight jobs first. For an object photo, upload it through the discovered `filepath` parameter; for a description, generate an object reference image. Each of these two commands adds a node to the Studio project, so call one this way only for an image that the next step turns into a mesh. From 1.21.1, `upload_image` with `add_node: false` uploads for an ID alone and adds no node. Inspect the reference before reconstruction without adding a mandatory approval pause. Use the user's requested review points.
 
 Resolve the task's Studio destination before generation. Recent add-ons expose `save_to_state`, asynchronous `list_studio_projects` and `create_studio_project`, and `set_save_project` with a returned `project_id`. Refresh the list, retain/select a relevant project or create a descriptive new one, then read back the selected ID/name and save the .blend. Library browsing is separate. Verify the selection after reopening and check completed outputs in the intended graph. If an older build cannot select the required destination, resolve that capability gap rather than defaulting to an unrelated Blender project. Reconcile uncertain project creation before repeating it.
 
 The current `create_3d_asset` schema accepts `model`, `polygon_count`, `texture` and `wait_for_mint`. `texture` is a Meshy resolution (`2k`, `4k`, `8k`) or Tripo quality (`standard`, `detailed`); omit it for Hunyuan. Older builds may expose fewer or no model controls. Read the chosen values back; do not claim an override was used if that build cannot accept it. Preserve a working add-on route when sufficient.
 
 Follow the returned `job_id` with later `get_job` calls; do not block Blender's main thread or reset busy flags. Reconcile existing work after interruption before creating another asset. The inspected route imports after PBR by default; waiting for mint is a separate option. Inspect the actual artifact's scale/physics state rather than labelling an early import simulation-ready.
+
+## A mesh that will be repeated
+
+When the asset is a master for many instances (a garment on a rail, fruit on a stand), generate it once:
+
+- Use a source image of the subject alone, whole, on a plain background, in the most typical of its planned looks. Frame it tightly in its own proportions: a tall subject padded out to a square comes back too small to reconstruct.
+- Choose the lowest polygon option in the live catalogue that still holds its shape; every instance repeats that cost.
+- Further colours or prints are Retexture variants of this mesh, not further generations.
 
 ## Studio route
 

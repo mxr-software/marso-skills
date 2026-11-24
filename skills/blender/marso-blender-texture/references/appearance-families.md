@@ -31,6 +31,20 @@ Show newly modelled geometry for model approval before Marso texturing unless al
 
 The still is a shape/region guide. Spend effort on correct proportions and readable framing, not polishing its shaders into an advertising render. Desired realism belongs in the image-edit prompt and its output review. Transparent parts need the local transparency handoff (preparation reference), not a promise that image editing or Retexture will create transparency.
 
+## A generated master
+
+A master that Marso generated arrives with its own UVs, texture and PBR maps. Keep those UVs; do not unwrap it again. Its arriving look is the first variant.
+
+1. Keep the imported object untouched as the source of every variant.
+2. For each further variant, call `retexture` on the source with `result: "new_object"`, a `name` for the variant, `mode: "edit"`, `workflow: "multiview"`, `enhance: ""` and `reference_path: ""`.
+3. Write each prompt as the whole new look in two or three plain sentences, as for any Retexture: "A red cotton T-shirt on a black plastic hanger, slightly creased. Lots of detail, photorealistic."
+4. Leave `source` at its default. An unchanged imported mesh is then edited from its Studio node, and nothing is uploaded.
+5. Each call returns a new object beside the source, with its own material. The source keeps its look.
+
+Run these Retextures one after another, not as a batch: several batch items editing one source node conflict. Make every variant from the source, never from another variant. Place instances only after the variants exist: an instance shares its master's material, so a later Retexture of the master would change them all.
+
+A modelled master made of several parts cannot use `result: "new_object"`. Duplicate its prepared baseline once for each variant and Retexture each copy.
+
 ## 3. Choose how to author appearances
 
 - **Per-style briefs:** use directly when colours/materials/wear are sufficient. No reference image is needed.
@@ -72,11 +86,11 @@ Also inspect realism at the actual crop size: plausible material response, meani
 
 The split helper fails on changed dimensions by default. Its explicit uniform-rescale option handles a verified proportional size change, not layout drift or shape changes. A larger canvas with the same aspect ratio still needs visual review. Keep original sheet/result and crop provenance. Repair only deficient variants with individual edits or a smaller sheet; retain accepted ones. Follow existing retry authorization and reconcile uncertain runs before resubmission.
 
-Each accepted crop contains one object and enough context to identify its material regions, with no grid annotation or neighbour. Never pass the whole sheet to each mesh. A front view cannot specify an unseen rear label: describe the rear/sides explicitly, add verified coherent views where supported, or use controlled artwork. Do not invent multi-reference support for a single-reference Retexture endpoint or treat several views as several styles.
+Each accepted crop contains one object and enough context to identify its material regions, with no grid annotation or neighbour. The crop is read and turned into that look's text brief; no crop or sheet is passed to Retexture. A front view cannot specify an unseen rear label: describe the rear and sides in the brief, or use controlled artwork. Do not treat several views as several styles.
 
 ## 7. Pilot, branch and reuse
 
-Retexture one representative look per geometry family from the preserved original/prepared baseline, with its accepted crop and a concise appearance brief. For Edit Texture runs, follow the combined PBR result. For New Texture, or when a precise design needs inspection before PBR, use the staged route (conditioned PBR reference). Inspect the applied final material; do not treat the intermediate lit edit as final albedo. Verify shape/UV correspondence locally and inspect label boundaries, wrap/seams, front/oblique/back/top and material response at the established viewing distance. The image may preserve shape while suggesting impossible printed geometry; inspect the actual 3D result. Diagnose whether a failure comes from master form, image quality/resolution, preparation or the final material before correcting that stage.
+Retexture one representative look per geometry family from the preserved original/prepared baseline, with a concise appearance brief written from its accepted crop. For Edit Texture runs, follow the combined PBR result. For New Texture, or when a precise design needs inspection before PBR, use the staged route (conditioned PBR reference). Inspect the applied final material; do not treat the intermediate lit edit as final albedo. Verify shape/UV correspondence locally and inspect label boundaries, wrap/seams, front/oblique/back/top and material response at the established viewing distance. The image may preserve shape while suggesting impossible printed geometry; inspect the actual 3D result. Diagnose whether a failure comes from master form, image quality/resolution, preparation or the final material before correcting that stage.
 
 Expand only when the representative final result meets the original quality target. A technical pass with unresolved visible defects is diagnostic, not an acceptable pilot. Do not lower the standard after the result or launch a dependent batch while the pilot remains visually unresolved; independent accepted work may continue. Keep user-approved approximations distinct from general method validation. These checks do not require repeated user approvals. Once acceptable, branch every remaining look independently from that baseline, never the first restyled output. Use native batches for Edit Texture looks when available, coordinating local preparation/application; New Texture looks follow the staged conditioned PBR route, because batch items take no condition image. Count unique appearances, not placements. Preserve material names during jobs and on legacy prepared state; use external style labels unless identity-based renaming is verified.
 

@@ -15,6 +15,7 @@ find_in_library {query: <label>, image_path: <absolute path to search.png>, limi
 - **The label is the query.** Do not add the description: long queries score lower, not higher. A better word for the object, where the label is vague, is fine.
 - The path is read by Blender, so pass it absolute.
 - The command reads only and answers at once (no job). Several can run one after another; there is no cap to keep.
+- At checkpoint 1, `show_in_library: true` also shows the results in Marso's Library panel, so the user can browse the candidates there.
 
 Record each answer: `manifest.py record runs/<job>/assets.json --stage library <asset_id> --json '<result>'`. On an error, record it with `--error`; a failed search never blocks the asset, it is made instead if the user says so.
 

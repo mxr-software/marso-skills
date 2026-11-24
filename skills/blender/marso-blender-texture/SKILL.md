@@ -102,7 +102,7 @@ Submit eligible jobs once and retain job and result identity and the project. Ba
 Choose the PBR route before submitting Retexture:
 
 - **New Texture (default):** Retexture alone, inspect the unlit paint, make a condition image from that paint, then PBR with the condition. New paint carries no lighting cues, so this is the default without being asked.
-- **The user supplied a real photograph of the same object and finish** (cleaned if needed; not a render or drawing, and not an image you rendered or generated): pass its account image ID as `condition_image_asset_id` on the combined Retexture and PBR run.
+- **The user supplied a real photograph of the same object and finish** (cleaned if needed; not a render or drawing, and not an image you rendered or generated): pass the file as `condition_image_path` on the combined Retexture and PBR run, or `condition_image_asset_id` when it is already in the account. To get an ID for a file, call `upload_image` with `add_node: false` (1.21.1 and later). Without it, that command adds a Load Image node for mesh generation, which is then left unconnected in the project.
 - **Edit Texture or PBR-only on an existing look with clear finish cues** (a texture the user supplied or an accepted Marso result, not a colour atlas baked from stand-in materials): the combined run may continue directly into PBR. Pass `condition_image_path: ""` on `retexture` or `pbr_generate` when no condition image is intended; an omitted one uses the panel's earlier pick.
 
 On the Studio canvas, Image, 3D Generation, then PBR uses the source image automatically. Follow a running add-on chain to avoid duplicate PBR.

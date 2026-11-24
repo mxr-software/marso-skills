@@ -44,7 +44,7 @@ You can start from a sentence, a photograph or an existing mesh. Choose generati
 **📚 Go further**
 
 - [Advanced workflows](#go-further)
-- [All 22 skills](#available-skills)
+- [All 25 skills](#available-skills)
 - [Help and contributing](#help-and-contributing)
 
 </td>
@@ -285,21 +285,22 @@ Rerun the skills installation command with the same agent and scope, or update t
 
 ## Available skills
 
-**22 skills, one collection.** Start with a named workflow for a finished result, `marso` to coordinate a task, or use a specialist directly.
+**25 skills, one collection.** Start with a named workflow for a finished result, `marso` to coordinate a task, or use a specialist directly.
 
 <details>
-<summary><strong>Named workflows · 3 skills</strong></summary>
+<summary><strong>Named workflows · 4 skills</strong></summary>
 
 | Skill | What it does |
 | --- | --- |
 | [marso-make-asset](skills/workflows/marso-make-asset/SKILL.md) | Take a brief or an image to a modelled, unwrapped, textured asset with PBR. |
 | [marso-make-kit](skills/workflows/marso-make-kit/SKILL.md) | Take a brief or an image to a modular kit whose parts share one look and PBR. |
+| [marso-make-set-piece](skills/workflows/marso-make-set-piece/SKILL.md) | Take a brief or an image to one assembled object made of many repeated parts and their variants. |
 | [marso-make-realistic](skills/workflows/marso-make-realistic/SKILL.md) | Give an asset already in Blender a realistic look: UV check, Retexture, PBR. |
 
 </details>
 
 <details>
-<summary><strong>Core workflows · 4 skills</strong></summary>
+<summary><strong>Core workflows · 5 skills</strong></summary>
 
 | Skill | What it does |
 | --- | --- |
@@ -307,11 +308,12 @@ Rerun the skills installation command with the same agent and scope, or update t
 | [marso-image](skills/core/marso-image/SKILL.md) | Generate and edit images, appearance references and coordinated style variations. |
 | [marso-generate](skills/core/marso-generate/SKILL.md) | Generate 3D assets using supported options and the user’s preferred models. |
 | [marso-library](skills/core/marso-library/SKILL.md) | Find and reuse library assets, instances and original style sources. |
+| [marso-set-piece](skills/core/marso-set-piece/SKILL.md) | Plan an object made of many parts: what to model, instance or generate, its variants and its placement list. |
 
 </details>
 
 <details>
-<summary><strong>Blender workflows · 9 skills</strong></summary>
+<summary><strong>Blender workflows · 10 skills</strong></summary>
 
 | Skill | What it does |
 | --- | --- |
@@ -322,6 +324,7 @@ Rerun the skills installation command with the same agent and scope, or update t
 | [marso-blender-texture](skills/blender/marso-blender-texture/SKILL.md) | Retexture, restyle and generate PBR with Marso. |
 | [marso-blender-kit](skills/blender/marso-blender-kit/SKILL.md) | Decompose references into reusable parts and build fitting kits. |
 | [marso-blender-compose](skills/blender/marso-blender-compose/SKILL.md) | Assemble existing kits using connection frames and fit checks. |
+| [marso-blender-set-piece](skills/blender/marso-blender-set-piece/SKILL.md) | Ready a set piece's masters and variants, then place its instances from a placement list. |
 | [marso-blender-camera](skills/blender/marso-blender-camera/SKILL.md) | Compose stills and checked camera moves, with deliberate focus and optional handheld motion. |
 | [marso-blender-render](skills/blender/marso-blender-render/SKILL.md) | Light, render and composite realistic images; optimize render time, memory and instances. |
 

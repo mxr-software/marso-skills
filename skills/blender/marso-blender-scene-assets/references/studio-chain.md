@@ -11,8 +11,8 @@ These are Marso Blender add-on bridge commands. Reach them through the official 
 | `set_save_project` | `project_id` | selects that project |
 | `scene_reference` | `label`, `crop_path`, `prompt`, `row` | `crop_asset_id`, `image_node_id`, `generation_node_id`, `image_asset_id`, `image_path` |
 | `scene_mesh` | `generation_node_id`, `image_asset_id`, `model`, `polygon_count`, `texture`, `label`, `row` | `mesh_node_id`, `pbr_node_id`, `pbr_asset_id`, `options` |
-| `find_in_library` | `query`, `image_path`, optional `kinds`, `limit`, `thumbnails` | `results`: one per library asset, with `name`, `verdict`, `image_score`, `text_score`, `pbr_asset_id`, `thumbnail_path`; and the `thresholds`. Answers at once, no job. See [library check](library-check.md). |
-| `mint_status` | `asset_ids` (a list) | each id mapped to `minted`, `minting`, `failed` or `not_minted` |
+| `find_in_library` | `query`, `image_path`, optional `kinds`, `limit` (up to 20), `thumbnails`, `show_in_library` | `results`: one per library asset, with `name`, `verdict`, `image_score`, `text_score`, `pbr_asset_id`, `thumbnail_path`; and the `thresholds`. Answers at once, no job. See [library check](library-check.md). |
+| `mint_status` | `asset_ids` (a list) | each id mapped to `minted`, `minting` or `failed`, or to `error: <message>` when Marso could not be reached. An error means the state is unknown: poll that id again later. |
 | `import_scene_asset` | `pbr_asset_id`, `name`, `collection`, `copies`, `require_minted` | `objects`, `instances`, `dimensions_m`, `minted` (used by `marso-blender-place-scene`) |
 | `get_job` | `job_id`, optional `cursor` | the job's state, log and, when finished, its result |
 | `list_failures` (when exposed) | optional `limit` (1–200), `kind` | persisted failed/cancelled job records with available stage, ids and error details; inspect the live schema first |
