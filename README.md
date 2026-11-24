@@ -44,7 +44,7 @@ You can start from a sentence, a photograph or an existing mesh. Choose generati
 **📚 Go further**
 
 - [Advanced workflows](#go-further)
-- [All 17 skills](#available-skills)
+- [All 22 skills](#available-skills)
 - [Help and contributing](#help-and-contributing)
 
 </td>
@@ -65,7 +65,7 @@ You can start from a sentence, a photograph or an existing mesh. Choose generati
 
 **Blender models above. Marso Retexture + PBR below.** Worn leather, faded stickers, scratched plastic, brassed metal and glazed porcelain—six editable models, finished with material-specific detail. [Open the full-size comparison →](docs/assets/explain/agent-modelled-props.jpg)
 
-**🛠️ Skills:** [Model an asset](skills/blender/marso-blender-asset/SKILL.md) → [Retexture + PBR](skills/blender/marso-blender-texture/SKILL.md)
+**🛠️ Skills:** [Find references](skills/blender/marso-blender-reference/SKILL.md) → [Model an asset](skills/blender/marso-blender-asset/SKILL.md) → [Unwrap UVs](skills/blender/marso-blender-uv/SKILL.md) → [Retexture + PBR](skills/blender/marso-blender-texture/SKILL.md)
 
 **💬 Try asking:**
 
@@ -238,7 +238,7 @@ Choose the route for what you want to do:
 
 | Your workflow | Connect these tools |
 | --- | --- |
-| Model, texture or assemble scenes in Blender | Use an assistant with local Blender control. Install [Marso for Blender](https://marso.app/dashboard/plugins) and the [official Blender Lab MCP](https://www.blender.org/lab/mcp-server/). The add-on supplies Marso operations; Blender MCP controls Blender. A separate hosted Marso MCP is optional. |
+| Model, texture or assemble scenes in Blender | Use an assistant with local Blender control. Install [Marso for Blender](https://marso.app/plugins/blender) and the [official Blender Lab MCP](https://www.blender.org/lab/mcp-server/). The add-on supplies Marso operations; Blender MCP controls Blender. A separate hosted Marso MCP is optional. |
 | Generate images/assets or search your library without Blender | Connect the hosted Marso MCP to your Marso account in an assistant that supports it. Blender is not required for these cloud operations. Ask the agent to verify its Marso connection and choose a Studio project before creating anything. |
 
 **Claude web/desktop:** installing the Marso plugin loads the skills, but does not by itself connect to Blender. Local modelling needs a client/session that can use Blender MCP; a cloud-only chat can use supported hosted Marso tools. Check the [client-specific installation guide](docs/installation.md) and [Blender connection guide](docs/blender-setup.md) before starting a Blender task.
@@ -261,7 +261,11 @@ Choose the route for what you want to do:
 
 > Use Marso to generate a weathered ceramic pot in a project called Garden Props. Explain each step, show me the image before generating 3D, then add PBR and show me the finished asset in my library.
 
-[Your first project →](docs/getting-started.md) · [Learning prompts and recipes →](docs/workflows.md)
+**By name:**
+
+> Use the make-asset workflow to make a wooden supply crate for my game.
+
+[Your first project →](docs/getting-started.md) · [Named workflows, learning prompts and recipes →](docs/workflows.md)
 
 ### Stay up to date
 
@@ -281,7 +285,18 @@ Rerun the skills installation command with the same agent and scope, or update t
 
 ## Available skills
 
-**17 skills, one collection.** Start with `marso` to coordinate a task, or use a specialist directly.
+**22 skills, one collection.** Start with a named workflow for a finished result, `marso` to coordinate a task, or use a specialist directly.
+
+<details>
+<summary><strong>Named workflows · 3 skills</strong></summary>
+
+| Skill | What it does |
+| --- | --- |
+| [marso-make-asset](skills/workflows/marso-make-asset/SKILL.md) | Take a brief or an image to a modelled, unwrapped, textured asset with PBR. |
+| [marso-make-kit](skills/workflows/marso-make-kit/SKILL.md) | Take a brief or an image to a modular kit whose parts share one look and PBR. |
+| [marso-make-realistic](skills/workflows/marso-make-realistic/SKILL.md) | Give an asset already in Blender a realistic look: UV check, Retexture, PBR. |
+
+</details>
 
 <details>
 <summary><strong>Core workflows · 4 skills</strong></summary>
@@ -296,13 +311,15 @@ Rerun the skills installation command with the same agent and scope, or update t
 </details>
 
 <details>
-<summary><strong>Blender workflows · 7 skills</strong></summary>
+<summary><strong>Blender workflows · 9 skills</strong></summary>
 
 | Skill | What it does |
 | --- | --- |
 | [marso-blender-setup](skills/blender/marso-blender-setup/SKILL.md) | Install, configure, update and troubleshoot the Marso connection. |
-| [marso-blender-asset](skills/blender/marso-blender-asset/SKILL.md) | Model editable assets from briefs, dimensions and images. |
-| [marso-blender-texture](skills/blender/marso-blender-texture/SKILL.md) | Prepare assets for Marso, retexture, restyle and generate PBR. |
+| [marso-blender-asset](skills/blender/marso-blender-asset/SKILL.md) | Model editable all-quad assets from briefs, dimensions and images. |
+| [marso-blender-reference](skills/blender/marso-blender-reference/SKILL.md) | Find reference images and compare a model's shape against them side by side. |
+| [marso-blender-uv](skills/blender/marso-blender-uv/SKILL.md) | Unwrap a model into one checked, shared UV atlas with checker and stretch review. |
+| [marso-blender-texture](skills/blender/marso-blender-texture/SKILL.md) | Retexture, restyle and generate PBR with Marso. |
 | [marso-blender-kit](skills/blender/marso-blender-kit/SKILL.md) | Decompose references into reusable parts and build fitting kits. |
 | [marso-blender-compose](skills/blender/marso-blender-compose/SKILL.md) | Assemble existing kits using connection frames and fit checks. |
 | [marso-blender-camera](skills/blender/marso-blender-camera/SKILL.md) | Compose stills and checked camera moves, with deliberate focus and optional handheld motion. |

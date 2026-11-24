@@ -10,7 +10,7 @@ The public collection is on the [`main` branch](https://github.com/mxr-software/
 
 ## Install the complete collection
 
-Installing or updating the files does not prove the agent loaded them. For a new Blender project, ask: **“Use the installed Marso skills: model with `marso-blender-asset` or `marso-blender-kit`, prepare and finish through `marso-blender-texture`, then render. State which skills you loaded and report the input-validation results before Marso submission.”** This also applies to custom modelling scripts and film/tutorial workflows. Keep duplicate or older workflow copies out of the active skill installation; updating skills does not update the Blender add-on.
+Installing or updating the files does not prove the agent loaded them. For a new Blender project, ask: **“Use the installed Marso skills: model with `marso-blender-asset` or `marso-blender-kit`, unwrap with `marso-blender-uv`, finish through `marso-blender-texture`, then render. State which skills you loaded and report the input-validation results before Marso submission.”** This also applies to custom modelling scripts and film/tutorial workflows. Keep duplicate or older workflow copies out of the active skill installation; updating skills does not update the Blender add-on.
 
 **Choose by where you use the assistant.** For skills in your Claude account, [install the Marso plugin](#claude-desktop). For a local Codex or Claude Code installation, use the terminal command below. You do not need both. Running that command in a cloud chat's sandbox does not install skills on your computer or upload them to your Claude account.
 
@@ -81,7 +81,7 @@ These are recommended combinations of existing folders, not separate packages. I
 | Generate/edit images or prepare realistic appearance references | `marso-image`; add `marso-blender-texture` for an authorized Blender Retexture/PBR handoff |
 | Reuse assets from the Marso library | `marso-library` |
 | Optimize Blender render time, memory or repeated assets | `marso-blender-render` |
-| Model an asset in Blender and texture it with Marso | `marso-blender-setup`, `marso-blender-asset`, `marso-blender-texture` |
+| Model an asset in Blender and texture it with Marso | `marso-blender-setup`, `marso-blender-asset`, `marso-blender-reference`, `marso-blender-uv`, `marso-blender-texture` |
 | Restyle an existing Blender asset or make several looks from its original source | `marso-blender-setup`, `marso-blender-texture` |
 | Build, texture and assemble a modular Blender kit | Blender setup, asset, texture, kit and compose |
 | Generate an asset through the Blender add-on | `marso-generate`, `marso-blender-setup`; add texture for later Restyle and style variants |
@@ -187,8 +187,10 @@ Ask your assistant to use the skill by name and describe the result you want. Ch
 
 ## First available collection: Blender
 
-The application skills are under `skills/blender/`: `marso-blender-setup`, `marso-blender-asset`, `marso-blender-texture`, `marso-blender-kit` and `marso-blender-compose` for modelling, texturing and modular work, and `marso-blender-scene-assets` and `marso-blender-place-scene` for rebuilding a photographed room. Install the ones you need; the scene pair also needs `marso-scene-decompose` and `marso-scene-graph` from `skills/core/`. The application-independent `marso` entry skill is under `skills/core/`. Collections for other applications are not yet included.
+The application skills are under `skills/blender/`: `marso-blender-setup`, `marso-blender-asset`, `marso-blender-reference`, `marso-blender-uv`, `marso-blender-texture`, `marso-blender-kit` and `marso-blender-compose` for modelling, references, UVs, texturing and modular work, and `marso-blender-scene-assets` and `marso-blender-place-scene` for rebuilding a photographed room. Install the ones you need; the scene pair also needs `marso-scene-decompose` and `marso-scene-graph` from `skills/core/`. The application-independent `marso` entry skill is under `skills/core/`. Collections for other applications are not yet included.
 
 After installation, ask: "Use marso-blender-setup to configure my Marso Blender add-on. I use the official Blender MCP."
+
+For the Blender add-on, open **Preferences → Get Extensions → Add Remote Repository**, paste `https://marso.app/plugins/blender/repo/index.json`, then search for **Marso** and install it. Enable Online Access in Blender if needed. [Marso installation guide](https://marso.app/plugins/blender)
 
 The [Blender setup skill](../skills/blender/marso-blender-setup/SKILL.md) covers application-specific installation, account and folder settings, connections, troubleshooting and updates. Desktop control is optional; without it, the skill guides the necessary UI steps. Composition's optional snapping helper runs inside Blender through an available Python control tool, not in the assistant's ordinary Python environment.

@@ -25,7 +25,7 @@ Use a separate test scene or a copy of your asset. You need Blender, the Marso a
 Try these in order, reviewing the saved result at each step:
 
 1. "Use marso-blender-asset to model a simple wooden stool at real scale. Keep it editable and save the Blender file."
-2. "Use marso-blender-texture to texture this stool with Marso as aged oak. Preserve its geometry, check unique non-mirrored UVs, and inspect the result from above and below."
+2. "Use marso-blender-texture to texture this stool with Marso as aged oak. Preserve its geometry, check unique, non-overlapping UVs, and inspect the result from above and below."
 3. "Use marso-blender-kit to build a three-part wall kit: straight panel, doorway and corner. Plan the joins and retain surfaces that could be exposed in another arrangement. Texture the masters with Marso, then use marso-blender-compose to make two different layouts."
 
 For the new guidance, try "Give my stool three finishes, each from its original source, and name the materials clearly," then "Add a matching component using the saved appearance brief." Check that the original remains unchanged and every style has independent material bindings. Also test explicit "generate" versus "model" requests: organic generation and structured/articulated/modular modelling should take different routes. Live cloud style-variant generation and comparative generator quality are not yet validated by this repository's trials.

@@ -1,0 +1,3 @@
+interface:
+  display_name: "Marso Blender UV"
+  short_description: "Unwrap assets into one checked UV atlas"

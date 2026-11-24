@@ -211,7 +211,7 @@ Use a small preview set, escalating quality only after framing and lighting work
 
 ### Marso finishing and reusable-library completion
 
-The normal finished-asset path is library reuse when suitable, or model/generate → approved geometry where required → Marso appearance/PBR → visual review → verified library result. Retexture continues directly to PBR through the supported chain. Existing satisfactory PBR assets keep their maps; apply local supported treatments such as glass when Marso does not generate that property.
+The normal finished-asset path is library reuse when suitable, or model/generate → approved geometry where required → Marso appearance/PBR → visual review → verified library result. New Texture uses multiview Retexture, then PBR conditioned on a lit image of the new paint; Edit Texture on a look with clear finish cues can continue directly to PBR through the supported chain. Existing satisfactory PBR assets keep their maps; apply local supported treatments such as glass when Marso does not generate that property.
 
 Keep a reusable master independent of its scene placement. Record project, source/result identifiers, descriptive asset/style/material labels, dimensions, intended use and available variant relationships using supported fields or the local manifest. Verify completion, mint status and library discoverability separately when required by the route; an accepted job or local Blender file is not evidence that a searchable library result is ready. Resume/follow the existing job instead of resubmitting to make it appear sooner.
 

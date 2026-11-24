@@ -42,6 +42,7 @@ def build(spec):
             offset=Vector((.003*math.sin(seconds*2.1), .002*math.sin(seconds*3.2)+.008*walk*math.sin(seconds*11),0))*amount
             pos+=rotation@offset
         samples.append((frame,pos,aim,focus,speed))
+    revision=hashlib.sha256(json.dumps(spec,sort_keys=True,allow_nan=False,default=lambda v:list(v) if isinstance(v,Vector) else str(v)).encode()).hexdigest()
     # Validate all samples before creating scene data.
     data=bpy.data.cameras.new(name);camera=bpy.data.objects.new(name,data);bpy.context.scene.collection.objects.link(camera)
     data.lens=lens;data.dof.use_dof=True;data.dof.aperture_fstop=fstop
@@ -62,7 +63,6 @@ def build(spec):
                 for bag in strip.channelbags:
                     for curve in bag.fcurves:
                         for key in curve.keyframe_points:key.interpolation='LINEAR'
-    revision=hashlib.sha256(json.dumps(spec,sort_keys=True,allow_nan=False).encode()).hexdigest()
     camera['marso_shot_revision']=revision
     return {'camera':camera.name,'revision':revision,'frames':[frames[0],frames[-1]],'fps':fps,'resolution':resolution,'shutter_frames':shutter,
             'easing':easing,'limits':'Explicit path with linear baked subframes; inspect preview. Scene output and blur settings are unchanged.'}
@@ -74,7 +74,7 @@ def apply_output_settings(shot, *, motion_blur=False):
     camera=scene.objects.get(shot['camera'])
     if camera is None or camera.type!='CAMERA':raise ValueError('Shot camera must belong to the current scene')
     if type(motion_blur) is not bool:raise ValueError('motion_blur must be a boolean')
-    if motion_blur and render.engine!='CYCLES':raise ValueError('Motion blur output is supported only for Cycles; choose Cycles explicitly')
+    if motion_blur and render.engine!='CYCLES':raise ValueError('Helper motion blur is verified only for Cycles; keep the accepted engine, apply with motion_blur=False and enable its blur directly')
     fps=float(shot['fps']);shutter=float(shot['shutter_frames'])
     if not math.isfinite(fps) or fps<=0 or not math.isfinite(shutter) or not 0<=shutter<=2:raise ValueError('Invalid fps or shutter')
     frames=shot['frames'];resolution=shot['resolution']
@@ -101,11 +101,15 @@ def apply_output_settings(shot, *, motion_blur=False):
 def clearance_report(camera, objects, clearance=.15):
     if not math.isfinite(clearance) or clearance<0:raise ValueError('Invalid clearance')
     scene=bpy.context.scene;start=scene.frame_current;trees=[];dg=bpy.context.evaluated_depsgraph_get()
+    skipped=[obj.name for obj in objects if obj.type!='MESH']
     for obj in objects:
         if obj.type!='MESH':continue
         evaluated=obj.evaluated_get(dg);mesh=evaluated.to_mesh()
-        try:trees.append((obj.name,BVHTree.FromPolygons([obj.matrix_world@v.co for v in mesh.vertices],[list(p.vertices) for p in mesh.polygons])))
+        try:
+            if not mesh.polygons:skipped.append(obj.name);continue
+            trees.append((obj.name,BVHTree.FromPolygons([obj.matrix_world@v.co for v in mesh.vertices],[list(p.vertices) for p in mesh.polygons])))
         finally:evaluated.to_mesh_clear()
+    if not trees:raise ValueError('No mesh obstacles with faces to check; pass the mesh objects inside each entity group')
     action=camera.animation_data.action;lo,hi=map(int,action.frame_range);issues=[];previous=None
     try:
         for frame in range(lo,hi+1):
@@ -118,4 +122,4 @@ def clearance_report(camera, objects, clearance=.15):
                     if hit[0] is not None:issues.append({'frame':frame,'object':name,'kind':'crossing'})
             previous=pos
     finally:scene.frame_set(start)
-    return {'issues':issues,'passed':not issues,'scope':'Static obstacle surfaces, sampled camera centre and adjacent path segments; not frustum clearance'}
+    return {'issues':issues,'passed':not issues and not skipped,'skipped':skipped,'scope':'Static obstacle surfaces, sampled camera centre and adjacent path segments; not frustum clearance'}

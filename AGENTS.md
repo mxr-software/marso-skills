@@ -1,6 +1,6 @@
 # Contributing agents
 
-- Skills live at `skills/<application>/<skill-name>/SKILL.md`; application-independent entry skills use `skills/core/<skill-name>/SKILL.md`. Keep required runtime references inside their skill folder.
+- Skills live at `skills/<application>/<skill-name>/SKILL.md`; application-independent entry skills use `skills/core/<skill-name>/SKILL.md`. Named workflows, which only order other skills, use `skills/workflows/<skill-name>/SKILL.md`. Keep required runtime references inside their skill folder.
 - This repository owns workflow instructions, not the Blender add-on or MCP implementation. Report implementation gaps; do not invent commands to bridge them.
 - Check instructions against the relevant application source and current tool schemas. Record the inspected version and distinguish source review from execution testing in `docs/compatibility.md`.
 - Keep the common skill body usable by ChatGPT, Codex, Claude desktop, and Claude Code. Put optional client metadata in `agents/`; do not require a client-specific tool prefix.

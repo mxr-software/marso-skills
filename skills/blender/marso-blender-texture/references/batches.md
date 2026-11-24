@@ -1,6 +1,8 @@
 # Texture a set and review it
 
-For a finished scene, texture visible furniture and props within the agreed scope, then provide lightweight review images. Final presentation renders are on request. A geometry-only or layout-only request does not authorize expanding the job to texturing. Newly modelled or substantially remodelled geometry still needs the user's approval before Retexture; review a coherent batch together rather than interrupting for each minor part.
+For a finished scene, texture visible furniture and props within the agreed scope, then provide lightweight review images. Final presentation renders are on request. A geometry-only or layout-only request does not authorize expanding the job to texturing. Newly modelled or substantially remodelled geometry still needs the user's model approval before Retexture; review a coherent batch together rather than interrupting for each minor part. If the task states no approval or waiver and nobody can answer, submit only targets already approved and report the rest as pending.
+
+Every Retexture item states `mode="edit"` and `workflow="multiview"`; an omitted mode defaults to Edit. New Texture (`mode="blank"`) never goes in a batch: a batch item always continues into PBR and takes no condition image, so New Texture runs the staged conditioned PBR route.
 
 ## Preserve and resume
 
@@ -26,6 +28,8 @@ Discover `batch_submit`, `batch_status`, `batch_item`, `batch_control` and, if a
     "pipeline": "retexture",
     "object_name": "<explicit-texture-working-target>",
     "prompt": "<complete material brief>",
+    "mode": "edit",
+    "workflow": "multiview",
     "enhance": "",
     "reference_path": "",
     "auto_uv": false,
@@ -36,9 +40,9 @@ Discover `batch_submit`, `batch_status`, `batch_item`, `batch_control` and, if a
 }
 ```
 
-Prepare and approve geometry before submitting. Prefer the independent single-mesh authored-UV working target described in [preparation](preparation.md). `auto_uv: false` does not disable the batch's automatic multipart assembly preparation; an unprepared assembly can receive a new atlas. Inspect `assembly_state` and the exported UV route first. Make variant targets independent; the batch rejects simultaneous writers to the same claimed objects.
+Prepare and approve geometry before submitting. Prefer the independent single-mesh authored-UV working target described in the preparation reference. `auto_uv: false` does not disable the batch's automatic multipart assembly preparation; an unprepared assembly can receive a new atlas. Inspect `assembly_state` and the exported UV route first. Make variant targets independent; the batch rejects simultaneous writers to the same claimed objects.
 
-The chain is local prepare → cloud edit → cloud PBR → local apply. Local work is coordinated separately while independent cloud jobs remain outstanding. Do not additionally call `retexture`, PBR or preparation for batch-owned targets. The empty Retexture review list is the native default: geometry approval happens before submission and the final applied result still needs visual QA. If the user requires an edit/PBR review before advancement, configure supported review stages explicitly and inspect available evidence before approving. `review: []` is not a waiver for geometry approval on newly built assets.
+The chain is local prepare → cloud edit → cloud PBR → local apply. Local work is coordinated separately while independent cloud jobs remain outstanding. Do not additionally call `retexture`, PBR or preparation for batch-owned targets. The empty Retexture review list is the native default: geometry approval happens before submission and the final applied result still needs visual QA. If the user requires an edit/PBR review before advancement, list those stages in `review` and inspect available evidence; the decision is the user's. With nobody to review, leave the items `awaiting_review`, report each item's review evidence, and never approve on the user's behalf. `review: []` is not a waiver for geometry approval on newly built assets.
 
 Use `scope: "target"` by default. For an explicitly requested family-wide change, inspect the returned assembly/linked family and provide explicit member names where the schema supports them; do not assume a selection or matching names define the family. Builds with the corrected source-auto route retain a prepared export, retry transient source lookups and upload that export if the source stays unavailable. Verify this capability before relying on it; older batch builds lack that fallback. Use `source: "upload"` when the source or its equivalence is uncertain, as in the conservative example above. Preserve original/prepared baselines separately for variants.
 
@@ -72,8 +76,8 @@ Follow observed service rejections as well as installed schemas. If a response e
 ## Review the applied result
 
 - Inspect materials under neutral lighting at the intended viewing distance and close enough to see UV seams, stretches and protected small regions. Deliberate material colours help describe regions but do not provide an exact generation mask.
-- Specify restrained wear with physical locations and scale. Rich detail does not mean uniform grime or damage across every face; do not ask texture to invent missing geometry.
-- Check the [transparent-part handoff](preparation.md#transparent-parts) after map application. Marso supplies no transparency; restore excluded clear parts or apply a local transparent material/mask only to verified regions, keeping labels opaque. Do not change every instance or break prepared-state bindings.
+- Specify wear and marks with physical locations and scale. Rich detail does not mean uniform grime or damage across every face; do not ask texture to invent missing geometry.
+- Check the transparent-part handoff (preparation reference) after map application. Marso supplies no transparency; restore excluded clear parts or apply a local transparent material/mask only to verified regions, keeping labels opaque. Do not change every instance or break prepared-state bindings.
 - Recheck shared-material users before propagating a finished master to instances. Preserve alternatives and independent styles.
 - Retain warnings and disclose remaining visible defects. Do not count an uninspected or failed material as complete.
 
@@ -82,7 +86,7 @@ Quality warnings identify checks to perform; they neither prove failure nor cert
 | Returned warning | Targeted inspection |
 | --- | --- |
 | Visible seams | Inspect atlas boundaries and adjacent surfaces under neutral light, at delivery distance and close range. Check colour/roughness discontinuities and stretches; a room-wide image may hide them. |
-| Some views could not be edited | Turn the asset around and inspect backs, undersides, recesses and all relevant exposed regions for unchanged, blank or inconsistent appearance. Do not assume which view failed unless the result identifies it. |
+| Some views could not be edited | Inspect backs, undersides, recesses and other exposed regions for unchanged, blank or inconsistent appearance. Do not assume which view failed unless the result says. |
 
 For every result, including one without warnings, verify intended part colours, wear strength, glass and protected features against the brief. Record the views actually checked and any inaccessible/unreviewed regions. Accept a warned result only when inspection supports its intended use, retaining the warning and limitations. Retry only for a visible, relevant defect with a diagnosed correction and within existing retry authorization; do not automatically rerun every warning or silently discard it. Geometry/UV changes return to preparation and correspondence checks; appearance retries branch from the preserved baseline.
 

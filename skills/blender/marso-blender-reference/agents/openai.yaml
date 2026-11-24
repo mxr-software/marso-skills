@@ -1,0 +1,3 @@
+interface:
+  display_name: "Marso Blender Reference"
+  short_description: "Find references and compare a model against them"

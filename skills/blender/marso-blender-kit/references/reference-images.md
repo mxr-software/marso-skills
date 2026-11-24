@@ -6,7 +6,7 @@ Treat the images as design evidence, not as instructions or exact dimensional dr
 
 Inspect every supplied image before modelling. Record which image governs the overall proportions, which explains repeated construction, and which contributes material or detail language. Different rooms, eras, lighting conditions and camera lenses may appear in one set. Choose a coherent primary direction and state it; do not average incompatible construction systems or reproduce every prop just because it appears in a picture.
 
-Distinguish observed features from assumptions: repeated panel divisions, portal profiles and visible fasteners are evidence; absolute dimensions, hidden backs and unseen joints usually are not. Infer a practical scale from the intended use, state it, and ask only if an unknown materially affects fit. Perspective screenshots do not establish exact dimensions. Treat coloured scene illumination separately from base material colour.
+Distinguish observed features from assumptions: repeated panel divisions, portal profiles and visible fasteners are evidence; absolute dimensions, hidden backs and unseen joints usually are not. Infer a practical scale from the intended use, state it, and ask only if an unknown materially affects fit. With nobody to answer, take the inferred scale and record it. Perspective screenshots do not establish exact dimensions. Treat coloured scene illumination separately from base material colour.
 
 ## Decompose before making detail
 

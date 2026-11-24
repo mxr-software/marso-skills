@@ -4,6 +4,21 @@
 
 Start with one object and one finish. You can ask the agent to explain its choices as it works; you do not need to know the names of the skills or every Blender operation.
 
+## Named workflows
+
+A workflow is a short recipe you can ask for by name. It tells the agent which skills to use, in what order, and where to stop for your review. Say the request in your own words, or name the workflow.
+
+| You want | Workflow | Try |
+| --- | --- | --- |
+| An asset for your game, from a description | `marso-make-asset` | "Use the make-asset workflow to make a wooden supply crate for my game." |
+| An asset from a picture | `marso-make-asset` | "Use the make-asset workflow to make the lantern in this image." |
+| A low-poly asset from a picture | `marso-make-asset` | "Use the make-asset workflow to make a low-poly version of the barrel in this image." |
+| A modular kit, from a description | `marso-make-kit` | "Use the make-kit workflow to create a modular kit of stone dungeon walls." |
+| A modular kit from a picture | `marso-make-kit` | "Use the make-kit workflow to create a modular kit from the shelving in this image." |
+| A realistic look for an asset already in Blender | `marso-make-realistic` | "Use the make-realistic workflow on the selected chair." |
+
+Each workflow models or checks the asset in Blender, prepares its UVs, runs Retexture, then adds PBR. It stops for you to approve the model, choose the look and review the Retexture result. To run without stopping, say so: "I approve the model unseen; choose the look yourself and run to the end."
+
 ## Start here: generate your first asset
 
 > Help me make a weathered ceramic plant pot with Marso. Explain image generation, 3D generation and PBR as we go. Show me the image before making the mesh. Save it to a project called Garden Props, and show me the finished asset and its library entry.
@@ -102,7 +117,7 @@ For geometry only: “Build just the workshop blockout from these dimensions; no
 
 `marso-blender-render` uses plausible light sources, contact shadows, material response and restrained compositing. More samples or bloom cannot fix wrong geometry or broken normals. Existing satisfactory PBR assets do not need new texture jobs.
 
-For motion: “Make a smooth three-second dolly past the bench,” or “Make a handheld walkthrough that pauses at the display for two seconds.” `marso-blender-camera` checks path, framing and focus in an inexpensive preview, then verifies actual blur for a requested rendered sequence. Handheld movement is optional; it is not added to stabilized shots. These are editable Blender camera workflows, not a promise that generated alternate-view images describe exact 3D geometry.
+For motion: “Make a smooth three-second dolly past the bench,” or “Make a handheld walkthrough that pauses at the display for two seconds.” `marso-blender-camera` checks path, framing and focus in an inexpensive preview, then verifies actual blur for a requested rendered sequence. Handheld movement is optional; it is not added to stabilised shots. These are editable Blender camera workflows, not a promise that generated alternate-view images describe exact 3D geometry.
 
 ## What to review
 

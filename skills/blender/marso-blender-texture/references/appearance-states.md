@@ -1,6 +1,6 @@
 # Appearance states and transitions
 
-Use when a user wants one asset to become dirty, rusty, wet, worn or scorched over time, or wants a controllable blend between its looks. Ordinary alternative finishes use [variants](variants.md); different silhouettes or broken parts need geometry work.
+Use when a user wants one asset to become dirty, rusty, wet, worn or scorched over time, or wants a controllable blend between its looks. Ordinary alternative finishes use variants; different silhouettes or broken parts need geometry work.
 
 ## Make compatible states
 
@@ -13,7 +13,7 @@ For a progression, retain each edited mesh/colour result as well as its PBR outp
 
 Record `state label → parent source → edit result → PBR result`, and keep all endpoints independently recoverable. Recursive edits can accumulate unwanted detail or region drift: inspect transitions and stop at the requested state count, rather than turning progression into an automatic refinement loop.
 
-In the inspected Marso 1.12.1 Blender route, Retexture `source: auto` can branch from a single target's recorded cloud node when its surface is unchanged. A successful edit advances that recorded lineage. Verify the reported source before each cumulative step; copied objects and multipart groups are not proof of the intended parent. `source: upload` exports the current prepared surface instead. Use it only when that surface represents the intended parent and passes the normal preparation checks. Neither choice removes the need to preserve earlier states and their IDs.
+Retexture `source: auto` can branch from a single target's recorded cloud node when its surface is unchanged. A successful edit advances that recorded lineage. Verify the reported source before each cumulative step; copied objects and multipart groups are not proof of the intended parent. `source: upload` exports the current prepared surface instead. Use it only when that surface represents the intended parent and passes the normal preparation checks. Neither choice removes the need to preserve earlier states and their IDs.
 
 ## Build the Blender control
 
@@ -28,7 +28,7 @@ Expose a clearly named **State** factor, clamped to 0–1: 0 is the baseline, 1 
 - **Progressive coverage:** use an explicit threshold/ramp against an authored mask or simulation field, with endpoint handling so 0 is fully original and 1 has the intended final coverage. Explain the mask direction and test it. Do not claim the mask itself simulates heat, moisture or damage.
 - **External parameter:** a Blender driver may read a named object custom property, but record the actual driver target. Separate materials/controllers when instances must animate independently; a shared material's unqualified slider affects every user.
 
-For many states, agree which transitions are needed instead of nesting every possible pair. A single-BSDF map blend can be more efficient when compatible properties permit it, but must preserve data-map interpretation and handle normal vectors correctly. Do not optimise by silently dropping a state's normal or roughness maps.
+For many states, build only the transitions the user named instead of nesting every possible pair. With nobody to answer, build transitions between consecutive states only and record that choice in the report. A single-BSDF map blend can be more efficient when compatible properties permit it, but must preserve data-map interpretation and handle normal vectors correctly. Do not optimise by silently dropping a state's normal or roughness maps.
 
 See Blender's [Mix Shader](https://docs.blender.org/manual/en/latest/render/shader_nodes/shader/mix.html), [Normal Map](https://docs.blender.org/manual/en/latest/render/shader_nodes/displacement/normal_map.html) and [material assignment](https://docs.blender.org/manual/en/latest/render/materials/assignment.html) documentation for the installed version.
 

@@ -14,13 +14,13 @@ Keep the shared frontmatter and instructions client-neutral. `agents/openai.yaml
 
 For changed instructions, inspect the corresponding implementation or official documentation. Record the version and source paths in [compatibility](docs/compatibility.md). A local development checkout is evidence of implementation, not proof of a deployed release.
 
-Test the installed skill folder in isolation: it must not need a sibling repository or a developer's filesystem. Use the [setup acceptance cases](tests/blender/setup-cases.md) for changes to setup behaviour.
+The test suite and its acceptance cases are kept with the maintainers and are not part of this repository. Test the installed skill folder in isolation: it must not need a sibling repository or a developer's filesystem. Use the setup acceptance cases for changes to setup behaviour.
 
 Publish general lessons and concise verification limits. Keep detailed trial journals, experiment-specific builders, asset files, account IDs and dated service-catalogue dumps in ignored local storage. Do not turn a successful fixture into a guarantee for a client or artistic result. Public test cases describe expected behaviour and are not instructions to execute during an ordinary user task.
 
-For modelling, texturing and kits, use [workflow acceptance cases](tests/blender/workflow-cases.md). The local Blender smoke script checks the snapping helper and can probe a maintainer's add-on checkout without registering it or contacting Marso. It does not replace assistant-driven or cloud acceptance tests.
+For modelling, texturing and kits, use workflow acceptance cases. The local Blender smoke script checks the snapping helper and can probe a maintainer's add-on checkout without registering it or contacting Marso. It does not replace assistant-driven or cloud acceptance tests.
 
-For routing and orchestration changes, run [blind workflow checks](tests/routing/README.md) with fresh context. Keep transcripts local and report simulated versus live results separately. CI checks all isolated packages and scene helpers with `python -m unittest discover -s tests/scene` (Pillow and PyYAML required).
+For routing and orchestration changes, run blind workflow checks with fresh context. Keep transcripts local and report simulated versus live results separately. CI in this repository compiles every bundled script; the maintainers run the full test suite before each release.
 
 ## Before submitting
 

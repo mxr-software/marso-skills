@@ -11,11 +11,10 @@ Public Marso 1.12.1 on Blender 5.2 is the inspected baseline for the documented 
 ## Install or enable Marso
 
 1. Inspect Blender's version and installed extensions. If Marso is present but disabled, enable it before considering a reinstall.
-2. Download the appropriate Blender extension ZIP from [Marso Dashboard > Plugins](https://marso.app/dashboard/plugins). The user handles account sign-in. Use the distributed extension ZIP, not a source-repository ZIP.
-3. In Blender Preferences, locate **Get Extensions** and its **Install from Disk** action. Some versions group extension installation differently; follow the visible UI.
-4. Select the downloaded ZIP, complete installation, and enable Marso. Check the installed extension details for compatibility errors.
-5. In a 3D Viewport, open the sidebar with `N` and locate **Marso**. Its header displays the loaded add-on version. The **Get started** card points to missing API-key, storage, and Online Access settings.
-6. Continue with [configuration](configuration.md).
+2. Enable **Edit → Preferences → System → Allow Online Access**. Open **Get Extensions**, open its repository menu, then choose **Add Remote Repository**.
+3. Paste `https://marso.app/plugins/blender/repo/index.json` and leave the access token empty. Refresh the repository, search for **Marso**, install it and enable the extension.
+4. In a 3D Viewport press `N` and open **Marso**. Verify the loaded version. The public [installation page](https://marso.app/plugins/blender) also describes installation. For a downloaded official extension ZIP, use **Install from Disk**.
+5. Continue with [configuration](configuration.md). The extension repository needs no Marso API key; configure the account for Marso service operations.
 
 Completion: the Marso panel and add-on preferences are available in the intended Blender session. This alone does not prove account access or the assistant connection.
 

@@ -2,26 +2,13 @@
 
 ## Determine whether an update is available
 
-Read the loaded add-on version and Blender version first. In the Marso header menu, choose **Check for Updates**, or use the discovered `check_update` command through a supported connection.
-
-The inspected implementation needs Online Access and a configured API key for this request, but does not require configured storage. Follow the returned job to completion. Its result contains `current`, `latest`, and `update_available`.
-
-- A successful comparison with no newer version means up to date against that service response.
-- A failed or unavailable check leaves update status unknown. Check the official download page when possible.
-- A newer version still needs compatibility checking against the user's Blender installation.
+Read the loaded Marso and Blender versions. With Online Access enabled, refresh the Marso repository in **Preferences → Get Extensions** and check for a compatible update. The public 1.18.0 add-on also exposes **Check for Updates** and **Update Marso**. Older builds may direct users to the downloads page.
 
 ## Install the update
 
-In the inspected add-on, the **Update** banner opens [Marso Dashboard > Plugins](https://marso.app/dashboard/plugins). It does **not** download or install the update automatically.
-
-1. Obtain the appropriate extension ZIP from that page. Use current release information and the package's compatibility requirements.
-2. Check for running Marso jobs or rendering. Let active work finish before replacing the add-on. Preserve unsaved work; save an existing file when authorized, or resolve its save destination before any necessary restart.
-3. Record the non-secret settings that must survive: storage paths, chosen endpoint, and enabled connection route. Keep credentials in Blender's supported storage, not in notes or chat.
-4. Use Blender's supported **Install from Disk** update/replacement flow for the extension. Follow actual UI prompts. Do not delete the downloads folder or manually remove the add-on as the first update step.
-5. If Blender requests a reload or restart, complete it after preserving the scene. Reconnect the assistant if needed.
-6. Read the version loaded by Blender again, check retained settings, and repeat [configuration verification](configuration.md#verification).
-
-Completion means the intended version is loaded and its setup has been checked. A downloaded ZIP, an opened browser page, or a remaining update banner is not installation success.
+1. Let active jobs finish and save the scene. Preserve storage and connection settings.
+2. Apply the compatible repository update in Blender or use the add-on’s update action when offered. If using a manually downloaded official ZIP, follow Blender’s **Install from Disk** flow.
+3. Follow Blender’s reload or restart prompt, verify the loaded version and repeat [configuration verification](configuration.md#verification).
 
 If installation fails, preserve the existing installation and report the error. Reinstall a previously working compatible official package only when recovery is needed and supported; do not delete user data or upgrade Blender itself merely to bypass an incompatibility.
 

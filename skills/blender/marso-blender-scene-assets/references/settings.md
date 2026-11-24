@@ -14,6 +14,8 @@ Establish intended use, target hardware when relevant, hero/background roles, un
 
 Allocate targets by silhouette, screen coverage, detail and reuse. Record unique geometry and instance-expanded totals separately, with estimated versus measured triangles clearly labelled. Shared geometry still incurs rendering work; unique texture images, subdivision and render buffers also cost memory. Polygon count alone cannot prove GPU fit.
 
+Modelled masters share the same budget. Give each one a low-, medium- or high-poly path from its role and closest camera distance (hero props high, mid-ground medium, background dressing low, unless the brief sets one path for the whole scene) and pass it with the master's modelling brief; `marso-blender-asset` applies that path's style and budget. In an existing scene, measure comparable assets' evaluated triangles and style first and match them.
+
 Choose supported values within agreed ceilings. If a minimum exceeds a strict limit, propose a different supported model or an authorized reduction workflow that retains the source and validates its result. Never clip upward silently or send an unsupported option. Single-asset runs use compatible preferences/defaults unless a real constraint needs clarification.
 
 ## Record the effective request

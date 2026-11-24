@@ -9,6 +9,7 @@
   "repository": "https://github.com/mxr-software/marso-skills",
   "skills": [
     "./skills/core/",
-    "./skills/blender/"
+    "./skills/blender/",
+    "./skills/workflows/"
   ]
 }
