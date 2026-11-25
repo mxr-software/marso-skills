@@ -8,7 +8,7 @@ license: Apache-2.0
 
 ## Overview
 
-This skill gives Blender assets from any source Marso textures and PBR materials: New Texture, Edit Texture, PBR from an existing look, or a 2D material from an image. On request it bakes a colour guide or writes a texture-ready export. It preserves shape, dimensions, hierarchy, pivots, kit connections and the authored UV layout. Prefer the working Blender connection and the Marso add-on; a hosted Marso MCP is optional.
+This skill gives Blender assets from any source Marso textures and PBR materials: New Texture, Edit Texture, PBR from an existing look, or a 2D material from an image. On request it bakes a colour guide or writes a texture-ready export. It preserves shape, dimensions, hierarchy, pivots, kit connections and the authored UV layout. It works through the working Blender connection and the Marso add-on.
 
 - **Geometry and UVs only for a new model.** Submit a newly modelled asset with no materials. `retexture` adds a blank `Marso Retexture` material before upload and wires the returned maps into it; the staged route adds the same blank itself. Colours assigned while modelling are not an existing look; do not bake them to run Edit.
 - **Use returned materials exactly as applied.** Add no constant colour, metallic or roughness over the maps, no procedural bumps, remapped channels or corrective lights for the acceptance render.
@@ -105,7 +105,7 @@ Choose the PBR route before submitting Retexture:
 - **The user supplied a real photograph of the same object and finish** (cleaned if needed; not a render or drawing, and not an image you rendered or generated): pass the file as `condition_image_path` on the combined Retexture and PBR run, or `condition_image_asset_id` when it is already in the account. To get an ID for a file, call `upload_image` with `add_node: false` (1.21.1 and later). Without it, that command adds a Load Image node for mesh generation, which is then left unconnected in the project.
 - **Edit Texture or PBR-only on an existing look with clear finish cues** (a texture the user supplied or an accepted Marso result, not a colour atlas baked from stand-in materials): the combined run may continue directly into PBR. Pass `condition_image_path: ""` on `retexture` or `pbr_generate` when no condition image is intended; an omitted one uses the panel's earlier pick.
 
-On the Studio canvas, Image, 3D Generation, then PBR uses the source image automatically. Follow a running add-on chain to avoid duplicate PBR.
+Follow a running add-on chain to avoid duplicate PBR.
 
 Done when each job is submitted once, with its route, project and job identity recorded.
 

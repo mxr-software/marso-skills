@@ -8,7 +8,7 @@ If no user preference is recorded, ask once early for preferred mesh generator/o
 
 ## Resolve one scene budget
 
-If using a Studio connection with `get_preferences`, include that account record before falling back to panel settings. Only persist account changes when the user asks to remember them, using verified supported fields. The inspected account setter does not expose a texture-quality field; retain that preference through supported memory/rules or a project record instead.
+Read a preference the user recorded for this project, or one in the host's memory, before falling back to panel settings. Record a new preference only when the user asks to remember it, in the project record or the host's memory.
 
 Establish intended use, target hardware when relevant, hero/background roles, unique meshes, repeated instances and style sets. Propose a scene-level geometry and texture budget once, using the brief when sufficient. Do not ask for every prop's polygon count.
 

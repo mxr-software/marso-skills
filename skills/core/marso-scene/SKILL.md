@@ -6,7 +6,7 @@ license: Apache-2.0
 
 # Build a complete scene
 
-Own the requested outcome across stages; discover installed companions by name. For image-only, decomposition-only, blockout-only or an existing-scene render request, use that specialist and stop at the requested scope. Skills supply instructions, not connections. In Blender, inspect and use the working Marso add-on first. Do not assume a separate hosted Marso MCP is installed or silently switch to it for concept work. Report missing add-on operations and continue supported stages; another connection is optional only when already part of the user's chosen workflow.
+Own the requested outcome across stages; discover installed companions by name. For image-only, decomposition-only, blockout-only or an existing-scene render request, use that specialist and stop at the requested scope. Skills supply instructions, not connections. Inspect and use the working Marso add-on in Blender. Report missing add-on operations and continue supported stages.
 
 ## Establish the route
 

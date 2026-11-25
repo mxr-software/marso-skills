@@ -64,13 +64,13 @@ Frame the source tightly with safe space around its silhouette and use small gut
 
 Use fewer cells, multiple sheets or individual images when small print/material detail needs more pixels. Store exact pixel rectangles, style ids and the master revision before editing. `scripts/contact_sheet.py` builds a repeated-source sheet and layout manifest, then splits a returned sheet by that manifest; it requires Pillow. Run `python <skill>/scripts/contact_sheet.py --help` for arguments. Width/height are explicit and the default background is black; it does not choose the layout for you or certify image composition. Example for tall shapes: `python <skill>/scripts/contact_sheet.py build master.png sheet --ids red green blue ochre cream black --columns 3 --rows 2 --width 1536 --height 2304 --gutter 12 --family can-standard`. After visual review: `python <skill>/scripts/contact_sheet.py split edited.png sheet/layout.json accepted --ids red green blue`.
 
-The inspected Studio `image-edit` tool exposes a source, references and prompt, but no output-size or aspect-ratio argument. Request 2K/4K only through a currently verified control that actually supports it. Inspect actual returned dimensions; an upscaled image adds no missing design detail. Local sheet construction can be 2K/4K regardless, but that does not establish service output size. Check current upload byte/dimension limits as well.
+The add-on's `edit_scene_image` command takes a source, references and a prompt, but no output-size or aspect-ratio argument; the result keeps the source's size. Request 2K/4K only through a currently verified control that actually supports it. Inspect actual returned dimensions; an upscaled image adds no missing design detail. Local sheet construction can be 2K/4K regardless, but that does not establish service output size. Check current upload byte/dimension limits as well.
 
 Measure useful detail in the actual returned object crop, not the source sheet or eventual PBR map size. A high-resolution PBR output does not establish that a small reference supplied equally fine artwork. If the returned crop cannot support the intended view, repair the image stage before Retexture rather than accepting blur as natural texture.
 
 ## 5. Edit with stable identity and rich per-cell briefs
 
-Retain the sheet as the source. For image editing, link the inspiration image as a separate appearance reference in the same relevant Studio project, using the `@[name](asset:<id>)` syntax for linked references. Retexture itself takes no reference image: carry each cell's look in its text brief. Do not pass bare placeholder syntax or invent a seed, mask or layout-lock parameter.
+Retain the sheet as the source: pass it to `edit_scene_image` as `source: {"image_path": "<sheet>"}`. Pass an inspiration image as a separate entry in `references`, with a `label` and `role: "appearance"`, and name it in the prompt as `@label`. Retexture itself takes no reference image: carry each cell's look in its text brief. Do not pass bare placeholder syntax or invent a seed, mask or layout-lock parameter.
 
 Example prompt structure, adapted to the actual family:
 

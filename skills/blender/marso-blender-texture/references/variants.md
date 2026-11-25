@@ -16,8 +16,6 @@ For a material changing over time or under a mask, use appearance states. It sup
 
 Blender material copies can still reference shared source images. That is acceptable while those images remain read-only; duplicate image data before any destructive image edit. Shared mesh data also shares mesh-linked material slots. A swap must not change every instance unintentionally: use independent mesh data or deliberately verified object-linked slots.
 
-With Studio tools, make independent edit branches from the same original mesh node/asset, each with its own result and PBR node. Do not chain one `3d-edit` output into the next for sibling styles. Verify the current builder's source/count schema rather than inventing a variant endpoint.
-
 ## Name materials after successful application
 
 The add-on applies maps to existing materials and matches returned slot keys against material names. Preserve submission-time names until the job has finished and its maps are wired. Do not rename materials while generation or download/application is in flight. Older prepared assemblies use the exact material name as preparation state, so renaming breaks a later prepared check. Newer source uses persistent material identity and validates legacy assemblies against actual slots. Rename after application only when the installed build's identity-based tracking is verified, then confirm `assembly_state` and bindings remain intact. Otherwise keep managed names and use appearance/object labels. Never patch private assembly properties to force validity.

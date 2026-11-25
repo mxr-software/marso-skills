@@ -1,12 +1,10 @@
 # Generation preferences and polygon budgets
 
-Read live model capabilities and the actual operation schema before resolving options. Names, input modes and texture options differ by connection; a saved choice is intent, not proof of current support.
+Read live model capabilities and the actual operation schema before resolving options. Names, input modes and texture options differ by add-on version; a saved choice is intent, not proof of current support.
 
 ## Establish a preference once
 
-When the connected Studio service exposes `get_preferences`, read its account preference as the available user-wide record. For an explicit request to remember a model, a verified `set_preferences` can persist `mesh_model` and supported `polygon_count`; inspect its current schema and preserve unrelated settings. The inspected setter has no texture-quality field, so retain that intent in supported rule/memory or a local project record instead of inventing one. No account write is needed for a temporary run override.
-
-Use this precedence: explicit task instruction; a recorded user preference for this project; an available user-wide preference; compatible panel settings; the connection's advertised default. An explicit request to model always wins over a remembered preference for a generator.
+Use this precedence: explicit task instruction; a recorded user preference for this project; a preference in the host's memory; compatible panel settings; the add-on's advertised default. An explicit request to model always wins over a remembered preference for a generator.
 
 If no user preference is known, ask once early: "Do you have a preferred Marso mesh generator or options? Otherwise I'll use the current supported default for this run." Continue setup and reference inspection while awaiting an optional answer. If the user leaves it to you, choose the compatible advertised default and say which. Do not invent rankings for object categories.
 

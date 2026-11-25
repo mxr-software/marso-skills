@@ -6,9 +6,9 @@ license: Apache-2.0
 
 # Create and edit images with Marso
 
-Use the user's working Marso connection and a relevant Studio project. This workflow creates images; it does not automatically generate a mesh or retexture an asset. Preserve an explicitly requested illustrative or stylised look. For realistic work, read [appearance direction and review](references/appearance.md) before writing the prompt.
+Use the Marso add-on in the user's Blender session and a relevant Studio project. This workflow creates images; it does not automatically generate a mesh or retexture an asset. Preserve an explicitly requested illustrative or stylised look. For realistic work, read [appearance direction and review](references/appearance.md) before writing the prompt.
 
-When image work is part of a Blender task, discover and use the add-on's supported operations first through the established Blender control connection. Do not assume the separate hosted Marso MCP is installed or silently use it as a fallback. Name a missing operation and retain useful local work; another route applies only when already part of the user's chosen workflow.
+Discover and use the add-on's image operations through the established Blender control connection. If Blender or the add-on is missing, say both are required. Name a missing operation and retain useful local work.
 
 For Blender scene/image operations, read [the add-on command route](references/addon-images.md). Discover capabilities and local execution access before submitting.
 
@@ -29,7 +29,7 @@ Read [prompt structure and limits](references/prompt-structure.md) before author
 
 Lead with the desired visual result. Add concrete material/finish/detail descriptions, then only the source-role and composition constraints needed for this operation. Keep per-variant differences explicit. Avoid copying export settings, UV requirements or the full run checklist into the prompt. Describe realism in the image-edit/generation prompt; polishing a source render alone is not a substitute.
 
-Discover the current tool schemas and prompt constraints. In Studio, verify image-generation or image-edit nodes and source/reference links before execution. An edit source and additional appearance references have different roles; use the connection's actual reference syntax. If the endpoint manages lighting/background and forbids those directions, omit them and carry realism through the material/finish descriptions. Never invent resolution, seed, mask or layout-lock controls. Source canvas size is not a guarantee of output size.
+Discover the current command schemas and prompt constraints. An edit source and additional appearance references have different roles: the source is a node in the project or a local image, and each reference carries a label the prompt names as `@label`. If the endpoint manages lighting/background and forbids those directions, omit them and carry realism through the material/finish descriptions. Never invent resolution, seed, mask or layout-lock controls. Source canvas size is not a guarantee of output size.
 
 Record the source, exact submitted prompt, project/node and returned execution identifiers. Retain raw responses before parsing. Follow accepted runs; reconcile unknown outcomes rather than resubmitting. For an explicit rejection that started nothing, follow the actual error/backoff. Do not hard-code a concurrency limit from another account or assume the service accepts a new run because a different route does.
 

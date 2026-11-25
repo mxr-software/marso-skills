@@ -87,11 +87,10 @@ These are recommended combinations of existing folders, not separate packages. I
 | Generate an asset through the Blender add-on | `marso-generate`, `marso-blender-setup`; add texture for later Restyle and style variants |
 | Turn photographs of a room into a scene graph and plan its assets | `marso-scene-decompose`, `marso-scene-graph`; add `marso-generate` to generate planned objects |
 | Rebuild a photographed room in Blender from Marso assets | `marso`, `marso-library`, `marso-generate`, `marso-blender-asset`, `marso-blender-texture`, `marso-scene-decompose`, `marso-scene-graph`, `marso-blender-setup`, `marso-blender-scene-assets`, `marso-blender-place-scene` |
-| Generate through a connected Marso Studio service | `marso-generate`, plus the service's current tools and workflow guides |
 
 The two scene skills run Python scripts from their own folders and need Python 3.10+ with Pillow (`pip install Pillow`) and a host that can run shell commands and look at local images. They need no application connection or network access. `marso-blender-scene-assets` and `marso-blender-place-scene` run standard-library Python scripts and need Blender with the official MCP and a Marso add-on that provides the scene commands they name.
 
-The four scene skills are included on `main`. The decomposition/graph workflow runs locally with the agent; it does not require Marso's Detect Objects service. Use public **Marso 1.12.1 or later on Blender 5.2 or later** for the Blender scene route. The setup skill checks the loaded scene-generation/import commands; a separate development build is not required. See [Blender setup](blender-setup.md) and [compatibility](compatibility.md). Each scene folder has its own proprietary licence permitting installation and use with Marso; its terms apply separately from the Apache-2.0 skills.
+The four scene skills are included on `main`. The decomposition/graph workflow runs locally with the agent; it does not require Marso's Detect Objects service. Use **Marso 1.21.2 or later on Blender 5.2 or later**. The setup skill checks the loaded scene-generation/import commands; a separate development build is not required. See [Blender setup](blender-setup.md) and [compatibility](compatibility.md). Each scene folder has its own proprietary licence permitting installation and use with Marso; its terms apply separately from the Apache-2.0 skills.
 
 If you prefer to install from a local checkout, run these commands in your working project directory:
 
@@ -102,7 +101,7 @@ npx skills add ./marso-skills --skill '*' --agent codex claude-code --copy
 
 The installer places skills in that project's agent directories. Review the [compatibility status](compatibility.md) before starting a scene workflow.
 
-The entry skill discovers available capabilities; it does not supply Studio credentials or install connections. A working Blender add-on route does not require a separate hosted Marso MCP. See compatibility for the execution checks completed for each route.
+The entry skill discovers available capabilities; it does not supply credentials or install connections. Every Marso operation runs through the Marso add-on in Blender. See compatibility for the execution checks completed.
 
 ## Codex
 
@@ -191,6 +190,6 @@ The application skills are under `skills/blender/`: `marso-blender-setup`, `mars
 
 After installation, ask: "Use marso-blender-setup to configure my Marso Blender add-on. I use the official Blender MCP."
 
-For the Blender add-on, open **Preferences → Get Extensions → Add Remote Repository**, paste `https://marso.app/plugins/blender/repo/index.json`, then search for **Marso** and install it. Enable Online Access in Blender if needed. [Marso installation guide](https://marso.app/plugins/blender)
+For the Blender add-on, enable **Allow Online Access**, open **Preferences → Get Extensions → Add Remote Repository**, paste `https://marso.app/plugins/blender/repo/index.json` with the access token left empty, then search for **Marso** and install it. It updates itself from the same repository with one click in the Marso panel. [Marso installation guide](https://marso.app/plugins/blender)
 
 The [Blender setup skill](../skills/blender/marso-blender-setup/SKILL.md) covers application-specific installation, account and folder settings, connections, troubleshooting and updates. Desktop control is optional; without it, the skill guides the necessary UI steps. Composition's optional snapping helper runs inside Blender through an available Python control tool, not in the assistant's ordinary Python environment.

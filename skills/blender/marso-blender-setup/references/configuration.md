@@ -43,15 +43,15 @@ Discover support from the loaded add-on, not only its version string. If project
 
 | Route | Required settings | What it enables |
 | --- | --- | --- |
-| Official Blender MCP + Marso add-on (default) | Working official MCP connection and the required Marso settings above. | Blender control; Marso operations through available add-on interfaces. Neither Marso relay nor local HTTP server is inherently required for direct in-process calls. |
-| Marso local Control Server | **Allow Control Server**, a generated token, an available loopback port, and a running server; configure a compatible local caller. | JSON-over-HTTP command access. This server is not itself an MCP endpoint. Enable only if the integration uses it. |
-| Hosted Marso MCP | Connect the assistant to Marso, then enable **Connect to Marso Agents** in Blender using the same Marso account. | Outbound relay for supported Marso commands. It does not provide general Blender Python modelling. |
+| Official Blender MCP + Marso add-on (the route these skills use) | Working official MCP connection and the required Marso settings above. | Blender control; Marso operations through the add-on's commands. Neither add-on feature below is needed for it. |
+| Add-on feature: local Control Server | **Allow Control Server**, a generated token, an available loopback port, and a running server; configure a compatible local caller. | JSON-over-HTTP command access for the user's own local tools. This server is not itself an MCP endpoint. Enable only if the user's integration uses it. |
+| Add-on feature: Agent Connection | **Connect to Marso Agents** in the add-on preferences, using the same Marso account. | Blender connects out to Marso so an agent that Marso runs can reach this session with a limited set of commands. These skills do not use it; leave it as the user has set it. |
 
-Scene-image generation/editing in supporting builds requires local control; Agent Connection exposes only scene-image options/results. Discover both the command schema and permission on the actual route. A read-only catalog entry is not proof of mutation access, and the separate hosted MCP is not required.
+Scene-image generation/editing in supporting builds requires local control; Agent Connection exposes only scene-image options/results. Discover both the command schema and permission on the actual route. A read-only catalog entry is not proof of mutation access.
 
 For local HTTP access, read the actual configured port and schema from `/ping` and `/capabilities`; the inspected default port is 9885. Keep the generated token in the client's credential mechanism. **Allow Control Server** and **Start With Blender** are separate from starting the server now.
 
-For the hosted route, one Blender session per Marso account is connected at a time in the inspected implementation; connecting another replaces the first. Verify the returned session label. The hosted interface deliberately disallows credential, endpoint, and folder configuration. Direct the user to preferences for these changes; do not route around a refusal.
+With Agent Connection on, one Blender session per Marso account is connected at a time in the inspected implementation; connecting another replaces the first. Verify the returned session label. That interface deliberately disallows credential, endpoint, and folder configuration. Direct the user to preferences for these changes; do not route around a refusal.
 
 ## Using the add-on's command interface
 

@@ -4,11 +4,11 @@ Use this route when the user wants generation, or the brief favours an organic/c
 
 ## Select a supported generator
 
-Before generating an object the user's library might already hold, check the library unless the user asked for a new asset; use `marso-library` when installed or verified connection search tools. Respect an exact selected asset or an already delegated reuse decision. Generate when no suitable asset is selected and generation fits the brief.
+Before generating an object the user's library might already hold, check the library unless the user asked for a new asset; use `marso-library` when installed or the add-on's library search. Respect an exact selected asset or an already delegated reuse decision. Generate when no suitable asset is selected and generation fits the brief.
 
 First establish the source (description, one object image, or consistent views of that same object), required geometric detail and intended use. A fabric swatch is a look reference, not the object to reconstruct. A whole-room image needs an object extraction workflow rather than being treated as one prop: decompose it into a scene graph (`marso-scene-decompose`) and generate each object from its own reference brief (`marso-scene-graph`), when those skills are installed.
 
-Inspect the installed Blender `generate_state` model catalogue and `create_3d_asset` schema, or Studio `get_capabilities` with `section: "generation_3d_models"` and full detail. Refresh after a capability error. Model availability and option names can differ between routes and versions. Use catalogue IDs, not guessed names. The catalogue's source support does not prove that a particular tool accepts that input directly.
+Inspect the installed add-on's `generate_state` model catalogue and `create_3d_asset` schema. Refresh after a capability error. Model availability and option names can differ between versions. Use catalogue IDs, not guessed names. The catalogue's source support does not prove that a particular tool accepts that input directly.
 
 Apply [preferences and budgets](preferences.md): explicit task choice, recorded user preference, compatible panel state, then a supported advertised default. Establish an unknown preference once and retain user choices for later runs. A fallback is not a comparative quality claim. Do not run a model comparison unless requested.
 
@@ -35,16 +35,6 @@ When the asset is a master for many instances (a garment on a rail, fruit on a s
 - Use a source image of the subject alone, whole, on a plain background, in the most typical of its planned looks. Frame it tightly in its own proportions: a tall subject padded out to a square comes back too small to reconstruct.
 - Choose the lowest polygon option in the live catalogue that still holds its shape; every instance repeats that cost.
 - Further colours or prints are Retexture variants of this mesh, not further generations.
-
-## Studio route
-
-Use this when the user works in Studio or its connected tools supply the needed capability. Inspect the connected service's guides and schemas for the recipe and use the current project/graph. Keep the user's authorized task scope and review preferences; this skill adds no spending-allowance or credit-confirmation workflow.
-
-Confirm that the current project belongs to the user's task. If none does, create a descriptively named project through the available project tool and retain its returned project/graph references for every node and execution. Verify outputs there and save those references with the deliverable. Do not assume a project selected in a different application, account or Library view is this route's destination.
-
-The inspected `generate-3d` node takes an image even when a model catalogue lists text support. A description therefore becomes an object-mode image before the mesh. `build_object_chain` can create that linked chain from an image asset, an existing image node or a prompt source. Do not feed a scene-mode image or its descendants into direct 3D generation; use the supported object-extraction recipe. Do not invent a direct text-to-mesh or multiview parameter.
-
-Pass the selected model and supported settings through the actual builder/node schema. Studio uses `texture_resolution` for Meshy and `texture_quality` for Tripo; those are not interchangeable with the Blender command's `texture` parameter. Run the image step when needed, then the mesh, and PBR if requested. Retain run and node IDs, recover uncertain outcomes, and read completed outputs from the graph. Preserve the source image and the project for later use.
 
 ## Inspect the asset
 

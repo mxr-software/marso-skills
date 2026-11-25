@@ -19,7 +19,7 @@ It never claims manufacturing fit or structural safety from Blender alignment, a
 - **Assembling an existing kit:** `marso-blender-compose`. Without it, deliver the masters and the contract.
 - **Missing setup:** `marso-blender-setup`. Without it, report what is missing.
 
-General modelling needs Blender control. The hosted Marso MCP alone does not supply arbitrary modelling.
+General modelling needs Blender control.
 
 **Model approval.** Before texturing newly modelled components, show neutral-clay previews, dimensions, fit checks and visible defects, then wait for model approval. Honour an explicit instruction to skip review. With nobody to answer, use the approval or waiver the task states; otherwise stop before texturing and report. A request for a textured kit is not a waiver. Ask again after a material change to geometry.
 

@@ -1,5 +1,14 @@
 # Compatibility
 
+## Supported route
+
+Updated 2026-11-24. Source review of Marso 1.21.2 (`f0beb45`).
+
+- Every skill reaches Marso one way: the official Blender MCP controls Blender, and the Marso add-on's commands run inside it. Blender 5.2.0 or later and the add-on are both required.
+- The add-on installs from its extension repository, `https://marso.app/plugins/blender/repo/index.json`, with no account or key, and updates itself from there with one click.
+- Images, mesh generation, Retexture, PBR and library search all have add-on commands. `edit_scene_image` takes a local image as its source, so an edit needs no image already in a project.
+- Account-wide generation preferences have no add-on command; a preference is kept in the project record or the host's memory.
+
 ## Set pieces
 
 Updated 2026-11-24. Source review of Marso 1.21.0 (`641adb7`) through 1.21.2 (`f0beb45`), Blender 5.2 background checks, and live sandbox runs with Codex.
@@ -100,13 +109,13 @@ Blender 5.2.0 execution checks built and reopened a 4 x 6 metre blockout, verifi
 
 A blind lighting-only trial rendered a synthetic material fixture before and after adjustment, inspected the images, corrected one weak lighting candidate, and reopened both files to verify unchanged meshes, material inputs, camera and colour management. Matched 640 x 400 Cycles previews took about 1.4 seconds each on that machine. These are render-call timings, not fresh-agent authoring times or general performance guarantees. The synthetic fixture does not qualify Marso texture quality or furnished-interior realism.
 
-A separate concept-to-blockout trial produced one inspected scene image through Studio and a saved/reopened local Blender blockout, resolving an extra window and door-swing conflict against the brief. That image operation used a separate Studio connection; it is not an add-on-only success. A subsequent fresh routing test with both connections available selected add-on discovery first and declined automatic hosted fallback.
+A separate concept-to-blockout trial produced one inspected scene image through Studio and a saved/reopened local Blender blockout, resolving an extra window and door-swing conflict against the brief. That image was not made through the add-on, so it is not evidence for the add-on route.
 
-Plugin 0.3.1 adds the add-on image command route. Source `762eed1` (1.13.1) provides `scene_image_options`, `generate_scene_image`, `edit_scene_image` and `scene_image_result`. Generation/edit mutations require local Blender control; the Agent Connection exposes the two read commands. The older 1.12.2 object-only commands remain an unsupported route for full-room concepts. Capability discovery takes precedence over a version string. Images do not automatically create meshes or qualify a complete furnished scene.
+Plugin 0.3.1 adds the add-on image command route. Source `762eed1` (1.13.1) provides `scene_image_options`, `generate_scene_image`, `edit_scene_image` and `scene_image_result`. Generation/edit mutations require local Blender control; the add-on's Agent Connection exposes the two read commands. The older 1.12.2 object-only commands remain an unsupported route for full-room concepts. Capability discovery takes precedence over a version string. Images do not automatically create meshes or qualify a complete furnished scene.
 
 Independent Blender 5.2.0 dispatcher testing with a mocked service passed generation, editing, source/scene preservation, result dimensions, completed-request recovery without a new submit, and remote mutation rejection. All 249 supplied add-on unit tests pass, including 27 scene-image tests and the four original regression cases. Additional fault injection found incomplete node-create recovery: an HTTP retry can duplicate a created node, and position-based recovery can adopt another request's node. Skills stop ambiguous preparation recovery for reconciliation; following a known execution or retrying its download remains a separate case. This source review does not establish a customer's installed version or live-service recovery guarantees.
 
-A fresh blind 1.13.1 trial used the add-on's public dispatcher in disposable headless Blender for one live scene concept and one source-linked bench edit, with no separate hosted Marso MCP. Both returned 1376 x 768 images which were visually inspected; the closer view retained the main appearance but remains an invented design proposal. The trial then built and reopened a 4 x 6 metre Blender blockout with a 1.2 metre clear aisle, separate entity/geometry groups, persisted Studio destination and a 72-frame camera preview. A separate blind local helper test rendered a 72-frame, 24 fps camera preview, preserved accepted geometry/materials through lighting and camera work, and detected a between-frame obstacle crossing. These checks qualify the exercised stages, not a complete furnished/PBR scene or recovery under live service failures. Blind feedback corrected extension-module discovery, project-list refresh after restarting Blender, and the distinction between planning without local control and actually executing a blockout.
+A fresh blind 1.13.1 trial used the add-on's public dispatcher in disposable headless Blender for one live scene concept and one source-linked bench edit. Both returned 1376 x 768 images which were visually inspected; the closer view retained the main appearance but remains an invented design proposal. The trial then built and reopened a 4 x 6 metre Blender blockout with a 1.2 metre clear aisle, separate entity/geometry groups, persisted Studio destination and a 72-frame camera preview. A separate blind local helper test rendered a 72-frame, 24 fps camera preview, preserved accepted geometry/materials through lighting and camera work, and detected a between-frame obstacle crossing. These checks qualify the exercised stages, not a complete furnished/PBR scene or recovery under live service failures. Blind feedback corrected extension-module discovery, project-list refresh after restarting Blender, and the distinction between planning without local control and actually executing a blockout.
 
 All 422 scene/helper tests pass, including isolated packaging of all 17 skills. New Blender shell/camera regressions and documentation-link checks also pass. The reusable tests cover structural and scoped execution behaviour. They do not establish universal photorealistic quality, cloud execution guarantees or support for every Blender version. Existing accepted PBR assets keep their maps; new appearances continue through the established Retexture then PBR workflow and verified library handoff.
 
@@ -244,10 +253,10 @@ Native Blender checks exercised modelling, unique UV preparation, connection hel
 
 Relevant operational limits:
 
-- A loaded skill does not supply Blender control. Marso's local Control Server is JSON-over-HTTP, not an MCP server; its hosted Agent Connection is a separate route.
+- A loaded skill does not supply Blender control. The add-on's local Control Server is JSON-over-HTTP, not an MCP server; its Agent Connection is a separate add-on feature that these skills do not use.
 - Project-aware builds expose Save to commands shared by Create and Retexture. The selection is per .blend and separate from Library browsing. Older builds can lack these commands despite sharing a manifest version. Auto PBR uses its own queue.
 - Library sync may fall back to cached data. Visible thumbnails or a successful sync alone do not prove a fresh authenticated response.
-- The reviewed update action opens a download page; installation and verification are separate steps.
+- From 1.17.0 the add-on updates itself in place from its extension repository with one click; earlier builds opened a download page. Verify the loaded version afterwards.
 - Assembly preparation can collapse currently hidden faces. It has no inspected preserve-hidden-faces option; reusable/moving surfaces need an appropriate preparation strategy.
 - Independent Restyle results can differ in materials, detail and seams. Briefs, source colours and reference images guide generation; they do not enforce exact masks or continuous boundaries.
 - The snapping helper checks rigid connector placement, not all collisions, manufacturing fit or structural safety.

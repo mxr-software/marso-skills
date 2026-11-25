@@ -1,6 +1,6 @@
 ---
 name: marso-blender-setup
-description: "Install, configure, update or troubleshoot the Marso Blender add-on and agent connection. Use for first-time setup, account or project settings, missing panels and connection problems."
+description: "Install, configure, update or troubleshoot the Marso Blender add-on and the Blender MCP connection. Use for first-time setup, account or project settings, missing panels and connection problems."
 license: Apache-2.0
 ---
 
@@ -12,7 +12,7 @@ Get the user's existing Blender installation ready for Marso work. Complete the 
 
 Establish the assistant's actual capabilities: connected Blender tools, desktop control, or instructions only. Use available tools before asking the user for facts they can reveal. Identify the Blender session and installed versions; distinguish a missing add-on from a disabled one.
 
-The default route is **official Blender MCP + Marso Blender add-on**. The MCP controls Blender; the add-on connects directly to Marso. The hosted Marso MCP is not required for this route. A working alternative chosen by the user can stay in place.
+The default route is **official Blender MCP + Marso Blender add-on**. The MCP controls Blender; the add-on connects directly to Marso. Every Marso skill uses this route, so both components are required.
 
 Read [installation](references/installation.md) when either component is missing or the Blender connection is unverified. Read [configuration](references/configuration.md) for settings and connection choices. Read [updates](references/updates.md) for an update request, or [troubleshooting](references/troubleshooting.md) for a fault.
 
@@ -31,7 +31,7 @@ For a setup or repair request, perform routine authorized changes and verify eac
 - Keep existing valid storage locations. New locations belong outside the extension installation directory. Configure only the connection route being used.
 - For an accompanying creation task, configure its [Studio destination](references/configuration.md#project-destination-for-creation): select a relevant project or create a descriptively named one, verify the selection and save it with the .blend. A setup-only request does not require creating a project.
 
-When a tool or application requires a user action, explain that specific action. Work within the available interface; a restricted hosted connection is not permission to switch to Python or desktop control to evade its restrictions.
+When a tool or application requires a user action, explain that specific action. Work within the available interface; a restricted connection is not permission to switch to Python or desktop control to evade its restrictions.
 
 ## 3. Verify without generating an asset
 

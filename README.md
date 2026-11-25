@@ -28,6 +28,7 @@ You can start from a sentence, a photograph or an existing mesh. Choose generati
 **🚀 Start here**
 
 - [Install and connect](#get-started)
+- [Ask for a workflow by name](docs/workflows.md#named-workflows)
 - [Learn with your agent](docs/workflows.md)
 - [Keep everything updated](#stay-up-to-date)
 
@@ -39,6 +40,7 @@ You can start from a sentence, a photograph or an existing mesh. Choose generati
 - [Search and reuse assets](#find-similar-assets-in-your-own-library)
 - [Retexture and appearance states](#one-shape-many-appearances)
 - [Build modular kits](#build-a-kit-assemble-many-layouts)
+- [Stock a stall or a shelf](#one-object-many-parts)
 - [Rebuild a scene from photos](#turn-reference-images-into-an-editable-scene)
 
 **📚 Go further**
@@ -182,6 +184,20 @@ In Blender, a slider or mask can blend the finished materials—for example, inc
 
 ---
 
+## One object, many parts
+
+**A market stall, a full bookcase or a greengrocer's stand is mostly repetition.** The agent plans it as a set piece. It splits the structure into its own parts, models what is rigid, and generates each soft or organic shape once. Colours, prints and labels are variants of that one mesh, not new meshes. A placement list then puts every instance where it belongs, so the layout can be repeated or rearranged.
+
+**🧺 Skills:** [Plan the set piece](skills/core/marso-set-piece/SKILL.md) → [Assemble it in Blender](skills/blender/marso-blender-set-piece/SKILL.md), or the [make-set-piece workflow](skills/workflows/marso-make-set-piece/SKILL.md) end to end
+
+**💬 Try asking:**
+
+> Use the make-set-piece workflow to make a market clothing stall: a pipe frame with a striped canopy, rails of T-shirts and jeans in several colours, and folded stacks on the table.
+
+[Named workflows and what each one does](docs/workflows.md#named-workflows)
+
+---
+
 ## Turn reference images into an editable scene
 
 **Photos → scene graph → reviewed asset plan → Blender scene.** The agent identifies objects across photographs, matches repeated views and records what rests on what. You can choose what to model, generate, reuse, instance or build as a kit before creation begins.
@@ -190,7 +206,7 @@ In Blender, a slider or mask can blend the finished materials—for example, inc
 
 This excerpt from a scene-decomposition test shows how a photograph becomes a support graph: the table supports the vase, and the vase holds the flowers. Those relationships guide placement while keeping each asset independently editable.
 
-The scene stays editable: replace furniture, change finishes or build another layout. Empty-based groups prevent a table's mesh scale from also resizing objects supported by it. The agent analyses the photographs and uses the skills' local scripts to build the scene graph; Marso Detect Objects is an optional aid.
+The scene stays editable: replace furniture, change finishes or build another layout. Empty-based groups prevent a table's mesh scale from also resizing objects supported by it. The agent analyses the photographs and uses the skills' local scripts to build the scene graph.
 
 **🏗️ Skills:** [Decompose references](skills/core/marso-scene-decompose/SKILL.md) → [Plan the graph](skills/core/marso-scene-graph/SKILL.md) → [Build assets](skills/blender/marso-blender-scene-assets/SKILL.md) → [Place the scene](skills/blender/marso-blender-place-scene/SKILL.md)
 
@@ -205,7 +221,7 @@ The scene stays editable: replace furniture, change finishes or build another la
 
 ## Get started
 
-You need a Marso account for cloud generation, texturing and your library. Installing the skills supplies workflow instructions; connect the tools separately in step 2.
+You need Blender 5.2 or later and a Marso account for cloud generation, texturing and your library. Installing the skills supplies workflow instructions; connect the tools separately in step 2.
 
 ### 1. Install the skills 📦
 
@@ -234,32 +250,28 @@ Use this instead of a duplicate standalone installation. For OpenAI, the documen
 
 ### 2. Connect the tools
 
-Choose the route for what you want to do:
+Marso work runs inside Blender, so you need both of these:
 
-| Your workflow | Connect these tools |
+| Component | What it does |
 | --- | --- |
-| Model, texture or assemble scenes in Blender | Use an assistant with local Blender control. Install [Marso for Blender](https://marso.app/plugins/blender) and the [official Blender Lab MCP](https://www.blender.org/lab/mcp-server/). The add-on supplies Marso operations; Blender MCP controls Blender. A separate hosted Marso MCP is optional. |
-| Generate images/assets or search your library without Blender | Connect the hosted Marso MCP to your Marso account in an assistant that supports it. Blender is not required for these cloud operations. Ask the agent to verify its Marso connection and choose a Studio project before creating anything. |
+| [Marso for Blender](https://marso.app/plugins/blender) | The add-on that supplies every Marso operation: generation, Retexture, PBR and the library. |
+| [Official Blender Lab MCP](https://www.blender.org/lab/mcp-server/) | Lets your assistant inspect and control Blender. |
 
-**Claude web/desktop:** installing the Marso plugin loads the skills, but does not by itself connect to Blender. Local modelling needs a client/session that can use Blender MCP; a cloud-only chat can use supported hosted Marso tools. Check the [client-specific installation guide](docs/installation.md) and [Blender connection guide](docs/blender-setup.md) before starting a Blender task.
+**Claude web/desktop:** installing the Marso plugin loads the skills, but does not by itself connect to Blender. The skills need a client or session that can use Blender MCP. Check the [client-specific installation guide](docs/installation.md) and [Blender connection guide](docs/blender-setup.md) before starting.
 
-**Blender route:** [follow the setup guide](docs/blender-setup.md), then ask:
+[Follow the setup guide](docs/blender-setup.md), then ask:
 
 > Use marso-blender-setup to check my Blender connection, Marso account, storage folders and library without generating anything. Tell me what is ready and what is missing.
 
-**Cloud route:** ask:
-
-> Check my hosted Marso connection and list my Studio projects without generating anything. Tell me which image, 3D, PBR and library tools are available.
-
 ### 3. Make something—and understand it
 
-**With Blender:**
+**Model and texture:**
 
 > Teach me while we make a small side table in Blender. Explain the modelling choices, show me the geometry before texturing, then use Marso for realistic materials and PBR. Save the file and show me where the asset lives in my library.
 
-**Without Blender:**
+**Generate an asset:**
 
-> Use Marso to generate a weathered ceramic pot in a project called Garden Props. Explain each step, show me the image before generating 3D, then add PBR and show me the finished asset in my library.
+> Use Marso in Blender to generate a weathered ceramic pot in a project called Garden Props. Explain each step, show me the image before generating 3D, then add PBR and show me the finished asset in my library.
 
 **By name:**
 
@@ -269,7 +281,7 @@ Choose the route for what you want to do:
 
 ### Stay up to date
 
-Rerun the skills installation command with the same agent and scope, or update the Marso plugin through your client's plugin controls. Update the Blender add-on and Blender MCP separately, then repeat the connection check. [Updates and troubleshooting →](docs/blender-setup.md#keep-the-components-up-to-date)
+Rerun the skills installation command with the same agent and scope, or update the Marso plugin through your client's plugin controls. Update the Blender add-on from the **Update to X** button at the top of its panel, and Blender MCP by its own instructions, then repeat the connection check. [Updates and troubleshooting →](docs/blender-setup.md#keep-the-components-up-to-date)
 
 ## Go further
 
@@ -280,6 +292,8 @@ Rerun the skills installation command with the same agent and scope, or update t
 | Change the appearance of damage or wear with a material parameter | [Appearance states and transitions](docs/workflows.md#appearance-changes-over-time) |
 | Fill shelves with many looks from a few shapes | [Appearance families](docs/workflows.md#stock-a-scene-without-rebuilding-every-object) |
 | Build larger structures from reusable pieces | [Modular kits](docs/workflows.md#build-a-modular-kit-then-use-it) |
+| Make one object from many repeated parts, such as a stocked stall or shelf | [The make-set-piece workflow](docs/workflows.md#named-workflows) |
+| Get a finished result by naming a workflow | [Named workflows](docs/workflows.md#named-workflows) |
 | Reconstruct and improve a photographed environment | [Scene workflow](docs/workflows.md#rebuild-a-reference-scene-in-blender) |
 
 

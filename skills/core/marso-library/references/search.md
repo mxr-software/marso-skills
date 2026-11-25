@@ -9,7 +9,7 @@ If the user has supplied an exact asset id or already selected a candidate, reso
 Inspect the tools actually available, as for generation.
 
 - **Blender add-on route.** Builds with a `find_in_library` bridge command search the whole library by meaning and appearance: `query` (a few words), `image_path` (a picture of the object), or both. Each result is one asset with its name, `verdict` (`match`, `possible` or `weak`), image and text scores, `pbr_asset_id` and a downloaded `thumbnail_path`. `show_in_library: true` also shows the results in the Library panel's Find mode, where `import_assets` imports them. `search_library` is a different command: it matches names, tags and materials in the projects already cached on this machine, and finds nothing it has not cached.
-- **Other routes.** Use a library search tool the connection offers, reading its schema first. Without one, say that the library cannot be searched from here and browse the user's projects only if they ask. Do not invent a search call.
+- **Without the add-on's search.** Say that the library cannot be searched from here, and browse the user's projects only if they ask. Do not invent a search call.
 
 Search with both a description and an image whenever there is an image:
 

@@ -6,7 +6,7 @@ license: Apache-2.0
 
 # Work with Marso
 
-Translate the requested outcome into the appropriate workflow. Preserve the user's choice of application and working connection. For Blender tasks, favour the Blender add-on for Marso operations and inspect its capabilities first through the established Blender control route. Do not call the separate hosted Marso MCP just to discover or perform operations the add-on supports. It is not an installation requirement. If an operation is missing, report the specific gap and continue supported work; use another connection only when it is already part of the user's chosen workflow.
+Translate the requested outcome into the appropriate workflow. Every Marso operation runs through the Marso add-on inside Blender, reached through the Blender MCP tools. Inspect the add-on's capabilities first. If Blender or the add-on is missing, say that both are required and use `marso-blender-setup` when installed. If an operation is missing from the add-on, report the specific gap and continue supported work.
 
 For a multi-stage task, name the workflow for each stage before executing it and load the applicable installed skill. This includes assets being built for a film, tutorial, demonstration or render. A custom builder or presentation recipe can create geometry or shots, but does not replace the Marso texture workflow's input validation, operation selection and result checks. Do not assume an installed skill was followed: retain the actual handoff and check results with the project.
 
@@ -47,7 +47,7 @@ For an unspecified creation route, compare achievable visual quality and effort 
 
 ## Discover the connection
 
-Inspect the tools actually available. Distinguish general application control, the Marso add-on and the hosted Studio connection. An installed skill supplies instructions, not a connection. For missing Blender setup, use `marso-blender-setup` when installed. Companion skills are separately installable; do not read assumed sibling paths. If a required specialist is absent, identify it or continue only through verified tools and their documented capabilities.
+Inspect the tools actually available: Blender control, and the Marso add-on's commands inside it. An installed skill supplies instructions, not a connection. For missing Blender setup, use `marso-blender-setup` when installed. Companion skills are separately installable; do not read assumed sibling paths. If a required specialist is absent, identify it or continue only through verified tools and their documented capabilities.
 
 Read runtime schemas and capabilities before using generation parameters. Use the installed tool prefix rather than inventing one. Do not change accounts, stored defaults or project destinations merely to establish a preferred route. Keep setup and capability discovery non-generating.
 

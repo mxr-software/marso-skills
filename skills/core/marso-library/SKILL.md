@@ -8,7 +8,7 @@ license: Apache-2.0
 
 Reuse is a first-class creation route. Preserve a user-selected asset and its identifiers; generation is a fallback only when it fits the request.
 
-1. Discover the current connection's search and import schemas. Read [search and selection](references/search.md) when searching. A cached name search is not proof that the whole library has no match.
+1. Discover the add-on's search and import schemas. Read [search and selection](references/search.md) when searching. A cached name search is not proof that the whole library has no match.
 2. If the user supplies an exact asset id or has already chosen a candidate, resolve and inspect that asset directly. Do not search for substitutes or ask them to choose it again.
 3. Otherwise search by a short description and a tight unmarked object crop when available. Show plausible candidates and material differences. Respect an already delegated reuse decision; record your selection as an agent decision. A similarity score alone is not user approval.
    For scene reuse, inspect silhouette, proportions, required parts, dimensions and intended viewing distance as well as appearance. Classify a candidate as suitable unchanged, suitable geometry needing a new finish, or unsuitable; Retexture cannot repair a shape mismatch. Verify a real `pbr_asset_id`, completed mint state and a usable USD package before treating it as scene-ready. Raw meshes, image-only/material-only results, pending/failed minting and unknown status do not qualify. In Blender use `mint_status`, then `import_scene_asset` with `require_minted: true` when supported; do not bypass the gate through a generic import command. Read live schemas rather than inventing a minted-only search filter.

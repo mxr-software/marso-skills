@@ -90,20 +90,11 @@ For articulation, ask for separate parts and deliberate pivots: “Keep the lid 
 
 > Use these room photos to build a Blender scene. First use the scene skills to identify objects across views and show me the scene graph. Search my Marso library before making missing props. Propose which objects to model, generate, instance or build as a kit, then finish the visible assets with Marso and show review images.
 
-The default route is the agent using the **scene decomposition and scene-graph skills**, followed by Blender construction and placement. It does not require a Marso Detect Objects node. The built-in detection tool is an optional source of observations when useful or explicitly requested.
+The default route is the agent using the **scene decomposition and scene-graph skills**, followed by Blender construction and placement.
 
 The graph tracks identity, count and support relationships: the same chair in two photos should not become two unique assets. The plan records creation choices and a scene-wide geometry/texture budget. Blender uses Empty-based entity groups so resizing a table's mesh does not resize everything supported by that table.
 
 The result is an editable reconstruction you can improve, rearrange and restyle. Ask for specific changes—layout, material condition, furniture replacement or lighting—instead of expecting one automatic photo-to-scene operation to resolve every ambiguity. Finish with a saved scene and lightweight review images; request a final render when you want one.
-
-<details>
-<summary>Optional: Marso's built-in Detect Objects</summary>
-
-![Object regions in a Marso detection example](assets/demos/detect-objects.jpg)
-
-The Studio tool can supply object regions when it is useful or requested. The scene skills add cross-view identity, relationships, creation choices and placement planning. Neither a collection of boxes nor a successful detection run is a finished Blender scene.
-
-</details>
 
 ## Build a scene from a prompt
 

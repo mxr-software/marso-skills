@@ -1,6 +1,6 @@
 # Condition PBR on the new paint
 
-PBR prediction uses visual cues about how the object reacts to light. New Texture paint is unlit, so the default after New Texture is to condition PBR on a lit image of that paint. In the Studio canvas Image → 3D Generation → PBR route, the original image supplies the condition automatically.
+PBR prediction uses visual cues about how the object reacts to light. New Texture paint is unlit, so the default after New Texture is to condition PBR on a lit image of that paint. A mesh generated from an image is different: its source image supplies the condition automatically.
 
 ## Sequence
 
