@@ -22,7 +22,7 @@ Takes a brief or an image to a modelled, unwrapped asset with a Marso appearance
 2. `marso-blender-reference`: pass the object and the image. Carry forward the chosen reference and the dimensions.
 3. `marso-blender-asset`: pass the object, the path signals, the reference and the dimensions. Carry forward the asset root, the path and the review pack.
 4. `marso-blender-uv`: pass the asset root. Carry forward the UV report and the review images.
-5. `marso-blender-asset` again: pass the UV review images so it can decide whether the asset is finished. Carry forward that status and any remaining defects.
+5. `marso-blender-asset` again: pass the UV review images so it runs its finish check. Carry forward the check's status and any remaining defects. A waiver of model approval never skips this step.
 6. `marso-blender-texture`: pass the asset root, the look as text and the approval. Run Retexture, then PBR. Start this step only when step 5 reports the asset finished or partial; otherwise return to the step that owns the defect.
 
 ## Stops

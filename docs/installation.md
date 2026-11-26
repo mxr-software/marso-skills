@@ -101,7 +101,7 @@ npx skills add ./marso-skills --skill '*' --agent codex claude-code --copy
 
 The installer places skills in that project's agent directories. Review the [compatibility status](compatibility.md) before starting a scene workflow.
 
-The entry skill discovers available capabilities; it does not supply credentials or install connections. Every Marso operation runs through the Marso add-on in Blender. See compatibility for the execution checks completed.
+The entry skill discovers available capabilities; it does not supply credentials or install connections. In Blender, every Marso operation runs through the Marso add-on; Unreal Engine support is in closed beta ([Unreal Engine](unreal.md)). See compatibility for the execution checks completed.
 
 ## Codex
 

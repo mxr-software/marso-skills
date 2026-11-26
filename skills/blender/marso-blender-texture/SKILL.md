@@ -10,9 +10,9 @@ license: Apache-2.0
 
 This skill gives Blender assets from any source Marso textures and PBR materials: New Texture, Edit Texture, PBR from an existing look, or a 2D material from an image. On request it bakes a colour guide or writes a texture-ready export. It preserves shape, dimensions, hierarchy, pivots, kit connections and the authored UV layout. It works through the working Blender connection and the Marso add-on.
 
-- **Geometry and UVs only for a new model.** Submit a newly modelled asset with no materials. `retexture` adds a blank `Marso Retexture` material before upload and wires the returned maps into it; the staged route adds the same blank itself. Colours assigned while modelling are not an existing look; do not bake them to run Edit.
+- **Geometry and UVs only for a new model.** Submit a newly modelled asset with no materials. `retexture` and a batch item add a blank `Marso Retexture` material before upload and wire the returned maps into it; the staged route adds the same blank itself. Colours assigned while modelling are not an existing look; do not bake them to run Edit.
 - **Use returned materials exactly as applied.** Add no constant colour, metallic or roughness over the maps, no procedural bumps, remapped channels or corrective lights for the acceptance render.
-- **Repair the cause, never the paint.** Fix the prompt, reference, submission pose, UVs or geometry, then retexture the original model again: on the staged route from the same Load 3D node, on the combined command after `reset_look`. Never repaint the returned paint locally and upload it again.
+- **Repair the cause, never the paint.** Fix the prompt, reference, submission pose, UVs or geometry, then retexture the original model again. That is a new batch item, a rerun from the same Load 3D node on the staged route, or `retexture` after `reset_look`. Never repaint the returned paint locally and upload it again.
 - **Always pass `workflow="multiview"`.** Use `sequential` only when the user asks for it or a documented use requires it, never as an automatic fallback after a weak result.
 
 Model approval belongs to the modelling stage. Before any cloud job on new or substantially remodelled geometry, this skill needs that approval or an explicit waiver ([model approval](#model-approval-before-cloud-jobs)).
@@ -39,6 +39,7 @@ Through an authorised Blender Python tool, find the enabled Marso module in `bpy
 | Alternative styles from an existing asset | Branch from the preserved original or prepared baseline | [variants and naming](references/variants.md) |
 | Deliberate clean, worn and burnt states | Sibling or explicitly cumulative edits, PBR for every state | [appearance states](references/appearance-states.md) |
 | Reusable modular components | Preserve surfaces exposed across intended arrangements | [kit texturing](references/kits.md) |
+| Several targets in one run (kit parts, set piece masters and variants, props) | Stage by stage: each stage for every target together | [many objects](references/many-objects.md), then [conditioned PBR](references/conditioned-pbr.md) for the calls |
 | Several approved Edit Texture targets | Native batches when exposed | [batches](references/batches.md) |
 | Preparation, upload, pose, transparency or placement detail | The matching section | [preparation](references/preparation.md) |
 | Repeated parts, mirrored geometry or wrong normal directions | Diagnose before reuse | [normals and repeats](references/normals-and-repeats.md) |
@@ -71,6 +72,7 @@ Done when the project, the target with its parts, and the upload level for the p
 8. **Local-only work stops here.** A guide is a lighting-free UV image bound to the mesh, not a camera render. Use the native submission, or export a GLB when requested.
 
 - **Thin two-sided assets or overhanging fittings:** present both broad faces to opposing views, or texture the groups separately ([submission pose](references/preparation.md#submission-pose-and-occlusion)).
+- **Parts stay assembled:** Retexture frames the whole submitted object, so parts spread apart leave every surface fewer pixels. Move only a fitting that covers a named surface, within the [spread limit](references/preparation.md#keep-the-spread-small).
 - **Checks:** let a helper or native operation supply the checks it already performs; do not repeat a validator for another report. A successful helper or an existing PBR material is not proof of correct input.
 - **Failures:** resume only the affected stage ([recovery](references/preparation.md#prepare-once-resume-the-affected-stage)). UV changes invalidate the guide; a preview failure does not. Leave unrelated accepted parts alone.
 - **Transparency:** Marso generates none; exclude and restore clear parts, or apply local transparency after maps ([transparent parts](references/preparation.md#transparent-parts)).
@@ -85,8 +87,9 @@ New or substantially remodelled geometry needs useful neutral-clay evidence and 
 - With nobody to answer, finish local reversible preparation, stop before any cloud job, and report the previews and the pending approval.
 - Routine UV work that preserves appearance does not renew approval. Direct retexture of an existing unchanged asset needs no extra model-approval question.
 - Major unresolved form defects return to modelling; report them rather than asking textures to invent structure.
+- A model built with `marso-blender-asset` carries its finish check on the root, as the JSON property `marso_finish`. Read its `status` before any cloud job. A waiver covers the wait for a person, never this check. If the property is missing or its `status` is `repair`, return the asset to `marso-blender-asset` to run its finish check, and start no Retexture. Without that skill installed, report that the model's quality checks were not run.
 
-Done when the approval, the waiver or the pending state is recorded before the first cloud job.
+Done when the approval, the waiver or the pending state, and for a modelled asset a finish status of `pass` or `partial`, are recorded before the first cloud job.
 
 ## Describe and submit
 
@@ -94,10 +97,15 @@ Read [prompts and image handoff](references/prompts.md) when authoring a new loo
 
 - **Precise artwork:** record fixed landmarks such as stripe ends and label panels, and stage Retexture so they are checked on the unlit paint.
 - **Every `retexture` call:** pass `enhance: ""` unless the user wants the panel's enhancement, which is otherwise appended to the prompt.
+- **Every `retexture` and `run_3d_retexture` call:** state `mode`. Left out, it means Edit Texture: the panel's setting, which starts on Edit, or the function's default.
 - **No reference image:** Retexture runs with no reference image at all. On `retexture`, pass `reference_path: ""`, which means "none" and sends no image; leaving it out would reuse the panel's earlier pick. Turn any photograph, of the object or of its material, into words in the prompt ([no reference image](references/prompts.md#no-reference-image)). A render, drawing or clay view guides shape only.
 - **Reusable or coordinated looks:** keep a compact [appearance brief](references/appearance.md).
 
-Submit eligible jobs once and retain job and result identity and the project. Batch only Edit Texture targets: New Texture runs the staged route because batch items take no condition image, and PBR-only targets use `pbr_generate` because batches have no PBR-only pipeline. Let the add-on monitor and advance stages; reconcile timeouts rather than resubmit. Check one representative final result before expanding an unproven method.
+Submit eligible jobs once and retain job and result identity and the project. Reconcile a timeout rather than resubmit.
+
+- **Several targets:** work stage by stage, not object by object ([many objects](references/many-objects.md)). Send every target in one batch, read them all in one status read, and move each finished target on one stage at a time.
+- **A pilot** comes first only for an unproven method: one part's paint for a kit, the kit skill's pilot for a reference-image kit, and the pilot in [appearance families](references/appearance-families.md) for edited-image looks. Targets textured from a text look need none.
+- **Batches** take Edit Texture targets with `review: []`. From Marso 1.22.0 they take New Texture targets too, with `review: ["edit"]`: the paint's approval carries the condition image ([conditioned PBR](references/conditioned-pbr.md#batch-route-marso-1220-and-later)). PBR-only targets use `pbr_generate`, because batches have no PBR-only pipeline. Let the add-on monitor and advance a batch's stages.
 
 Choose the PBR route before submitting Retexture:
 
@@ -105,19 +113,23 @@ Choose the PBR route before submitting Retexture:
 - **The user supplied a real photograph of the same object and finish** (cleaned if needed; not a render or drawing, and not an image you rendered or generated): pass the file as `condition_image_path` on the combined Retexture and PBR run, or `condition_image_asset_id` when it is already in the account. To get an ID for a file, call `upload_image` with `add_node: false` (1.21.1 and later). Without it, that command adds a Load Image node for mesh generation, which is then left unconnected in the project.
 - **Edit Texture or PBR-only on an existing look with clear finish cues** (a texture the user supplied or an accepted Marso result, not a colour atlas baked from stand-in materials): the combined run may continue directly into PBR. Pass `condition_image_path: ""` on `retexture` or `pbr_generate` when no condition image is intended; an omitted one uses the panel's earlier pick.
 
+A New Texture run never ends at the paint. If the paint cannot be brought into Blender or the condition image cannot be made, run PBR with no condition image, apply it and report the paint as not reviewed ([sequence](references/conditioned-pbr.md#sequence)).
+
 Follow a running add-on chain to avoid duplicate PBR.
+
+A run that stays queued or running is still alive, however slow Marso is. Keep following that same run and do local work meanwhile. If nothing changes for half an hour, save the file, record the IDs and report those targets as pending, so the run can be resumed. Deliver a Marso result or a pending report, never a hand-made material in its place. When reads keep timing out, read again later; never replace or patch an add-on function, even for a moment, to feed a batch results it could not fetch.
 
 Done when each job is submitted once, with its route, project and job identity recorded.
 
 ## Review the result
 
-1. Inspect the unlit paint region by region against the brief before any condition image ([accept the paint](references/conditioned-pbr.md#accept-the-paint-before-conditioning)).
-2. If a region or finish is wrong, find its cause. On the staged route, rerun `run_3d_retexture` from the same Load 3D node, first binding a corrected bare mesh there after a geometry or UV fix. On the combined command, run `reset_look` on the target, fix the cause and run `retexture` again; record both node sets. If one repair attempt reproduces the same unexplained failure, report the job evidence and stop resubmitting.
+1. Import the painted mesh as a temporary object ([bring the paint into Blender](references/conditioned-pbr.md#bring-the-paint-into-blender)): a batch item's `review_file`, or the fetched file on the staged route. The library import commands take only a PBR result. Inspect the unlit paint region by region against the brief before any condition image ([accept the paint](references/conditioned-pbr.md#accept-the-paint-before-conditioning)).
+2. If a region or finish is wrong, find its cause. On the batch route, reject the item and send the target again. On the staged route, rerun `run_3d_retexture` from the same Load 3D node, first binding a corrected bare mesh there after a geometry or UV fix. On the combined command, run `reset_look` on the target, fix the cause and run `retexture` again; record both node sets. If one repair attempt reproduces the same unexplained failure, report the job evidence and stop resubmitting.
 3. Inspect returned maps per material under changed lighting, including seams and visible backs or interiors. Use the returned Marso materials exactly as the add-on applies them.
 4. Reuse accepted geometry previews. Start with one useful material preview and inspect other relevant angles interactively; add a small targeted diagnostic only for a specific uncertainty. Requested beauty stills and films follow acceptance.
 5. Preserve packed images or valid dependencies on save. Keep names stable while jobs are pending; after success follow [identity-safe naming](references/variants.md#name-materials-after-successful-application).
 
-Done when every requested region passes on the unlit paint and the applied materials have been inspected under changed lighting.
+Done when every requested region passes on the unlit paint, or the paint is reported as not reviewed, and the applied materials have been inspected under changed lighting.
 
 ## Hand off
 
@@ -130,17 +142,19 @@ Done when the handoff lists the operation, IDs, output and remaining defects.
 1. The task approves the model. `marso-blender-uv` hands over `Chair` with a passing `MarsoUV` atlas. `assembly_state` on `Chair` reports an assembly of 14 parts with no materials.
 2. `save_to_state` shows an unrelated project; the task names "Dining set". `list_studio_projects`, then `set_save_project` with its `project_id`.
 3. The atlas is authored, so `prepare_asset.working_copy(parts, name="Chair_Texture_v1", frame=root.matrix_world, addon_module=addon)` joins a working copy. `validate_atlas` passes. Retexture on `Chair` itself would have replaced the atlas with `MarsoAtlas`.
-4. The staged route from conditioned PBR runs Retexture alone with `mode="blank"` and `workflow="multiview"`. The prompt describes oiled oak with straight grain on the frame and a charcoal wool seat pad.
-5. The unlit paint shows the wool colour bleeding onto the front rail. The prompt is changed to name the rail as oak, and Retexture reruns from the same Load 3D node; the paint is not touched up locally.
-6. An unlit capture goes through Image Edit with a two-sentence prompt asking for photorealistic lighting and naming how the oak and wool catch the light; a fresh PBR node runs with `conditioning_image_asset_id`. The result is applied unchanged and inspected under new lighting.
-7. The handoff lists the Retexture, Image Edit and PBR IDs, the project, the authored `MarsoUV` route and one remaining defect.
+4. The .blend is saved to the path it will keep. One `batch_submit` item on `Chair_Texture_v1` runs Retexture alone: `mode: "blank"`, `workflow: "multiview"` and `review: ["edit"]`. The prompt describes oiled oak with straight grain on the frame and a charcoal wool seat pad.
+5. `batch_status` shows the item in `needs_review`, and its `review_file` is imported as a temporary object. Its unlit paint shows the wool colour bleeding onto the front rail. The item is rejected, the prompt is changed to name the rail as oak, and the target is sent again; the paint is not touched up locally.
+6. An unlit capture of the second paint goes through `edit_scene_image` with a two-sentence prompt asking for photorealistic lighting and naming how the oak and wool catch the light. `batch_review` approves the paint with that image as `condition_image_asset_id`. The add-on runs PBR and applies the result, which is inspected unchanged under new lighting.
+7. The handoff lists the batch and its item, the Retexture, Image Edit and PBR IDs, the project, the authored `MarsoUV` route and one remaining defect.
 
 ## Common mistakes
 
 - Retexturing the root after authoring an atlas: submit the single-mesh working copy, because the assembly route replaces the atlas.
 - Adding materials or baking stand-in colours before New Texture: submit geometry and UVs only.
 - Repainting returned paint and uploading it: fix the cause and retexture the original model again.
-- Running the combined chain after New Texture: stage it and condition PBR on a lit image of the new paint.
+- Running the combined chain after New Texture: hold the paint for review in a batch and condition PBR on a lit image of it.
+- Texturing several objects one at a time: send each stage for every target together and check them in one status check.
 - Switching to `sequential` after a weak multiview result: keep `workflow="multiview"` and fix the cause.
+- Spreading an asset's parts apart after a weak result: keep it assembled and move only a fitting that covers a named surface, within the spread limit.
 - Adjusting returned maps or adding lights for the acceptance render: apply them unchanged and correct the stage at fault.
 - Starting a cloud job on an unapproved new model: finish local preparation and report the pending approval.

@@ -74,8 +74,8 @@ The four shared gates block every path: primary form, construction and contact, 
 
 1. Inspect the images you render: a neutral oblique against the reference, a top or end view for depth, the opposite side, and close views of each consequential interface. With `marso-blender-reference` installed, compare the model with each reference after the blockout and again here. Fix the mismatch it names first, and repeat until its measured gate passes or its stop rule ends the rounds. One failing comparison never ends them.
 2. Measure contacts and floating parts with [check_contacts.py](scripts/check_contacts.py); `mirror_deviation` measures a supposedly symmetric part. Parenting, names and bounding-box overlap do not prove contact.
-3. Render the review pack with [review_model.py](scripts/review_model.py): `review(root, out_dir, joints=pairs)` writes `sheet.png`, a contact sheet of the clay and wire views. It also writes full-size `clay.png` (two opposite neutral-clay views), `gloss.png` (the same views with a glossy surface) and `wire.png` (the evaluated mesh's edges over clay). `topology.json` holds the counts and density verdicts. `pairs` lists the structural part-name pairs that meet (legs to rails and seat, posts to arms); each gets a close clay view in `joints.png`. It refuses to overwrite earlier files unless `overwrite=True`.
-4. Open `clay.png`, `gloss.png`, `wire.png` and `joints.png`. Each joint must read as built: matching sections where a member continues, no collar, step or protruding rail end the design does not have. In `gloss.png`, follow the highlights: a highlight that wobbles, breaks into facets or stops at a seam marks a surface to repair, even where the clay looks smooth. Fix the largest failure first and render the same views again.
+3. Render the review pack with [review_model.py](scripts/review_model.py): `review(root, out_dir, joints=pairs)` writes `sheet.png`, a contact sheet of the clay and wire views. It also writes full-size `clay.png` (two opposite neutral-clay views), `gloss.png` (the same views with a glossy surface) and `wire.png` (the evaluated mesh's edges over clay). `topology.json` holds the counts and density verdicts. `pairs` lists the structural part-name pairs that meet (legs to rails and seat, posts to arms); each gets a close clay view in `joints.png`. It refuses to overwrite earlier files unless `overwrite=True`. Once the UVs are packed, the [finish check](#finish-check) with `render=True` renders the same pack and the UV images in one call, and only when the asset changed.
+4. Open `clay.png`, `gloss.png`, `wire.png` and `joints.png`, or every image a finish check lists in `rendered`. Each joint must read as built: matching sections where a member continues, no collar, step or protruding rail end the design does not have. In `gloss.png`, follow the highlights: a highlight that wobbles, breaks into facets or stops at a seam marks a surface to repair, even where the clay looks smooth. Fix the largest failure first and render the same views again.
 5. A failed gate is repaired, not reported. A measured failure that names a part always has a repair: make it and measure again. The [finish check](#finish-check) measures every gate again and releases a failure only after two repairs.
 
 A recognisable primitive, a high part count, parenting or a valid atlas is not accepted form. Keep one short note per gate: revision, views inspected, findings and the repair or proceed decision. Keep accepted checkpoints, not a gallery after every operation. Stop when the path's style and the gates are met; never lower them to meet a time target, and do not polish a minor fitting while the overall form is weak.
@@ -93,13 +93,19 @@ Done when all four gates pass on the latest revision and its clay, gloss, wirefr
 
 ## Finish check
 
-The agent does not decide when the asset is finished; [finish_check.py](scripts/finish_check.py) does. Run it after the gates and the UV stage, before any handoff:
+The agent does not decide when the asset is finished; [finish_check.py](scripts/finish_check.py) does. Run it after the gates and the UV stage, before any handoff, once per repair round:
 
 ```python
-result = finish_check.check(root, "renders/finish", review_dir="renders/review", uv_dir="renders/uv", joints=pairs)
+result = finish_check.check(root, "renders/finish", review_dir="renders/review", uv_dir="renders/uv",
+                            joints=pairs, render=True)
 ```
 
-One call measures the recorded path, each reference comparison, contacts, topology, density, the triangle budget, the shared atlas and both review folders, and writes `finish.json`. The comparison and atlas are measured when those sibling skills are installed; a missing sibling is listed in `notes`.
+One call measures the recorded path, each reference comparison, contacts, topology, density, the triangle budget and the shared atlas. With `render=True` it then renders each review pack that no longer shows the asset, checks both folders and writes `finish.json`. The comparison and atlas are measured when those sibling skills are installed; a missing sibling is listed in `notes`.
+
+- A review pack is stale when the geometry changed after it was rendered; the UV pack is also stale when the UVs changed. `render=True` renders only stale packs and lists each image it wrote in `rendered`, so a call on an unchanged asset renders nothing.
+- Open every image in `rendered` before the next call, as in [step 4 of the gates](#pass-the-gates-and-render-the-review-pack). Without `render=True`, a stale pack blocks as `review:stale` or `uv:review`.
+- The check keeps each part's results on the root and measures only the parts that changed. A kept result is used only when the part's change mark matches.
+- `render=True` leaves a folder alone if it holds review files those scripts did not stamp, and the blocker stays: pass an empty folder. It never runs `compare` or `match_view`, so compare again yourself after an outline change.
 
 1. On status `repair`, fix the first entry of `blockers` as its `repair` says, then run the check again. Do not write the handoff yet.
 2. A blocker still measured after two repairs moves to `partial`. A step never done (no path, comparison, atlas or review pack) is never released.
@@ -107,7 +113,7 @@ One call measures the recorded path, each reference comparison, contacts, topolo
 4. For a stylised or invented object with no reference, pass `no_reference="<reason>"`.
 5. With nobody watching there is no time limit to save: keep repairing until the status changes.
 
-Done when the last call returned `pass` or `partial` and the asset has not changed since.
+Done when the last call returned `pass` or `partial`, the asset has not changed since, and every image the calls listed in `rendered` has been opened.
 
 ## Hand off
 
@@ -127,7 +133,7 @@ Done when the handoff lists the review pack, the finish check's status, and eith
 4. A first attempt at a turned finial with Blender's UV sphere shows `poles_7plus: 2` and 32 triangles in `topology.json`. It is rebuilt as `revolve` with small-ring caps, and the counts return to zero.
 5. `check_contacts.py` reports the back stretcher 4 mm short of the left leg; the rail is lengthened into the leg and the contact rechecked.
 6. `review_model.review(root, "renders/review", joints=[("Leg.RL", "Apron.Back"), ("Leg.FL", "Apron.Front")])` writes the pack with `joints.png`. The wireframe shows dense loops on the flat seat underside; they are removed because they shape nothing.
-7. UV preparation goes to `marso-blender-uv`. Then `finish_check.check(root, "renders/finish", review_dir="renders/review", uv_dir="renders/uv")` returns `repair`: the review pack was rendered before the seat loops were removed, so its triangle count is stale. The pack is rendered again and the check returns `pass`.
+7. UV preparation goes to `marso-blender-uv`. Then `finish_check.check(root, "renders/finish", review_dir="renders/review", uv_dir="renders/uv", joints=pairs, render=True)` returns `pass`. The seat loops were removed after step 6, so the model pack was stale: the call rendered it again with the UV images and listed them in `rendered`. Each listed image is opened before the handoff; a second call renders nothing.
 8. With no approval and no waiver in the task, the run stops here. The handoff gives the path, 0.46 m seat and 0.86 m height, 21k evaluated triangles, the review pack folder, finish status `pass` and "awaiting approval".
 
 ## Common mistakes
@@ -143,4 +149,5 @@ Done when the handoff lists the review pack, the finish check's status, and eith
 - Modelling a recognisable kind of object from memory: get references and landmarks first, and compare the model with them.
 - Handing off a part still flagged `over_dense` as a judgement call: the flag is a failed gate.
 - Writing the handoff while `finish_check.check` returns `repair`: fix the first blocker and run it again; only its `partial` entries are reported as defects.
+- Passing the check without opening what it rendered: open every image in `rendered`, since a pass measures the gates, not the look.
 - Starting Retexture on an unseen model: show the review pack and wait for approval or an explicit waiver.

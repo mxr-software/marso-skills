@@ -6,9 +6,11 @@ layer (default `MarsoUV`). Seams are the author's: `unwrap` uses the marked seam
 """
 
 from contextlib import contextmanager
+import hashlib
 import math
 from pathlib import Path
 import sys
+import time
 
 import bmesh
 import bpy
@@ -22,6 +24,8 @@ UV = 'MarsoUV'
 LIMITS = {'stretch_p95': 2.5, 'density_spread': 1.3, 'fill': 0.65, 'chart_width': 1 / 128}
 PADDING_CHECK_FACES = 150000
 BEST_PACK_FACES = 200000
+# Modifier settings that change neither the mesh nor a render.
+MARK_SKIPS = {'rna_type', 'name', 'show_expanded', 'is_active', 'show_in_editmode', 'show_on_cage'}
 
 
 def _candidates(root_or_objects):
@@ -436,7 +440,104 @@ def _weighted_percentile(values, weights, fraction):
     return float(values[finite][order][np.searchsorted(cumulative, fraction * cumulative[-1])])
 
 
-def report(root_or_objects, *, uv_name=UV, resolution=None, padding_px=None, addon_module=None, limits=None):
+@contextmanager
+def _evaluated(objects):
+    """The evaluated mesh of each object by name, converted once and cleared on exit."""
+    depsgraph = bpy.context.evaluated_depsgraph_get()
+    held, meshes = [], {}
+    try:
+        for obj in objects:
+            item = obj.evaluated_get(depsgraph)
+            meshes[obj.name] = item.to_mesh()
+            held.append(item)
+        yield meshes
+    finally:
+        for item in held:
+            item.to_mesh_clear()
+
+
+def _hash_mesh(digest, mesh, uv_name):
+    """Feed a mesh's positions, face sizes, corner vertices, edges, corner normals and atlas UVs to the digest."""
+    layer = mesh.uv_layers.get(uv_name)
+    for collection, name, kind, width in ((mesh.vertices, 'co', np.float32, 3),
+                                          (mesh.polygons, 'loop_total', np.int32, 1),
+                                          (mesh.loops, 'vertex_index', np.int32, 1),
+                                          (mesh.edges, 'vertices', np.int32, 2),
+                                          (getattr(mesh, 'corner_normals', ()), 'vector', np.float32, 3),
+                                          (layer.data if layer else (), 'uv', np.float32, 2)):
+        values = np.empty(len(collection) * width, dtype=kind)
+        if len(values):
+            collection.foreach_get(name, values)
+        digest.update(str(len(values)).encode())
+        digest.update(values.tobytes())
+
+
+def _hash_modifiers(digest, obj):
+    """Feed every setting of every modifier to the digest: a render level changes the images, not the mesh."""
+    for modifier in obj.modifiers:
+        values = [modifier.type]
+        for prop in modifier.bl_rna.properties:
+            if prop.identifier in MARK_SKIPS or prop.is_readonly or prop.type == 'COLLECTION':
+                continue
+            try:
+                value = getattr(modifier, prop.identifier)
+            except AttributeError:
+                continue
+            if prop.type == 'POINTER':
+                value = getattr(value, 'name_full', None)
+            elif isinstance(value, (set, frozenset)):
+                value = sorted(value)
+            elif not isinstance(value, (bool, int, float, str)):
+                value = tuple(value)
+            values.append((prop.identifier, value))
+        try:
+            values += [(key, modifier[key]) for key in modifier.keys()
+                       if isinstance(modifier[key], (bool, int, float, str))]
+        except (AttributeError, TypeError):
+            pass
+        digest.update(repr(values).encode())
+
+
+def marks(root_or_objects, *, uv_name=UV, meshes=None):
+    """A change mark for each part and one for the asset: `{'asset': hex, 'parts': {name: hex}}`.
+
+    A part's mark is a hash of its modelled and evaluated meshes (positions, faces, corner normals and the
+    atlas UVs), its world matrix, every modifier setting and the resolution and padding `pack` recorded. It
+    changes when the geometry or the atlas does, so review images and a kept report can be matched to the
+    asset as it is now. `meshes` maps part names to evaluated meshes that are already open.
+    """
+    objects = asset_meshes(root_or_objects)
+    if meshes is None:
+        with _evaluated(objects) as meshes:
+            return _marks(objects, uv_name, meshes)
+    return _marks(objects, uv_name, meshes)
+
+
+def _marks(objects, uv_name, meshes):
+    parts, whole = {}, hashlib.sha1(uv_name.encode())
+    for obj in objects:
+        digest = hashlib.sha1()
+        _hash_mesh(digest, obj.data, uv_name)
+        _hash_mesh(digest, meshes[obj.name], uv_name)
+        digest.update(np.array(obj.matrix_world, dtype=np.float32).tobytes())
+        _hash_modifiers(digest, obj)
+        digest.update(repr((obj.get('marso_uv_resolution'), obj.get('marso_uv_padding_px'))).encode())
+        parts[obj.name] = digest.hexdigest()[:20]
+    # The asset mark does not depend on the order the parts were listed in.
+    whole.update(repr(sorted(parts.items())).encode())
+    return {'asset': whole.hexdigest()[:20], 'parts': parts}
+
+
+class _Measured:
+    """An open evaluated mesh, presented to the per-object measuring helpers in place of a temporary copy."""
+    type = 'MESH'
+
+    def __init__(self, obj, mesh):
+        self.name, self.data, self.matrix_world = obj.name + '.measure', mesh, obj.matrix_world.copy()
+
+
+def report(root_or_objects, *, uv_name=UV, resolution=None, padding_px=None, addon_module=None, limits=None,
+           meshes=None, timings=None):
     """Measure the shared atlas on the evaluated meshes and say whether it meets the limits.
 
     Per part: area-weighted stretch p95, texel density and invalid triangles. Asset: density spread
@@ -451,8 +552,22 @@ def report(root_or_objects, *, uv_name=UV, resolution=None, padding_px=None, add
     the recorded size, so a measurement at another size shows. `worst_patch` names the single most
     stretched face of the asset with its world position, and `stretched_area_share` is the share of the
     surface stretched past 1.5.
+
+    `meshes` maps part names to evaluated meshes that are already open, read instead of converting each
+    part again; do not render or edit the scene while they are open. `timings` is a dict that receives the
+    seconds each stage took.
     """
     objects = asset_meshes(root_or_objects)
+    if meshes is None:
+        with _evaluated(objects) as meshes:
+            return _report(root_or_objects, objects, meshes, uv_name, resolution, padding_px, addon_module, limits,
+                           timings)
+    return _report(root_or_objects, objects, meshes, uv_name, resolution, padding_px, addon_module, limits, timings)
+
+
+def _report(root_or_objects, objects, meshes, uv_name, resolution, padding_px, addon_module, limits, timings):
+    started = lap = time.perf_counter()
+    timings = {} if timings is None else timings
     packed = recorded(objects)
     if resolution is None:
         resolution = packed['resolution'] if packed else 2048
@@ -461,63 +576,64 @@ def report(root_or_objects, *, uv_name=UV, resolution=None, padding_px=None, add
     worst_patch, stretched_area, total_area = None, 0.0, 0.0
     limits = dict(LIMITS, **(limits or {}))
     addon_module = addon_module or installed_addon()
-    depsgraph = bpy.context.evaluated_depsgraph_get()
     parts, missing, outside, records, total_uv = {}, [], 0, [], 0.0
     face_count = 0
     for obj in objects:
-        evaluated = obj.evaluated_get(depsgraph)
-        mesh = evaluated.to_mesh()
-        try:
-            metrics = face_metrics(obj, mesh, uv_name, resolution)
-            face_count += len(mesh.polygons)
-            if metrics is None:
-                missing.append(obj.name)
-                continue
-            area, uv_area = metrics['area'], metrics['uv_area']
-            invalid = int((~np.isfinite(metrics['anisotropy'])).sum())
-            worst = np.argsort(np.where(np.isfinite(metrics['anisotropy']), metrics['anisotropy'], 1e9))[-3:]
-            finite = np.where(np.isfinite(metrics['anisotropy']), metrics['anisotropy'], 0.0)
-            total_area += float(area.sum())
-            stretched_area += float(area[finite > 1.5].sum())
-            top = int(np.argmax(finite)) if len(finite) else None
-            if top is not None and (worst_patch is None or finite[top] > worst_patch['stretch']):
-                worst_patch = {'object': obj.name, 'polygon': int(metrics['polygon'][top]),
-                               'stretch': round(float(finite[top]), 3),
-                               'centre': [round(float(v), 5) for v in metrics['centre'][top]],
-                               'normal': [round(float(v), 4) for v in metrics['normal'][top]]}
-            density = resolution * math.sqrt(uv_area.sum() / area.sum()) if area.sum() > 0 else 0.0
-            parts[obj.name] = {
-                'stretch_p95': _weighted_percentile(metrics['anisotropy'], area, .95),
-                'stretch_max': float(np.nanmax(np.where(np.isfinite(metrics['anisotropy']),
-                                                        metrics['anisotropy'], np.nan)))
-                if invalid < len(area) else None,
-                'worst_polygons': [int(metrics['polygon'][i]) for i in worst[::-1]],
-                'px_per_m': density, 'invalid_triangles': invalid,
-                'outside_tile_triangles': metrics['outside'], 'faces': len(mesh.polygons)}
-            outside += metrics['outside']
-            total_uv += float(uv_area.sum())
-            if addon_module is not None:
-                uv = np.empty(len(mesh.loops) * 2)
-                mesh.uv_layers[uv_name].data.foreach_get('uv', uv)
-                uv = uv.reshape(-1, 2)
-                for tri in mesh.loop_triangles:
-                    records.append((0, (obj.name, tri.polygon_index), tuple(tuple(uv[i]) for i in tri.loops),
-                                    tri.area))
-        finally:
-            evaluated.to_mesh_clear()
+        mesh = meshes[obj.name]
+        metrics = face_metrics(obj, mesh, uv_name, resolution)
+        face_count += len(mesh.polygons)
+        if metrics is None:
+            missing.append(obj.name)
+            continue
+        area, uv_area = metrics['area'], metrics['uv_area']
+        invalid = int((~np.isfinite(metrics['anisotropy'])).sum())
+        worst = np.argsort(np.where(np.isfinite(metrics['anisotropy']), metrics['anisotropy'], 1e9))[-3:]
+        finite = np.where(np.isfinite(metrics['anisotropy']), metrics['anisotropy'], 0.0)
+        total_area += float(area.sum())
+        stretched_area += float(area[finite > 1.5].sum())
+        top = int(np.argmax(finite)) if len(finite) else None
+        if top is not None and (worst_patch is None or finite[top] > worst_patch['stretch']):
+            worst_patch = {'object': obj.name, 'polygon': int(metrics['polygon'][top]),
+                           'stretch': round(float(finite[top]), 3),
+                           'centre': [round(float(v), 5) for v in metrics['centre'][top]],
+                           'normal': [round(float(v), 4) for v in metrics['normal'][top]]}
+        density = resolution * math.sqrt(uv_area.sum() / area.sum()) if area.sum() > 0 else 0.0
+        parts[obj.name] = {
+            'stretch_p95': _weighted_percentile(metrics['anisotropy'], area, .95),
+            'stretch_max': float(np.nanmax(np.where(np.isfinite(metrics['anisotropy']),
+                                                    metrics['anisotropy'], np.nan)))
+            if invalid < len(area) else None,
+            'worst_polygons': [int(metrics['polygon'][i]) for i in worst[::-1]],
+            'px_per_m': density, 'invalid_triangles': invalid,
+            'outside_tile_triangles': metrics['outside'], 'faces': len(mesh.polygons)}
+        outside += metrics['outside']
+        total_uv += float(uv_area.sum())
+        if addon_module is not None:
+            uv = np.empty(len(mesh.loops) * 2)
+            mesh.uv_layers[uv_name].data.foreach_get('uv', uv)
+            count = len(mesh.loop_triangles)
+            loops, areas = np.empty(count * 3, dtype=np.int64), np.empty(count)
+            mesh.loop_triangles.foreach_get('loops', loops)
+            mesh.loop_triangles.foreach_get('area', areas)
+            corners = uv.reshape(-1, 2)[loops.reshape(-1, 3)].tolist()
+            name = obj.name
+            records.extend((0, (name, polygon), tuple(map(tuple, points)), surface) for polygon, points, surface
+                           in zip(metrics['polygon'].tolist(), corners, areas.tolist()))
+    timings['metrics'], lap = _lap(lap), time.perf_counter()
     densities = [p['px_per_m'] for p in parts.values() if p['px_per_m'] > 0]
     spread = max(densities) / min(densities) if densities else None
+    measured = [_Measured(obj, meshes[obj.name]) for obj in objects]
     if addon_module is not None:
         conflict = _addon_module(addon_module, 'uv_validation').first_conflict(records)
         overlap = {'validator': 'add-on', 'conflict': conflict}
     elif not missing:
-        audit = audit_uv(_evaluated_copies(objects), uv_name=uv_name, resolution=resolution)
-        _remove_copies()
+        audit = audit_uv(measured, uv_name=uv_name, resolution=resolution)
         overlap = {'validator': 'bundled (stricter than the add-on)', 'conflict': None if not audit['overlap_pairs'] else
                    'overlapping triangles: ' + str(audit['overlap_examples'][:3]),
                    'mirrored_triangles': audit['mirrored_triangles']}
     else:
         overlap = {'validator': None, 'conflict': 'missing layer'}
+    timings['overlap'], lap = _lap(lap), time.perf_counter()
     cage_faces = sum(len(obj.data.polygons) for obj in objects)
     if missing:
         padding = {'checked': False, 'reason': 'missing layer'}
@@ -525,15 +641,14 @@ def report(root_or_objects, *, uv_name=UV, resolution=None, padding_px=None, add
         padding = {'checked': False, 'reason': 'over 150,000 faces even before modifiers'}
     else:
         evaluated = face_count <= PADDING_CHECK_FACES
-        quality = measure_uv_quality(_evaluated_copies(objects) if evaluated else objects, uv_name=uv_name,
+        quality = measure_uv_quality(measured if evaluated else objects, uv_name=uv_name,
                                      resolution=resolution, padding_px=padding_px / 2)
-        if evaluated:
-            _remove_copies()
         padding = {'checked': True, 'passed': quality['padding_passed'],
                    'measured_on': 'evaluated meshes' if evaluated else 'meshes before modifiers (evaluated over 150,000 faces)',
                    'violation_pairs': quality['padding_violation_pairs'],
                    'examples': quality['padding_examples'][:3],
                    'tile_border_px_min': quality['tile_border_px_min'], 'islands': quality['islands']}
+    timings['padding'], lap = _lap(lap), time.perf_counter()
     failures = []
     hidden = hidden_meshes(root_or_objects)
     if hidden:
@@ -567,6 +682,7 @@ def report(root_or_objects, *, uv_name=UV, resolution=None, padding_px=None, add
         narrow = {'min_px': narrow['min_px'], 'count': len(narrow['narrow']),
                   'examples': sorted(narrow['narrow'], key=lambda c: c['width_px'])[:10],
                   'whole_parts': narrow['whole_parts'][:10]}
+    timings['narrow_charts'], timings['total'] = _lap(lap), _lap(started)
     return {'passed': not failures, 'failures': failures, 'uv_name': uv_name, 'resolution': resolution,
             'padding_px': padding_px, 'packed_for': packed, 'worst_patch': worst_patch,
             'stretched_area_share': round(stretched_area / total_area, 4) if total_area else None,
@@ -585,6 +701,10 @@ def mark_pixels(result, part, size_m):
 
 def _round(value):
     return None if value is None else round(value, 3)
+
+
+def _lap(since):
+    return round(time.perf_counter() - since, 3)
 
 
 _COPIES = []

@@ -60,7 +60,7 @@ Before PBR-only submission, run the same upload UV and surface checks (preparati
 
 For a condition image, 1.19.0 and later expose `condition_image_asset_id` on `retexture` and `pbr_generate`. Pass the file as `condition_image_path`, or the ID of an image already in the account as `condition_image_asset_id`. For an ID alone, call `upload_image` with `add_node: false` (1.21.1 and later): it uploads, returns `image_asset_id` and adds no node. Its default adds a Load Image node meant to feed mesh generation, and that node stays unconnected when no generation follows. On an earlier add-on, reuse an asset ID a job already returned. New Texture defaults to a condition image made from the newly returned paint: follow conditioned PBR instead of starting the combined command. The direct graph client spells the field `conditioning_image_asset_id` on `run_project_pbr`.
 
-Poll direct graph executions about every 30–60 s while queued and 15–30 s while running, outside Blender's main thread, without reporting each unchanged status. When intentionally testing a different condition image on the same mesh, use a fresh Studio PBR node: re-running a completed node can return its previous execution.
+Check direct graph executions with `poll_execution` about every 30 to 60 seconds, outside Blender's main thread, and report only a changed status. Check several in one call. When intentionally testing a different condition image on the same mesh, use a fresh Studio PBR node: re-running a completed node can return its previous execution.
 
 ## Flat images and 2D materials
 

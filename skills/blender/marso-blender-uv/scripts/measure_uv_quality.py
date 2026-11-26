@@ -7,6 +7,8 @@ overlap, visibility, material bindings or artistic quality.
 import math
 
 import bpy
+import numpy as np
+from mathutils import Vector
 
 
 def _percentile(samples, fraction):
@@ -35,6 +37,13 @@ def _distance(a, b, c, d):
         return 0.0
     return min(_point_distance(a, c, d), _point_distance(b, c, d),
                _point_distance(c, a, b), _point_distance(d, a, b))
+
+
+def _read(collection, name, kind, width=1):
+    """One property of every item as Python numbers: a flat list, or rows of `width`."""
+    values = np.empty(len(collection) * width, dtype=kind)
+    collection.foreach_get(name, values)
+    return (values.reshape(-1, width) if width > 1 else values).tolist()
 
 
 def measure_uv_quality(objects, *, uv_name=None, resolution=4096, padding_px=8,
@@ -74,21 +83,25 @@ def measure_uv_quality(objects, *, uv_name=None, resolution=4096, padding_px=8,
                 parent[index] = parent[parent[index]]
                 index = parent[index]
             return index
+        # One bulk read of each array; the values are the single-precision numbers the per-item reads gave.
+        loop_uv = _read(layer.data, 'uv', np.float32, 2)
+        loop_vertex = _read(mesh.loops, 'vertex_index', np.int32)
+        starts, totals = _read(mesh.polygons, 'loop_start', np.int32), _read(mesh.polygons, 'loop_total', np.int32)
         edges = {}
-        for polygon in mesh.polygons:
-            if polygon.index in omitted:
+        for polygon_index, (start, total) in enumerate(zip(starts, totals)):
+            if polygon_index in omitted:
                 continue
-            loops = list(polygon.loop_indices)
+            loops = list(range(start, start + total))
             for i, j in zip(loops, loops[1:] + loops[:1]):
-                a, b = tuple(layer.data[i].uv), tuple(layer.data[j].uv)
+                a, b = tuple(loop_uv[i]), tuple(loop_uv[j])
                 if not all(math.isfinite(x) for x in a + b):
                     invalid += 1
                     continue
                 border.extend((a[0], a[1], 1 - a[0], 1 - a[1]))
                 # Subdivided meshes repeat a shared UV to within float noise; round so charts stay whole.
-                key = tuple(sorted(((mesh.loops[i].vertex_index, (round(a[0], 6), round(a[1], 6))),
-                                    (mesh.loops[j].vertex_index, (round(b[0], 6), round(b[1], 6))))))
-                edges.setdefault(key, []).append((polygon.index, a, b))
+                key = tuple(sorted(((loop_vertex[i], (round(a[0], 6), round(a[1], 6))),
+                                    (loop_vertex[j], (round(b[0], 6), round(b[1], 6))))))
+                edges.setdefault(key, []).append((polygon_index, a, b))
         groups = list(edges.values())
         if match_split_vertices:
             candidates = {}
@@ -119,11 +132,15 @@ def measure_uv_quality(objects, *, uv_name=None, resolution=4096, padding_px=8,
                 boundaries.append((bounds, a, b, chart))
                 chart_perimeters[chart] = chart_perimeters.get(chart, 0) + math.dist(a, b)
         mesh.calc_loop_triangles()
-        for tri in mesh.loop_triangles:
-            if tri.polygon_index in omitted:
+        coordinates = _read(mesh.vertices, 'co', np.float32, 3)
+        matrix = obj.matrix_world
+        for polygon, corner_loops, corner_vertices in zip(_read(mesh.loop_triangles, 'polygon_index', np.int32),
+                                                          _read(mesh.loop_triangles, 'loops', np.int32, 3),
+                                                          _read(mesh.loop_triangles, 'vertices', np.int32, 3)):
+            if polygon in omitted:
                 continue
-            u, v, w = [layer.data[i].uv.copy() for i in tri.loops]
-            points = [obj.matrix_world @ mesh.vertices[i].co for i in tri.vertices]
+            u, v, w = [Vector(loop_uv[i]) for i in corner_loops]
+            points = [matrix @ Vector(coordinates[i]) for i in corner_vertices]
             if not all(math.isfinite(value) for point in points for value in point):
                 invalid += 1
                 continue
@@ -146,10 +163,10 @@ def measure_uv_quality(objects, *, uv_name=None, resolution=4096, padding_px=8,
             ratio = largest / determinant
             distortions.append((ratio, area))
             densities.append((resolution * math.sqrt(area_uv / area), area))
-            chart = (obj.name, root(tri.polygon_index))
+            chart = (obj.name, root(polygon))
             if chart not in peak_stretch or ratio > peak_stretch[chart]['anisotropy']:
                 peak_stretch[chart] = {
-                    'anisotropy': ratio, 'polygon': tri.polygon_index,
+                    'anisotropy': ratio, 'polygon': polygon,
                     'uv_center': tuple((u + v + w) / 3),
                     'weak_density_px_per_m': resolution * determinant / math.sqrt(largest),
                 }
@@ -162,14 +179,19 @@ def measure_uv_quality(objects, *, uv_name=None, resolution=4096, padding_px=8,
     gap = padding_px / resolution
     boundaries.sort(key=lambda entry: entry[0][0])
     violations, examples = 0, []
-    # The sweep is quadratic for dense charts; use a spatial index if profiling warrants it.
+    # A sweep along u. The box tests run on arrays; only pairs that pass them reach the exact distance,
+    # in the order the plain double loop visited them.
+    boxes = np.array([entry[0] for entry in boundaries], dtype=np.float64).reshape(-1, 4)
+    numbers = {}
+    owner = np.array([numbers.setdefault(entry[3], len(numbers)) for entry in boundaries], dtype=np.int64)
     for i, (bounds, a, b, chart) in enumerate(boundaries):
-        for j in range(i + 1, len(boundaries)):
+        stop = int(np.searchsorted(boxes[:, 0], bounds[1] + gap, side='right'))
+        if stop <= i + 1:
+            continue
+        near = ~((owner[i + 1:stop] == owner[i]) | (boxes[i + 1:stop, 2] > bounds[3] + gap)
+                 | (boxes[i + 1:stop, 3] < bounds[2] - gap))
+        for j in (np.flatnonzero(near) + i + 1).tolist():
             box, c, d, other_chart = boundaries[j]
-            if box[0] > bounds[1] + gap:
-                break
-            if chart == other_chart or box[2] > bounds[3] + gap or box[3] < bounds[2] - gap:
-                continue
             distance = _distance(a, b, c, d) * resolution
             if distance + 1e-4 < padding_px:
                 violations += 1

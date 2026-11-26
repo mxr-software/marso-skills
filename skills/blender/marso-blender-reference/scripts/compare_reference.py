@@ -12,6 +12,7 @@ import json
 import math
 from pathlib import Path
 import tempfile
+import time
 
 import bpy
 import numpy as np
@@ -25,6 +26,10 @@ STATION_LIMIT = 0.05
 THIN_LIMIT, THIN_FLOOR = 0.25, 0.015
 RECORD = 'marso_comparisons'
 RED, BLUE = np.array([0.85, 0.1, 0.1]), np.array([0.1, 0.3, 0.9])
+SEARCHES = ('fast', 'full')
+# Camera settings a new camera starts with; the viewer puts them back before every render.
+CAMERA_DEFAULTS = ('lens', 'sensor_width', 'sensor_height', 'sensor_fit', 'shift_x', 'shift_y', 'ortho_scale',
+                   'clip_start', 'clip_end')
 
 
 def _meshes(root_or_objects):
@@ -168,15 +173,50 @@ def _direction(view):
     return direction.normalized()
 
 
-def _render_model(objects, view, size, lens=None):
-    """Clay render from `view`, framed on the asset: RGBA pixels, top row first. Orthographic unless `lens`
-    (millimetres on a 36 mm sensor) asks for perspective."""
-    direction = _direction(view)
-    data = bpy.data.cameras.new('MarsoReferenceCamera')
-    data.type = 'PERSP' if lens else 'ORTHO'
-    cam = bpy.data.objects.new('MarsoReferenceCamera', data)
-    bpy.context.scene.collection.objects.link(cam)
-    try:
+class _Viewer:
+    """One camera, one clay setup and one scratch file for a series of clay renders of the same objects.
+
+    Use it as a context manager; `render` gives each view the framing and pixels `_render_model` gives it.
+    The scene's render settings and object visibility are restored on exit.
+    """
+
+    def __init__(self, objects):
+        self.objects = objects
+        self.renders = 0
+
+    def __enter__(self):
+        self._data = bpy.data.cameras.new('MarsoReferenceCamera')
+        self._defaults = {name: getattr(self._data, name) for name in CAMERA_DEFAULTS}
+        self._camera = bpy.data.objects.new('MarsoReferenceCamera', self._data)
+        bpy.context.scene.collection.objects.link(self._camera)
+        self._scratch = tempfile.TemporaryDirectory()
+        self._clay = _clay(self.objects, 64, 64)
+        try:
+            self._scene = self._clay.__enter__()
+            self._scene.camera = self._camera
+            self._scene.render.filepath = str(Path(self._scratch.name) / 'model.png')
+            self._corners = [o.matrix_world @ Vector(c) for o in self.objects for c in o.bound_box]
+        except BaseException:
+            self.__exit__(None, None, None)
+            raise
+        return self
+
+    def __exit__(self, *failure):
+        try:
+            self._clay.__exit__(*failure)
+        finally:
+            bpy.data.objects.remove(self._camera)
+            bpy.data.cameras.remove(self._data)
+            self._scratch.cleanup()
+
+    def render(self, view, size, lens=None):
+        """Clay render from `view`, framed on the asset: RGBA pixels, top row first. Orthographic unless
+        `lens` (millimetres on a 36 mm sensor) asks for perspective."""
+        direction = _direction(view)
+        data, cam = self._data, self._camera
+        for name, value in self._defaults.items():
+            setattr(data, name, value)
+        data.type = 'PERSP' if lens else 'ORTHO'
         if abs(direction.z) > 0.999:
             cam.rotation_euler = (0, 0, 0) if direction.z > 0 else (math.pi, 0, 0)
         else:
@@ -184,10 +224,9 @@ def _render_model(objects, view, size, lens=None):
         bpy.context.view_layer.update()
         right = cam.matrix_world.to_3x3() @ Vector((1, 0, 0))
         up = cam.matrix_world.to_3x3() @ Vector((0, 1, 0))
-        corners = [o.matrix_world @ Vector(c) for o in objects for c in o.bound_box]
-        across = [c.dot(right) for c in corners]
-        along = [c.dot(up) for c in corners]
-        depth = [c.dot(direction) for c in corners]
+        across = [c.dot(right) for c in self._corners]
+        along = [c.dot(up) for c in self._corners]
+        depth = [c.dot(direction) for c in self._corners]
         span_x, span_y = max(across) - min(across), max(along) - min(along)
         span = max(span_x, span_y, 1e-6) * (1 + 2 * MARGIN)
         centre = (right * (max(across) + min(across)) / 2 + up * (max(along) + min(along)) / 2)
@@ -206,14 +245,19 @@ def _render_model(objects, view, size, lens=None):
                 height = max(64, round(size * (span_y * (1 + 2 * MARGIN) / span)))
             else:
                 width = max(64, round(size * (span_x * (1 + 2 * MARGIN) / span)))
-        with _clay(objects, width, height) as scene, tempfile.TemporaryDirectory() as scratch:
-            scene.camera = cam
-            scene.render.filepath = str(Path(scratch) / 'model.png')
-            bpy.ops.render.render(write_still=True)
-            return _read(scene.render.filepath)
-    finally:
-        bpy.data.objects.remove(cam)
-        bpy.data.cameras.remove(data)
+        settings = self._scene.render
+        settings.resolution_x, settings.resolution_y = width, height
+        bpy.ops.render.render(write_still=True)
+        self.renders += 1
+        return _read(settings.filepath)
+
+
+def _render_model(objects, view, size, lens=None):
+    """One clay render from `view`, framed on the asset: RGBA pixels, top row first. Orthographic unless `lens`
+    (millimetres on a 36 mm sensor) asks for perspective."""
+    _direction(view)
+    with _Viewer(objects) as viewer:
+        return viewer.render(view, size, lens)
 
 
 def _sample(shape, source_shape, ref_box, model_box, scale, step=1):
@@ -225,6 +269,17 @@ def _sample(shape, source_shape, ref_box, model_box, scale, step=1):
     sy = np.round((rt + rb) / 2 + (ys + 0.5 - (mt + mb) / 2) / scale - 0.5).astype(int)
     inside = (sx >= 0) & (sx < source_shape[1]) & (sy >= 0) & (sy < source_shape[0])
     return np.clip(sx, 0, source_shape[1] - 1), np.clip(sy, 0, source_shape[0] - 1), inside
+
+
+def _axis(length, source_length, centre, model_centre, scale, step=1):
+    """`_sample` along one axis: the reference pixel under each output pixel, and whether it lies inside.
+
+    A row index depends only on the row and a column index only on the column, so the fit search builds the
+    two axes once and pairs them. The arithmetic is `_sample`'s, in the same order.
+    """
+    at = np.arange(0, length, step)
+    index = np.round(centre + (at + 0.5 - model_centre) / scale - 0.5).astype(int)
+    return np.clip(index, 0, source_length - 1), (index >= 0) & (index < source_length)
 
 
 def _overlap(a, b):
@@ -245,17 +300,22 @@ def _fit(model_mask, ref_mask, ref_box, axis, grids=((0.08, 9), (0.015, 7))):
     step = max(1, max(model_mask.shape) // 256)
     small = model_mask[::step, ::step]
     best = (-1.0, scale, model_box)
+    height, width = model_mask.shape
     for spread, count in grids:
         centre_scale, (cl, ct, cr, cb) = best[1], best[2]
+        shifts = np.linspace(-spread, spread, count) * size
         for factor in np.linspace(1 - spread, 1 + spread, count):
-            for dx in np.linspace(-spread, spread, count) * size:
-                for dy in np.linspace(-spread, spread, count) * size:
-                    box = (cl + dx, ct + dy, cr + dx, cb + dy)
-                    sx, sy, inside = _sample(model_mask.shape, ref_mask.shape, ref_box, box,
-                                             centre_scale * factor, step)
-                    score = _overlap(small, ref_mask[sy, sx] & inside)
+            scaled = centre_scale * factor
+            columns = [_axis(width, ref_mask.shape[1], (rl + rr) / 2, (cl + dx + cr + dx) / 2, scaled, step)
+                       for dx in shifts]
+            rows = [_axis(height, ref_mask.shape[0], (rt + rb) / 2, (ct + dy + cb + dy) / 2, scaled, step)
+                    for dy in shifts]
+            for dx, (sx, inside_x) in zip(shifts, columns):
+                for dy, (sy, inside_y) in zip(shifts, rows):
+                    placed = ref_mask[np.ix_(sy, sx)] & (inside_y[:, None] & inside_x[None, :])
+                    score = _overlap(small, placed)
                     if score > best[0]:
-                        best = (score, centre_scale * factor, box)
+                        best = (score, scaled, (cl + dx, ct + dy, cr + dx, cb + dy))
     return best[1], best[2], best[0]
 
 
@@ -351,8 +411,64 @@ def _load_reference(reference, mirror, box, drop_shadow, ignore=()):
     return source, mask, found, how, ignore
 
 
+def _directions(centre, reach, count):
+    """A count x count grid of directions, `reach` radians either side of `centre` in azimuth and elevation."""
+    azimuth = math.atan2(centre.y, centre.x)
+    elevation = math.asin(max(-1.0, min(1.0, centre.z)))
+    for az in np.linspace(azimuth - reach, azimuth + reach, count):
+        for el in np.linspace(elevation - reach, elevation + reach, count):
+            el = max(-1.5, min(1.5, float(el)))
+            yield Vector((math.cos(el) * math.cos(az), math.cos(el) * math.sin(az), math.sin(el)))
+
+
+def _full_search(score, start, lenses, spread):
+    """Every lens over a 7 x 7 grid `spread` degrees wide, then 5 x 5 grids at a sixth and a 24th of it."""
+    results = []
+    for lens in lenses:
+        best = (-2.0, start, 0.0)
+        for reach, count in ((math.radians(spread), 7), (math.radians(spread) / 6, 5),
+                             (math.radians(spread) / 24, 5)):
+            for direction in _directions(best[1], reach, count):
+                value, overlap = score(direction, lens)
+                if value > best[0]:
+                    best = (value, direction, overlap)
+        results.append(best + (lens,))
+    return max(results, key=lambda item: item[0])
+
+
+def _fast_search(score, start, lenses, spread):
+    """A 7 x 7 grid `spread` degrees wide at the middle lens; its three best cells at every lens; then the
+    two best lenses refined by 3 x 3 grids at a sixth, 12th, 24th and 48th of `spread` (5, 2.5, 1.25 and
+    0.625 degrees at the default 30). The centre of each refining grid is the best so far and is not
+    rendered again: 122 views for four lenses."""
+    middle = len(lenses) // 2
+    coarse = [(direction, score(direction, lenses[middle])) for direction in _directions(start, math.radians(spread), 7)]
+    ranked = sorted(range(len(coarse)), key=lambda index: -coarse[index][1][0])[:3]
+    best_at = []
+    for index, lens in enumerate(lenses):
+        cells = []
+        for cell in ranked:
+            direction = coarse[cell][0]
+            value, overlap = coarse[cell][1] if index == middle else score(direction, lens)
+            cells.append((value, direction, overlap))
+        best_at.append(max(cells, key=lambda item: item[0]))
+    chosen = sorted(sorted(range(len(lenses)), key=lambda index: -best_at[index][0])[:2])
+    results = []
+    for index in chosen:
+        best = best_at[index]
+        for divisor in (6, 12, 24, 48):
+            for position, direction in enumerate(_directions(best[1], math.radians(spread) / divisor, 3)):
+                if position == 4:
+                    continue
+                value, overlap = score(direction, lenses[index])
+                if value > best[0]:
+                    best = (value, direction, overlap)
+        results.append(best + (lenses[index],))
+    return max(results, key=lambda item: item[0])
+
+
 def match_view(root_or_objects, reference, *, near='front', mirror=False, box=None, ignore=(),
-               drop_shadow=False, spread=30, lenses=(None, 85, 50, 35), size=160):
+               drop_shadow=False, spread=30, lenses=(None, 85, 50, 35), size=160, search='fast'):
     """Find the camera direction of a photo that is not a level side or front view.
 
     Searches directions within `spread` degrees of `near` (a view name or an (x, y, z) direction from the asset
@@ -361,7 +477,14 @@ def match_view(root_or_objects, reference, *, near='front', mirror=False, box=No
     perspective photo measured through an orthographic camera reports near parts as too thin. Returns `view`
     and `lens` to pass to `compare`. Pass the same `mirror`, `box`, `ignore` and `drop_shadow` as to `compare`.
     The reference needs a plain background.
+
+    `search='fast'` renders at most 122 small views: a coarse grid at the middle lens, its three best cells at
+    every lens, then the two best lenses refined to 0.625 degrees. `search='full'` renders every lens over the
+    whole grid (396 views at the defaults). The result also gives `views` (renders made) and `timings`.
     """
+    started = time.perf_counter()
+    if search not in SEARCHES:
+        raise ValueError('Unknown search: ' + str(search))
     reference = Path(reference)
     if not reference.is_file():
         raise FileNotFoundError(reference)
@@ -370,36 +493,32 @@ def match_view(root_or_objects, reference, *, near='front', mirror=False, box=No
     if ref_mask is None:
         raise ValueError('match_view needs a plain background; crop or clean the reference first')
     start = _direction(near)
+    lenses = tuple(lenses)
+    if not lenses:
+        raise ValueError('Give at least one lens; None is orthographic')
+    loaded = time.perf_counter()
 
-    def score(direction, lens):
-        """Overlap less the largest station difference: the camera that best explains the photo."""
-        mask = _render_model(objects, direction, size, lens)[..., 3] > 0.5
-        if not mask.any():
-            return -1.0, 0.0
-        scale, box, _ = _fit(mask, ref_mask, ref_box, 'width', ((0.06, 5),))
-        sx, sy, inside = _sample(mask.shape, ref_mask.shape, ref_box, box, scale)
-        measured = _measure(mask, ref_mask[sy, sx] & inside, np.ones(mask.shape, dtype=bool), False)
-        if measured is None:
-            return -1.0, 0.0
-        return measured['overlap'] - min(measured['largest_difference'], 0.5), measured['overlap']
+    with _Viewer(objects) as viewer:
+        def score(direction, lens):
+            """Overlap less the largest station difference: the camera that best explains the photo."""
+            mask = viewer.render(direction, size, lens)[..., 3] > 0.5
+            if not mask.any():
+                return -1.0, 0.0
+            scale, placed, _ = _fit(mask, ref_mask, ref_box, 'width', ((0.06, 5),))
+            sx, sy, inside = _sample(mask.shape, ref_mask.shape, ref_box, placed, scale)
+            measured = _measure(mask, ref_mask[sy, sx] & inside, np.ones(mask.shape, dtype=bool), False)
+            if measured is None:
+                return -1.0, 0.0
+            return measured['overlap'] - min(measured['largest_difference'], 0.5), measured['overlap']
 
-    results = []
-    for lens in lenses:
-        best = (-2.0, start, 0.0)
-        for reach, count in ((math.radians(spread), 7), (math.radians(spread) / 6, 5),
-                             (math.radians(spread) / 24, 5)):
-            azimuth = math.atan2(best[1].y, best[1].x)
-            elevation = math.asin(max(-1.0, min(1.0, best[1].z)))
-            for az in np.linspace(azimuth - reach, azimuth + reach, count):
-                for el in np.linspace(elevation - reach, elevation + reach, count):
-                    el = max(-1.5, min(1.5, float(el)))
-                    direction = Vector((math.cos(el) * math.cos(az), math.cos(el) * math.sin(az), math.sin(el)))
-                    value, overlap = score(direction, lens)
-                    if value > best[0]:
-                        best = (value, direction, overlap)
-        results.append(best + (lens,))
-    value, direction, overlap, lens = max(results, key=lambda item: item[0])
-    return {'view': [round(v, 4) for v in direction], 'lens': lens, 'overlap': round(overlap, 3)}
+        found = (_fast_search if search == 'fast' else _full_search)(score, start, lenses, spread)
+        views = viewer.renders
+    value, direction, overlap, lens = found
+    done = time.perf_counter()
+    return {'view': [round(v, 4) for v in direction], 'lens': lens, 'overlap': round(overlap, 3),
+            'search': search, 'views': views,
+            'timings': {'load': round(loaded - started, 3), 'search': round(done - loaded, 3),
+                        'total': round(done - started, 3)}}
 
 
 def compare(root_or_objects, reference, out_path, *, view='right', lens=None, mirror=False, box=None,
@@ -423,6 +542,8 @@ def compare(root_or_objects, reference, out_path, *, view='right', lens=None, mi
     `shifts` and do not count.
     Without a plain background, `passed` is None and the comparison is by eye.
     """
+    started = time.perf_counter()
+    timings = {}
     if fit not in ('auto', 'width', 'height'):
         raise ValueError('Unknown fit: ' + str(fit))
     _direction(view)
@@ -434,13 +555,16 @@ def compare(root_or_objects, reference, out_path, *, view='right', lens=None, mi
     objects = _meshes(root_or_objects)
     source, ref_mask, ref_box, mask_source, ignore = _load_reference(reference, mirror, box, drop_shadow, ignore)
     rl, rt, rr, rb = ref_box
+    timings['load'], lap = round(time.perf_counter() - started, 3), time.perf_counter()
 
     model = _render_model(objects, view, size, lens)
+    timings['render'], lap = round(time.perf_counter() - lap, 3), time.perf_counter()
     model_mask = model[..., 3] > 0.5
     ml, mt, mr, mb = _box(model_mask)
     height, width = model_mask.shape
     axis = fit if fit != 'auto' else ('width' if mr - ml >= mb - mt else 'height')
     scale, placed_box, _ = _fit(model_mask, ref_mask, ref_box, axis)
+    timings['fit'], lap = round(time.perf_counter() - lap, 3), time.perf_counter()
 
     sx, sy, inside = _sample(model_mask.shape, source.shape, ref_box, placed_box, scale)
     white = np.ones((height, width, 3), dtype=np.float32)
@@ -461,6 +585,7 @@ def compare(root_or_objects, reference, out_path, *, view='right', lens=None, mi
     gap = np.ones((height, 12, 3), dtype=np.float32)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     _write(np.concatenate([placed, gap, clay, gap, overlay], axis=1), out_path)
+    timings['write'], lap = round(time.perf_counter() - lap, 3), time.perf_counter()
 
     model_aspect = (mr - ml) / (mb - mt)
     reference_aspect = (rr - rl) / (rb - rt)
@@ -473,6 +598,9 @@ def compare(root_or_objects, reference, out_path, *, view='right', lens=None, mi
         result.update(measured)
     if isinstance(root_or_objects, bpy.types.Object):
         _record(root_or_objects, reference, result, objects)
+    timings['measure'] = round(time.perf_counter() - lap, 3)
+    timings['total'] = round(time.perf_counter() - started, 3)
+    result['timings'] = timings
     return result
 
 

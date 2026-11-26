@@ -53,7 +53,20 @@ The inspected assembly path creates a fresh Smart UV layout; retaining older UV 
 
 For a thin object with two different broad faces, look along the opposing view directions of the **export copy**. If both show mostly its edge, turn the copy so one direction sees the decorated face and the opposite direction sees the reverse. Identify the sides by visible features in the prompt, such as the panel with mounting holes. Preserve the delivery pose, transforms and UVs for reassembly.
 
-Look through overhanging parts toward the main surface. A wheel, grille or handle can project its finish onto the panel behind it even with unique UVs. If that panel matters, texture it with the removable fittings clear of the artwork. Use translation on a temporary copy if the groups still fill the frame and are clearly separated in the relevant views. Otherwise use separate texture targets for the panel and fittings. Preserve each target’s UV/material binding and restore the assembly for delivery. A joined mesh or extra material slots alone will still present the same obstruction.
+Look through overhanging parts toward the main surface. A wheel, grille or handle can project its finish onto the panel behind it even with unique UVs. If that panel matters, texture it with the removable fittings clear of the artwork, within the limit below. A joined mesh or extra material slots alone will still present the same obstruction.
+
+### Keep the spread small
+
+Retexture frames the whole submitted object in each view. Every part moved outward widens that frame, so every surface gets fewer pixels and the paint loses detail. An asset with all its parts spread apart textures worse than the same asset left assembled.
+
+Change the pose only for a fault the views explain: paint missing from a covered surface, or a fitting's finish printed on the surface behind it. A result that is weak all over has another cause; check the prompt, UVs and geometry.
+
+1. Move only a fitting that covers a surface the brief names. Leave every other part assembled.
+2. Work on a temporary copy. Translate the fitting the shortest distance that shows the covered surface in the relevant views.
+3. Measure the diagonal of the bounding box around all submitted parts, assembled and then spread. Keep the spread diagonal within 1.25 times the assembled one.
+4. If the surface is still covered at that limit, put the fittings back. Texture the panel and its fittings as separate targets, each kept compact.
+
+Preserve each target’s UV/material binding and restore the assembly for delivery.
 
 When the view check reveals substantial obstruction or an unproven two-sided treatment, choose the staged conditioned-PBR route before starting the automatic chain. Inspect the returned **unlit paint**, including the reverse and the surface beneath a temporarily hidden fitting. Stop on missing artwork, duplicated silhouettes or a material bleeding onto its neighbour. Inspect any partial-map warning even if a mesh was returned. Correct the cause before generating the lighting condition. Keep the groups clear through mesh PBR where occlusion matters, and use a guide showing the matching painted target. After reassembly, check the opaque panel for hardware-shaped marks in metallic and normal under a fresh light. Local paint cleanup alone cannot establish that the next prediction will keep those regions clean.
 

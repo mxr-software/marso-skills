@@ -32,9 +32,30 @@ Keep Downloads stable: it contains assets and textures your saved scenes may ref
 
 ## 2. Install the official Blender MCP
 
-Use [Blender Lab's MCP Server page](https://www.blender.org/lab/mcp-server/) and its [setup instructions](https://projects.blender.org/lab/blender_mcp/wiki/Setup). It has a Blender-side add-on and a client-side MCP server; you need both.
+Use [Blender Lab's MCP Server page](https://www.blender.org/lab/mcp-server/) and its [setup instructions](https://projects.blender.org/lab/blender_mcp/wiki/Setup). It comes in two halves, and you need both:
 
-Install the Blender Lab add-on using that page's extension link or Install from Disk. For an assistant that supports MCP bundles, use the project's released `.mcpb` package. Otherwise follow its documented server configuration for your client. Keep Blender open and configure the connection in the assistant you will actually use.
+| Half | Where it goes | Its job |
+| --- | --- | --- |
+| Blender MCP add-on | Blender | Waits for your assistant on this computer, on port 9876 unless you change it. |
+| Blender MCP server | Your assistant | Reaches that add-on, so the assistant can inspect and control Blender. |
+
+Install the Blender MCP add-on using that page's extension link or Install from Disk. Its preferences show the port and whether its server is running; **Auto Start** starts it with Blender.
+
+Then add the server to the assistant you will actually use:
+
+- **Claude desktop app:** open **Settings → Extensions**, find **Blender** by Blender Lab in the extension directory and install it. It needs no settings, and the app's Code tab uses it too.
+- **Other assistants:** for one that supports MCP bundles, use the project's released `.mcpb` package. Otherwise follow Blender Lab's server configuration for your client.
+
+Start a new chat or session afterwards, so the assistant loads the Blender tools. Installing Blender MCP gives the assistant Blender; the Marso skills ([install them](installation.md)) tell it how to use Marso there.
+
+### The port
+
+The two halves meet on port 9876 unless you change it, so you do not tell the assistant a port. Change it only when something else on your computer already uses 9876:
+
+- Set the new port in the Blender MCP add-on's preferences.
+- Set the same port as `BLENDER_MCP_PORT` in the environment of the assistant's Blender MCP server entry. Claude's Blender extension has no port setting, so keep 9876 with it.
+
+Keep one Blender open while the assistant works. A second copy on the same port may not report a clash, and the assistant can then reach either one. To control two at once, give each copy its own port and add a server entry for each.
 
 Other projects use the name “Blender MCP.” These instructions refer to **Blender Lab's official project**. Preserve an already-working alternative when the user deliberately chooses it; do not mix one project's add-on with another project's server instructions.
 
@@ -74,7 +95,8 @@ The update is one click from the panel and needs no Marso key. For a detailed re
 ## If something is missing
 
 - **No Marso tab:** check installation, compatibility and the enabled state in Preferences.
-- **Marso works but the agent cannot inspect Blender:** check the assistant's Blender MCP connection and which session it reaches.
+- **Marso works but the agent cannot inspect Blender:** check that the Blender MCP add-on's preferences say its server is running, that the assistant has the Blender MCP server, and that both use the same [port](#the-port).
+- **The agent sees a different Blender scene:** another Blender is open on the same port. Close it, or give each copy its own [port](#the-port).
 - **The library displays old content:** verify a fresh request and account configuration before clearing any cache.
 - **A scene-generation command is unavailable:** update the loaded add-on or continue the model/reuse parts of the plan. The scene skills can decompose photographs locally; missing cloud commands do not invalidate the graph.
 

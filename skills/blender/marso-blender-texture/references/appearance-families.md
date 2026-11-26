@@ -35,15 +35,27 @@ The still is a shape/region guide. Spend effort on correct proportions and reada
 
 A master that Marso generated arrives with its own UVs, texture and PBR maps. Keep those UVs; do not unwrap it again. Its arriving look is the first variant.
 
+Each further variant is a New Texture of that same mesh, and the variants are sent together:
+
 1. Keep the imported object untouched as the source of every variant.
-2. For each further variant, call `retexture` on the source with `result: "new_object"`, a `name` for the variant, `mode: "edit"`, `workflow: "multiview"`, `enhance: ""` and `reference_path: ""`.
-3. Write each prompt as the whole new look in two or three plain sentences, as for any Retexture: "A red cotton T-shirt on a black plastic hanger, slightly creased. Lots of detail, photorealistic."
-4. Leave `source` at its default. An unchanged imported mesh is then edited from its Studio node, and nothing is uploaded.
-5. Each call returns a new object beside the source, with its own material. The source keeps its look.
+2. Write each prompt as the whole new look in two or three plain sentences, as for any Retexture: "A red cotton T-shirt on a black plastic hanger, slightly creased. Lots of detail, photorealistic."
+3. On Marso 1.22.0 and later, send one batch item for each variant, all on the source object: `mode: "blank"`, `review: ["edit"]`, `result: "new_object"` and a `name`. The add-on copies the object for each item and paints the copy. An unchanged source is branched from its Studio node, so nothing is uploaded. The batch still checks the object's UVs for a fallback export: if it refuses a generated source for overlapping UVs, use the staged route below, which exports nothing.
+4. Finish each item as any New Texture: accept its paint, then approve it with its condition image. The copy carries the applied look and the source keeps its own.
+5. Record each variant's `pbr_asset_id` from its item's `pbr` outputs, and its `source_mode` from the `edit` stage: `branch` when it came from the stored mesh, `upload` when the add-on sent the object's mesh instead. An imported mesh with attributes the add-on cannot verify, such as custom normals, is uploaded.
 
-Run these Retextures one after another, not as a batch: several batch items editing one source node conflict. Make every variant from the source, never from another variant. Place instances only after the variants exist: an instance shares its master's material, so a later Retexture of the master would change them all.
+Make every variant from the source, never from another variant. Place instances only after the variants exist: an instance shares its master's material, so a later Retexture of the master would change them all.
 
-A modelled master made of several parts cannot use `result: "new_object"`. Duplicate its prepared baseline once for each variant and Retexture each copy.
+A modelled master of several parts takes no `new_object`. Send its single-mesh working copy as the source instead, one item for each variant, and give each variant its own copy of the parts for the returned material.
+
+### Variants on the staged route
+
+On an earlier add-on, or when the batch refuses the source, make the variants on the staged route:
+
+1. Make the source the active object and read `retexture_state`. Its `source` has `unchanged`, which stays true while the mesh, UVs and textures are as imported. For a `create_3d_asset` or Retexture result it also gives the mesh Marso stores, as `mesh_asset_id`. A master brought in with `import_scene_asset` or from the library has none there: use the `mesh_asset_id` handed over with it.
+2. While `unchanged` is true and the mesh asset ID is known, bind it to one new Load 3D node with `set_node_texture`; nothing is uploaded. Otherwise export the object and upload it once.
+3. Give each variant its own Retexture node linked from that one Load 3D node. Run each with `mode="blank"` and `workflow="multiview"`, and start them without waiting for one another.
+4. If Marso refuses a variant's run, nothing ran. Start that variant again at the next status check, and report it if it is refused twice.
+5. Apply each returned material with `library_material` to a copy of the source that has its own mesh and material data. Record its PBR asset ID in the run record: the copy still carries the source's own Marso record, so the ID cannot be read back from the object.
 
 ## 3. Choose how to author appearances
 
@@ -90,9 +102,9 @@ Each accepted crop contains one object and enough context to identify its materi
 
 ## 7. Pilot, branch and reuse
 
-Retexture one representative look per geometry family from the preserved original/prepared baseline, with a concise appearance brief written from its accepted crop. For Edit Texture runs, follow the combined PBR result. For New Texture, or when a precise design needs inspection before PBR, use the staged route (conditioned PBR reference). Inspect the applied final material; do not treat the intermediate lit edit as final albedo. Verify shape/UV correspondence locally and inspect label boundaries, wrap/seams, front/oblique/back/top and material response at the established viewing distance. The image may preserve shape while suggesting impossible printed geometry; inspect the actual 3D result. Diagnose whether a failure comes from master form, image quality/resolution, preparation or the final material before correcting that stage.
+Looks written as per-style text briefs need no pilot: send them together. On the edited-image and edited-grid routes, Retexture one representative look per geometry family first, from the preserved original/prepared baseline, with a concise appearance brief written from its accepted crop. For Edit Texture runs, follow the combined PBR result. For New Texture, or when a precise design needs inspection before PBR, use the staged route (conditioned PBR reference). Inspect the applied final material; do not treat the intermediate lit edit as final albedo. Verify shape/UV correspondence locally and inspect label boundaries, wrap/seams, front/oblique/back/top and material response at the established viewing distance. The image may preserve shape while suggesting impossible printed geometry; inspect the actual 3D result. Diagnose whether a failure comes from master form, image quality/resolution, preparation or the final material before correcting that stage.
 
-Expand only when the representative final result meets the original quality target. A technical pass with unresolved visible defects is diagnostic, not an acceptable pilot. Do not lower the standard after the result or launch a dependent batch while the pilot remains visually unresolved; independent accepted work may continue. Keep user-approved approximations distinct from general method validation. These checks do not require repeated user approvals. Once acceptable, branch every remaining look independently from that baseline, never the first restyled output. Use native batches for Edit Texture looks when available, coordinating local preparation/application; New Texture looks follow the staged conditioned PBR route, because batch items take no condition image. Count unique appearances, not placements. Preserve material names during jobs and on legacy prepared state; use external style labels unless identity-based renaming is verified.
+On those routes, expand only when the representative final result meets the original quality target. A technical pass with unresolved visible defects is diagnostic, not an acceptable pilot. Do not lower the standard after the result or launch a dependent batch while the pilot remains visually unresolved; independent accepted work may continue. Keep user-approved approximations distinct from general method validation. These checks do not require repeated user approvals. Once acceptable, branch every remaining look independently from that baseline, never the first restyled output. Use native batches for Edit Texture looks when available, coordinating local preparation/application. New Texture looks go in a batch held at `edit` from Marso 1.22.0, and on the staged route on an earlier add-on. Count unique appearances, not placements. Preserve material names during jobs and on legacy prepared state; use external style labels unless identity-based renaming is verified.
 
 After application, verify correspondence before sharing geometry or remapping slots; retain independent appearance sets. Instance each accepted style as many times as needed, reusing mesh/image data where supported. Inspect the populated shelf for repetition, style distribution and GPU memory. Do not claim one mesh makes hundreds of unique 4K texture sets cheap. Save dependencies and the family/master/style/placement mapping.
 

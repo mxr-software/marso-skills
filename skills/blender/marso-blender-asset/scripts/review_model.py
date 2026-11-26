@@ -10,9 +10,11 @@ materials and render settings are restored afterwards.
 """
 
 from contextlib import contextmanager
+import hashlib
 import json
 import math
 import tempfile
+import time
 from pathlib import Path
 
 import bmesh
@@ -30,6 +32,9 @@ TIP_ANGLE_DEG = 25.0
 # Surface movement, as a fraction of the part's diagonal, below which halving the density changes nothing visible.
 DENSITY_TOLERANCE = {'low': 0.005, 'medium': 0.0015, 'high': 0.0005}
 DENSITY_SAMPLES = 20000
+PACK_VERSION = 1
+# Modifier settings that change neither the mesh nor a render.
+MARK_SKIPS = {'rna_type', 'name', 'show_expanded', 'is_active', 'show_in_editmode', 'show_on_cage'}
 
 
 def asset_meshes(root_or_objects):
@@ -118,7 +123,8 @@ def density(obj, mesh, path='medium'):
         rng = np.random.default_rng(0)
         sample = original if len(original) <= DENSITY_SAMPLES else \
             original[rng.choice(len(original), DENSITY_SAMPLES, replace=False)]
-        moved = np.array([(tree.find_nearest(Vector(p / scale))[3] or 0.0) * scale for p in sample])
+        nearest = tree.find_nearest
+        moved = np.array([(nearest(p)[3] or 0.0) * scale for p in (sample / scale).tolist()])
     finally:
         bm.free()
     diagonal = float(np.linalg.norm(original.max(axis=0) - original.min(axis=0)))
@@ -128,24 +134,59 @@ def density(obj, mesh, path='medium'):
             'tolerance_mm': round(tolerance * 1000, 3), 'faces': before, 'faces_halved': after}
 
 
-def topology_report(objects, path=None):
+@contextmanager
+def evaluated(objects, depsgraph=None):
+    """The evaluated mesh of each object by name, converted once and cleared on exit.
+
+    Pass the result as `meshes` to the measuring functions so one conversion serves them all. Never render,
+    edit the scene or change an object while it is open: Blender frees these meshes when it evaluates again.
+    """
+    depsgraph = depsgraph or bpy.context.evaluated_depsgraph_get()
+    held, meshes = [], {}
+    try:
+        for obj in objects:
+            item = obj.evaluated_get(depsgraph)
+            meshes[obj.name] = item.to_mesh()
+            held.append(item)
+        yield meshes
+    finally:
+        for item in held:
+            item.to_mesh_clear()
+
+
+def _part_report(obj, mesh, path):
+    part = {'base': topology(obj.data), 'evaluated': topology(mesh), 'modifiers': [m.type for m in obj.modifiers]}
+    if path:
+        part['density'] = density(obj, mesh, path)
+    return part
+
+
+def topology_report(objects, path=None, *, meshes=None, known=None):
     """Per-part topology of the modelled and the evaluated mesh, with asset totals.
 
     With a poly path (`low`, `medium`, `high`), each part also gets a `density` verdict and the totals list
-    the over-dense parts and their share of the evaluated triangles.
+    the over-dense parts and their share of the evaluated triangles. `meshes` is the open result of
+    `evaluated(objects)`, read instead of converting each part again. `known` maps part names to entries an
+    earlier report measured on the same geometry and path; those parts are not measured again.
     """
-    depsgraph = bpy.context.evaluated_depsgraph_get()
+    known = known or {}
+    depsgraph = None
     parts = {}
     for obj in objects:
-        evaluated = obj.evaluated_get(depsgraph)
-        mesh = evaluated.to_mesh()
-        try:
-            parts[obj.name] = {'base': topology(obj.data), 'evaluated': topology(mesh),
-                               'modifiers': [m.type for m in obj.modifiers]}
-            if path:
-                parts[obj.name]['density'] = density(obj, mesh, path)
-        finally:
-            evaluated.to_mesh_clear()
+        entry = known.get(obj.name)
+        if isinstance(entry, dict) and {'base', 'evaluated', 'modifiers'} <= set(entry) \
+                and ('density' in entry) == bool(path):
+            parts[obj.name] = entry
+        elif meshes is not None:
+            parts[obj.name] = _part_report(obj, meshes[obj.name], path)
+        else:
+            depsgraph = depsgraph or bpy.context.evaluated_depsgraph_get()
+            item = obj.evaluated_get(depsgraph)
+            mesh = item.to_mesh()
+            try:
+                parts[obj.name] = _part_report(obj, mesh, path)
+            finally:
+                item.to_mesh_clear()
     totals = {}
     for level in ('base', 'evaluated'):
         total = {k: sum(p[level][k] for p in parts.values())
@@ -164,6 +205,142 @@ def topology_report(objects, path=None):
     return {'totals': totals, 'parts': parts,
             'rule': 'all quads; triangles only around pointed tips; no n-gons; no 7+ poles off a tip; '
                     'no part whose density can halve without moving its surface'}
+
+
+def _hash_mesh(digest, mesh):
+    """Feed a mesh's positions, face sizes, corner vertices, edges and corner normals to the digest."""
+    for collection, name, kind, width in ((mesh.vertices, 'co', np.float32, 3),
+                                          (mesh.polygons, 'loop_total', np.int32, 1),
+                                          (mesh.loops, 'vertex_index', np.int32, 1),
+                                          (mesh.edges, 'vertices', np.int32, 2),
+                                          (getattr(mesh, 'corner_normals', ()), 'vector', np.float32, 3)):
+        values = np.empty(len(collection) * width, dtype=kind)
+        if len(values):
+            collection.foreach_get(name, values)
+        digest.update(str(len(values)).encode())
+        digest.update(values.tobytes())
+
+
+def _hash_modifiers(digest, obj):
+    """Feed every setting of every modifier to the digest: a render level changes the images, not the counts."""
+    for modifier in obj.modifiers:
+        values = [modifier.type]
+        for prop in modifier.bl_rna.properties:
+            if prop.identifier in MARK_SKIPS or prop.is_readonly or prop.type == 'COLLECTION':
+                continue
+            try:
+                value = getattr(modifier, prop.identifier)
+            except AttributeError:
+                continue
+            if prop.type == 'POINTER':
+                value = getattr(value, 'name_full', None)
+            elif isinstance(value, (set, frozenset)):
+                value = sorted(value)
+            elif not isinstance(value, (bool, int, float, str)):
+                value = tuple(value)
+            values.append((prop.identifier, value))
+        try:
+            values += [(key, modifier[key]) for key in modifier.keys()
+                       if isinstance(modifier[key], (bool, int, float, str))]
+        except (AttributeError, TypeError):
+            pass
+        digest.update(repr(values).encode())
+
+
+def marks(objects, meshes=None):
+    """A change mark for each part and one for the asset: `{'asset': hex, 'parts': {name: hex}}`.
+
+    A part's mark is a hash of its modelled and evaluated meshes (positions, face sizes, corner vertices,
+    edges, corner normals), its world matrix and every modifier setting. It changes when the part does and
+    stays the same otherwise, so a review pack or a kept measurement can be matched to the asset as it is
+    now. `meshes` is the open result of `evaluated(objects)`.
+    """
+    if meshes is None:
+        with evaluated(objects) as meshes:
+            return _marks(objects, meshes)
+    return _marks(objects, meshes)
+
+
+def _marks(objects, meshes):
+    parts, whole = {}, hashlib.sha1()
+    for obj in objects:
+        digest = hashlib.sha1()
+        _hash_mesh(digest, obj.data)
+        _hash_mesh(digest, meshes[obj.name])
+        digest.update(np.array(obj.matrix_world, dtype=np.float32).tobytes())
+        _hash_modifiers(digest, obj)
+        parts[obj.name] = digest.hexdigest()[:20]
+    # The asset mark does not depend on the order the parts were listed in.
+    whole.update(repr(sorted(parts.items())).encode())
+    return {'asset': whole.hexdigest()[:20], 'parts': parts}
+
+
+def _joint_names(joints):
+    return [[p if isinstance(p, str) else p.name for p in pair] for pair in joints or ()]
+
+
+def _stamp(folder):
+    """The stamp `review` left in topology.json, or None when the file is absent, unreadable or has none."""
+    try:
+        pack = json.loads((folder / 'topology.json').read_text(encoding='utf-8')).get('pack')
+    except (OSError, ValueError, AttributeError):
+        return None
+    if not isinstance(pack, dict) or pack.get('v') != PACK_VERSION or not isinstance(pack.get('files'), list):
+        return None
+    return pack
+
+
+def pack_state(out_dir, marks, *, joints=None, reason=None):
+    """Whether the review pack in `out_dir` shows the asset as it is now.
+
+    `marks` is the result of `marks(objects)`. Returns `current` when the pack carries this script's stamp
+    for the same marks and all its files exist; `stale` when the stamp is for other marks, a stamped file is
+    gone or, with `joints` given, the pack shows other joints; `missing` when the folder holds no pack file;
+    `foreign` when it holds pack files without a stamp, so this script cannot say what they show. A list
+    passed as `reason` receives one sentence saying why.
+    """
+    folder = Path(out_dir)
+    why = [] if reason is None else reason
+    if not any((folder / name).exists() for name in OUTPUTS + ('joints.png',)):
+        why.append('the folder holds no review pack')
+        return 'missing'
+    pack = _stamp(folder)
+    if pack is None:
+        why.append('the pack carries no stamp from review_model.review, so it cannot be matched to the asset')
+        return 'foreign'
+    if pack.get('asset') != marks['asset']:
+        changed = sorted(name for name, mark in marks['parts'].items() if (pack.get('parts') or {}).get(name) != mark)
+        why.append('the pack was rendered before the asset last changed' + (
+            ' ({}{})'.format(', '.join(changed[:6]), ' ...' if len(changed) > 6 else '') if changed else ''))
+        return 'stale'
+    gone = [name for name in pack['files'] if not (folder / name).is_file()]
+    if gone:
+        why.append('pack files are gone: ' + ', '.join(gone))
+        return 'stale'
+    if joints is not None and _joint_names(joints) != pack.get('joints'):
+        why.append('the pack shows other joints')
+        return 'stale'
+    return 'current'
+
+
+def update_report(out_dir, report):
+    """Write newer counts into a pack whose images are still current, keeping its stamp. Returns whether
+    topology.json changed. A folder without this script's stamp is left alone."""
+    folder = Path(out_dir)
+    pack = _stamp(folder)
+    if pack is None:
+        return False
+    path = folder / 'topology.json'
+    held = json.loads(path.read_text(encoding='utf-8'))
+    report = {key: value for key, value in report.items() if key not in ('timings', 'pack')}
+    if {key: value for key, value in held.items() if key not in ('timings', 'pack')} == json.loads(json.dumps(report)):
+        return False
+    path.write_text(json.dumps(dict(report, timings=held.get('timings', {}), pack=pack), indent=2), encoding='utf-8')
+    return True
+
+
+def _lap(since):
+    return round(time.perf_counter() - since, 3)
 
 
 def _bounds(objects):
@@ -368,21 +545,35 @@ def _wire_objects(objects, thickness):
     return made
 
 
-def review(root_or_objects, out_dir, *, size=1024, overwrite=False, path=None, joints=None):
+def review(root_or_objects, out_dir, *, size=1024, overwrite=False, path=None, joints=None, report=None,
+           marks=None):
     """Write sheet.png, clay.png, gloss.png, wire.png and topology.json; returns their paths and the topology.
 
     `gloss` is None, with the reason in `gloss_skipped`, when this Blender build lacks the glossy matcap.
 
     `path` (`low`, `medium` or `high`) adds the density verdicts; it defaults to the root's `marso_poly_path`.
     `joints` is a list of part-name pairs that should meet; each gets a close clay view in `joints.png`.
+    `report` is a `topology_report` result already measured on these parts at this path; it is written as
+    given instead of being measured again. The result's `timings` give the seconds each stage took.
+
+    topology.json also gets a `pack` stamp: the change marks of the parts, the size, the joints and the
+    files written. `pack_state` reads it to say whether the pack still shows the asset. `marks` is the
+    result of `marks(objects)` when the caller has it already.
     """
+    started = time.perf_counter()
+    timings = {}
     objects = asset_meshes(root_or_objects)
     if size < 128:
         raise ValueError('Use a render size of at least 128 pixels')
-    if path is None and isinstance(root_or_objects, bpy.types.Object):
-        path = root_or_objects.get('marso_poly_path')
-    if path is not None and path not in DENSITY_TOLERANCE:
-        raise ValueError('Use path low, medium or high')
+    if report is not None:
+        if set(report.get('parts', ())) != {o.name for o in objects} or 'totals' not in report:
+            raise ValueError('The report does not describe these parts; measure them again')
+        report = {key: value for key, value in report.items() if key not in ('timings', 'pack')}
+    else:
+        if path is None and isinstance(root_or_objects, bpy.types.Object):
+            path = root_or_objects.get('marso_poly_path')
+        if path is not None and path not in DENSITY_TOLERANCE:
+            raise ValueError('Use path low, medium or high')
     joints = list(joints or [])
     if len(joints) > 12:
         raise ValueError('Pass at most 12 joints; choose the structural ones')
@@ -391,15 +582,23 @@ def review(root_or_objects, out_dir, *, size=1024, overwrite=False, path=None, j
     existing = [name for name in OUTPUTS + (('joints.png',) if joints else ()) if (out / name).exists()]
     if existing and not overwrite:
         raise FileExistsError('Already present (pass overwrite=True to replace): ' + ', '.join(existing))
-    report = topology_report(objects, path)
+    if marks is None or report is None:
+        with evaluated(objects) as meshes:
+            marks = marks or _marks(objects, meshes)
+            if report is None:
+                report = topology_report(objects, path, meshes=meshes)
+    timings['measure'] = _lap(started)
     framing = _bounds(objects)
     pixel = 2 * _camera_distance(framing[1]) * (18 / 50) / size
     shading = bpy.context.scene.display.shading
     with _studio(objects, size):
         shading.color_type = 'SINGLE'
         shading.single_color = CLAY[:3]
+        lap = time.perf_counter()
         clay = _render_views(objects, framing, out / 'clay.png')
+        timings['clay'], lap = _lap(lap), time.perf_counter()
         gloss_skipped = _render_gloss(objects, framing, out / 'gloss.png')
+        timings['gloss'], lap = _lap(lap), time.perf_counter()
         if joints:
             shots = _joint_shots(joints, objects, framing)
             scene = bpy.context.scene
@@ -407,6 +606,7 @@ def review(root_or_objects, out_dir, *, size=1024, overwrite=False, path=None, j
             with tempfile.TemporaryDirectory() as scratch:
                 _write_png(_grid(_render_tiles(shots, 'joints', Path(scratch))), out / 'joints.png')
             scene.render.resolution_x = scene.render.resolution_y = size
+            timings['joints'], lap = _lap(lap), time.perf_counter()
         colours = {o.name: tuple(o.color) for o in objects}
         wires = _wire_objects(objects, pixel * 1.4)
         try:
@@ -421,11 +621,20 @@ def review(root_or_objects, out_dir, *, size=1024, overwrite=False, path=None, j
                 mesh = wire.data
                 bpy.data.objects.remove(wire)
                 bpy.data.meshes.remove(mesh)
+        timings['wire'] = _lap(lap)
+    lap = time.perf_counter()
     _write_png(np.concatenate([_half(wired), _half(clay)], axis=0), out / 'sheet.png')
-    (out / 'topology.json').write_text(json.dumps(report, indent=2), encoding='utf-8')
+    timings['sheet'] = _lap(lap)
+    timings['total'] = _lap(started)
+    files = ['sheet.png', 'clay.png', 'wire.png', 'topology.json'] + ([] if gloss_skipped else ['gloss.png']) \
+        + (['joints.png'] if joints else [])
+    pack = {'v': PACK_VERSION, 'asset': marks['asset'], 'parts': marks['parts'], 'size': size,
+            'joints': _joint_names(joints), 'files': files}
+    (out / 'topology.json').write_text(json.dumps(dict(report, timings=timings, pack=pack), indent=2),
+                                       encoding='utf-8')
     made = {'sheet': str(out / 'sheet.png'), 'clay': str(out / 'clay.png'), 'wire': str(out / 'wire.png'),
             'gloss': None if gloss_skipped else str(out / 'gloss.png'),
-            'topology': str(out / 'topology.json'), 'report': report}
+            'topology': str(out / 'topology.json'), 'report': report, 'timings': timings, 'pack': pack}
     if gloss_skipped:
         made['gloss_skipped'] = gloss_skipped
     if joints:

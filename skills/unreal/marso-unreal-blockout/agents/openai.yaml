@@ -1,0 +1,3 @@
+interface:
+  display_name: "Marso Unreal Blockout"
+  short_description: "Greybox a level and fill it from the Marso library"

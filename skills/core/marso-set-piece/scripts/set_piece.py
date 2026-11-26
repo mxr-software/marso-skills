@@ -11,9 +11,15 @@ variants of each, and how many reference images, mesh generations and Retextures
 its anchor point sits and how far it is turned. The layout depends only on the file and its
 `seed`, so the same file always gives the same placement list.
 
-Coordinates are metres in the set piece's own frame: Z up, the piece's front facing -Y, the
-origin on the ground under its centre. A turn (`yaw_deg`) is anticlockwise about Z seen from
-above; at 0 an instance faces -Y like the piece.
+Coordinates are metres in the set piece's own right-handed frame: Z up, the piece's front facing
+-Y, the origin on the ground under its centre. A turn (`yaw_deg`) is anticlockwise about Z seen
+from above; at 0 an instance faces -Y like the piece.
+
+A variant may carry `pbr_asset_id`, the Marso asset ID of that part in that look, with
+`asset_yaw_deg`, the turn about Z that makes that asset face -Y (the asset keeps the front and size
+Marso gave it, not the turn or scale on a master in one application). `place` copies both to the
+variant's master row, so another application can import the master by ID. They never change the
+layout.
 
 Standard library only. Exit codes: 0 done, 1 the parts list has problems (each is printed),
 2 a file could not be read or would be overwritten.
@@ -37,11 +43,12 @@ FACINGS = ("across", "along")
 ORDERS = ("blocks", "mixed")
 DEFAULT_VARIANT_CAP = 6
 ID = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+ASSET_ID = re.compile(r"^[A-Za-z0-9_:.-]{1,200}$")
 
 
 def read_json(path: pathlib.Path):
     try:
-        return json.loads(path.read_text(encoding="utf-8"))
+        return json.loads(path.read_text(encoding="utf-8-sig"))
     except (OSError, ValueError) as ex:
         print(f"error: cannot read {path.as_posix()}: {ex}", file=sys.stderr)
         return None
@@ -122,6 +129,15 @@ def check_parts(doc: dict) -> tuple[dict, list[str]]:
             seen.add(variant_id)
             if not str(variant.get("look") or "").strip():
                 problems.append(f"{where}: variant {variant_id!r} has no look")
+            if "pbr_asset_id" in variant and not (isinstance(variant["pbr_asset_id"], str)
+                                                  and ASSET_ID.match(variant["pbr_asset_id"])):
+                problems.append(f"{where}: variant {variant_id!r} pbr_asset_id must be the Marso asset ID as text, "
+                                "with no spaces")
+            if ("pbr_asset_id" in variant) != ("asset_yaw_deg" in variant):
+                problems.append(f"{where}: variant {variant_id!r} needs pbr_asset_id and asset_yaw_deg together "
+                                "(asset_yaw_deg is 0 when the asset already faces -Y)")
+            elif "asset_yaw_deg" in variant and vector([variant["asset_yaw_deg"]], 1) is None:
+                problems.append(f"{where}: variant {variant_id!r} asset_yaw_deg must be a number")
         if len(variants) > cap:
             problems.append(f"{where}: {len(variants)} variants is over the cap of {cap}; "
                             "merge similar looks or raise variant_cap")
@@ -222,6 +238,9 @@ def check_slots(doc: dict, parts: dict) -> list[str]:
                 problems.append(f"{where}: count must be a whole number of at least 1")
             if "step_m" in slot and vector([slot["step_m"]], 1, positive=True) is None:
                 problems.append(f"{where}: step_m must be a positive number")
+            elif ("step_m" not in slot and slot.get("part") in parts
+                  and vector(parts[slot["part"]].get("size_m"), positive=True) is None):
+                problems.append(f"{where}: give step_m, or size_m on part {slot['part']!r}")
     return problems
 
 
@@ -335,10 +354,14 @@ def placements(doc: dict, parts: dict) -> tuple[dict, list[str]]:
     if not whole(seed, 0):
         return {}, ["seed must be a whole number of zero or more"]
     placed = {part for slot in slots for part in slot_parts(slot)}
+    slot_ids = {slot.get("id") for slot in slots}
     for part_id, part in sorted(parts.items()):
         if part_id in placed:
             continue
-        if part.get("route") == "model":
+        if part_id in slot_ids:
+            problems.append(f"slot {part_id!r} has the id of part {part_id!r}, which no slot places; "
+                            "give the part its own slot or rename the slot")
+        elif part.get("route") == "model":
             slots.append({"id": part_id, "kind": "single", "part": part_id, "position": [0.0, 0.0, 0.0]})
             notes.append(f"part {part_id!r} has no slot: placed once at the origin")
         else:
@@ -359,11 +382,19 @@ def placements(doc: dict, parts: dict) -> tuple[dict, list[str]]:
                          "add variants, about one for every six to eight instances")
     if unused:
         notes.append("variants with no instance (make them only if they are wanted): " + ", ".join(unused))
-    masters = [{"part": part_id, "variant": variant, "route": parts[part_id]["route"],
-                "anchor": parts[part_id].get("anchor", "bottom"), "label": parts[part_id].get("label"),
-                "size_m": parts[part_id].get("size_m")} for part_id, variant in used]
+    looks = {(i, v["id"]): v for i, p in parts.items() for v in p["variants"]}
+    masters = []
+    for part_id, variant in used:
+        master = {"part": part_id, "variant": variant, "route": parts[part_id]["route"],
+                  "anchor": parts[part_id].get("anchor", "bottom"), "label": parts[part_id].get("label"),
+                  "size_m": parts[part_id].get("size_m")}
+        look = looks[(part_id, variant)]
+        if look.get("pbr_asset_id"):
+            master["pbr_asset_id"] = look["pbr_asset_id"]
+            master["asset_yaw_deg"] = round(float(look["asset_yaw_deg"]) % 360.0, 2)
+        masters.append(master)
     return {"schema": PLACEMENT_SCHEMA, "set_piece": doc.get("name"), "seed": seed, "units": "m", "up": "Z",
-            "front": "-Y", "masters": masters, "instances": instances, "notes": notes}, []
+            "front": "-Y", "handedness": "right", "masters": masters, "instances": instances, "notes": notes}, []
 
 
 # ---------------------------------------------------------------- commands
@@ -413,8 +444,10 @@ def cmd_place(args) -> int:
     for row in result["instances"]:
         per_part.setdefault(row["part"], {}).setdefault(row["variant"], 0)
         per_part[row["part"]][row["variant"]] += 1
+    without_id = [f"{m['part']}/{m['variant']}" for m in result["masters"] if not m.get("pbr_asset_id")]
     print(json.dumps({"out": out.as_posix(), "instances": len(result["instances"]),
-                      "masters": len(result["masters"]), "per_part": per_part, "notes": result["notes"]}, indent=2))
+                      "masters": len(result["masters"]), "per_part": per_part,
+                      "without_pbr_asset_id": without_id, "notes": result["notes"]}, indent=2))
     return 0
 
 

@@ -17,7 +17,7 @@ When transferring a working-copy result back to a master, verify vertex coordina
 
 ## Style and scale
 
-Before a new family-wide treatment, test one representative component containing its important material transitions and structural features. Inspect geometry in neutral clay, the actual baked source colours, and the returned front/oblique/rear appearance under matched lighting. Expand only after that example supports the intended result. A job completing without errors is not visual acceptance; a warning or misplaced painted feature needs inspection before the same approach is repeated across the kit. Preserve failed candidates and repair a diagnosed cause rather than running automatic regeneration loops.
+Before a new family-wide treatment, send one representative component first: one that contains the important material transitions and structural features. Inspect its geometry in neutral clay and its returned unlit paint from the front, an oblique view and the rear. Once that paint supports the intended result, send every other component together; the representative's PBR runs with theirs. A job completing without errors is not visual acceptance; a warning or misplaced painted feature needs inspection before the same approach is repeated across the kit. Preserve failed candidates and repair a diagnosed cause rather than running automatic regeneration loops.
 
 ### Lock the look before the parts
 
@@ -27,7 +27,7 @@ Parts textured one by one drift apart. For a kit whose parts share a material, f
 2. Use that paragraph word for word in every part's prompt.
 3. Append one sentence for what only that part has: "the door is weathered oak boards with black iron strap hinges".
 
-Compare the parts side by side under the same lighting before PBR. If one drifts, correct its appended sentences, not the shared paragraph.
+When every part's paint has landed, compare the paints side by side under the same lighting before any PBR. If one drifts, correct its appended sentences, not the shared paragraph, and rerun that part alone.
 
 Keep a compact style brief for the kit: material roles, the shared paragraph, palette, roughness intent, physical pattern size and grain orientation. This is documentation for the agent, not a native Marso style-lock feature.
 

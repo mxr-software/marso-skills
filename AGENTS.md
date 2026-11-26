@@ -1,10 +1,11 @@
 # Contributing agents
 
 - Skills live at `skills/<application>/<skill-name>/SKILL.md`; application-independent entry skills use `skills/core/<skill-name>/SKILL.md`. Named workflows, which only order other skills, use `skills/workflows/<skill-name>/SKILL.md`. Keep required runtime references inside their skill folder.
-- This repository owns workflow instructions, not the Blender add-on or MCP implementation. Report implementation gaps; do not invent commands to bridge them.
+- This repository owns workflow instructions, not the Blender add-on, the Marso Unreal plugin or any MCP implementation. Report implementation gaps; do not invent commands to bridge them.
 - Check instructions against the relevant application source and current tool schemas. Record the inspected version and distinguish source review from execution testing in `docs/compatibility.md`.
 - Keep the common skill body usable by ChatGPT, Codex, Claude desktop, and Claude Code. Put optional client metadata in `agents/`; do not require a client-specific tool prefix.
-- One route to Marso: the official Blender MCP plus the Marso add-on. Do not describe any other way to reach Marso.
+- One route to Marso in each application: in Blender, the official Blender MCP plus the Marso add-on; in Unreal Engine, the Marso Unreal plugin's own MCP server. Do not describe any other way to reach Marso.
+- The Marso Unreal plugin is in closed beta, by invitation. No skill or document installs, downloads or updates it, or says where to get it; say it is in closed beta wherever Unreal support is introduced.
 - Keep asset modelling independent of texturing. Modular kits and photographed-scene decomposition, generation and placement are in scope; scene commands require a verified supporting add-on build. Add only developed skill folders.
 - Before Marso texturing newly modelled or substantially remodelled assets, show the geometry and wait for user approval. Respect an explicit review waiver or approval of unchanged geometry; avoid redundant model-approval questions for direct retexture requests on existing assets.
 - For scene support hierarchies, use entity transforms with separate geometry groups. Supported entities must not inherit mesh-only scale edits. Preserve support metadata separately from physics and scope object reuse to the owning run.

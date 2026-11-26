@@ -18,7 +18,7 @@ Marso is a platform for image and 3D generation, Retexture, PBR and asset search
 
 For **3D artists and designers** exploring materials and building reusable assets; **game and environment creators** making props, kits and scene variations; **simulation teams** working with enriched USD assets; and **people learning Blender with an agent** who want to understand the process as well as get a result.
 
-You can start from a sentence, a photograph or an existing mesh. Choose generation when you want a new asset from an image. Choose agent modelling when editable construction, articulation or precise modular connections matter. Blender is the first supported application in this collection.
+You can start from a sentence, a photograph or an existing mesh. Choose generation when you want a new asset from an image. Choose agent modelling when editable construction, articulation or precise modular connections matter. Blender is the main supported application in this collection; Unreal Engine support is in [closed beta](#unreal-engine-closed-beta).
 
 </td>
 <td width="36%" valign="top">
@@ -42,11 +42,12 @@ You can start from a sentence, a photograph or an existing mesh. Choose generati
 - [Build modular kits](#build-a-kit-assemble-many-layouts)
 - [Stock a stall or a shelf](#one-object-many-parts)
 - [Rebuild a scene from photos](#turn-reference-images-into-an-editable-scene)
+- [Unreal Engine levels (closed beta)](#unreal-engine-closed-beta)
 
 **📚 Go further**
 
 - [Advanced workflows](#go-further)
-- [All 25 skills](#available-skills)
+- [All 33 skills](#available-skills)
 - [Help and contributing](#help-and-contributing)
 
 </td>
@@ -218,6 +219,24 @@ The scene stays editable: replace furniture, change finishes or build another la
 
 ---
 
+## Unreal Engine (closed beta)
+
+**Make assets in Blender, lay out levels in Unreal.** The Marso Unreal plugin is in closed beta, by invitation. For people in the beta, these skills connect an agent to the Marso Unreal plugin's own MCP server, find and import Marso library assets, and place them as actors in a level. Each asset is imported once; forty crates are forty actors on one mesh, and a Retexture of a mesh already in the project arrives as one of its looks. A set piece planned and made in Blender is placed from the same placement list, the right way round, then lit and shot as stills.
+
+Generation, modelling and Retexture stay in Blender. The skills never install the Marso Unreal plugin or say where to get it; without it, the Blender workflows above work as before.
+
+**🎬 Skills:** [Connect and check](skills/unreal/marso-unreal-setup/SKILL.md) → [Work in a level](skills/unreal/marso-unreal-level/SKILL.md) → [Place library assets](skills/unreal/marso-unreal-library/SKILL.md) or [a set piece](skills/unreal/marso-unreal-set-piece/SKILL.md), or [block out and fill a level](skills/unreal/marso-unreal-blockout/SKILL.md) → [Light and shoot stills](skills/unreal/marso-unreal-stage/SKILL.md)
+
+**🧭 Or name a workflow:** [dress-level](skills/workflows/marso-dress-level/SKILL.md) takes a brief or a blocked-out level to a dressed, lit level with stills; [stage-set-piece](skills/workflows/marso-stage-set-piece/SKILL.md) makes a set piece in Blender and stages it in Unreal.
+
+**💬 Try asking, with the Marso Unreal plugin open in Unreal:**
+
+> Use marso-unreal-setup to connect to Marso in my Unreal project and check it without spending credits. Tell me what is ready and what is missing.
+
+[Connecting an agent to Unreal](docs/unreal.md)
+
+---
+
 
 ## Get started
 
@@ -250,7 +269,7 @@ Use this instead of a duplicate standalone installation. For OpenAI, the documen
 
 ### 2. Connect the tools
 
-Marso work runs inside Blender, so you need both of these:
+Marso work in Blender needs both of these (for Unreal Engine, see [Unreal Engine (closed beta)](#unreal-engine-closed-beta)):
 
 | Component | What it does |
 | --- | --- |
@@ -299,10 +318,10 @@ Rerun the skills installation command with the same agent and scope, or update t
 
 ## Available skills
 
-**25 skills, one collection.** Start with a named workflow for a finished result, `marso` to coordinate a task, or use a specialist directly.
+**33 skills, one collection.** Start with a named workflow for a finished result, `marso` to coordinate a task, or use a specialist directly.
 
 <details>
-<summary><strong>Named workflows · 4 skills</strong></summary>
+<summary><strong>Named workflows · 6 skills</strong></summary>
 
 | Skill | What it does |
 | --- | --- |
@@ -310,6 +329,8 @@ Rerun the skills installation command with the same agent and scope, or update t
 | [marso-make-kit](skills/workflows/marso-make-kit/SKILL.md) | Take a brief or an image to a modular kit whose parts share one look and PBR. |
 | [marso-make-set-piece](skills/workflows/marso-make-set-piece/SKILL.md) | Take a brief or an image to one assembled object made of many repeated parts and their variants. |
 | [marso-make-realistic](skills/workflows/marso-make-realistic/SKILL.md) | Give an asset already in Blender a realistic look: UV check, Retexture, PBR. |
+| [marso-stage-set-piece](skills/workflows/marso-stage-set-piece/SKILL.md) | Make a set piece in Blender, then place, light and shoot it in an Unreal level (closed beta). |
+| [marso-dress-level](skills/workflows/marso-dress-level/SKILL.md) | Take a brief or a blocked-out Unreal level to a dressed, lit level with stills, from your library (closed beta). |
 
 </details>
 
@@ -320,7 +341,7 @@ Rerun the skills installation command with the same agent and scope, or update t
 | --- | --- |
 | [marso](skills/core/marso/SKILL.md) | Choose and coordinate workflows across creation, texturing, reuse and scenes. |
 | [marso-image](skills/core/marso-image/SKILL.md) | Generate and edit images, appearance references and coordinated style variations. |
-| [marso-generate](skills/core/marso-generate/SKILL.md) | Generate 3D assets using supported options and the user’s preferred models. |
+| [marso-generate](skills/core/marso-generate/SKILL.md) | Generate 3D assets, one or several at once, using supported options and the user’s preferred models. |
 | [marso-library](skills/core/marso-library/SKILL.md) | Find and reuse library assets, instances and original style sources. |
 | [marso-set-piece](skills/core/marso-set-piece/SKILL.md) | Plan an object made of many parts: what to model, instance or generate, its variants and its placement list. |
 
@@ -358,6 +379,22 @@ Rerun the skills installation command with the same agent and scope, or update t
 
 </details>
 
+<details>
+<summary><strong>Unreal Engine workflows (closed beta) · 6 skills</strong></summary>
+
+These need the Marso Unreal plugin, which is in closed beta, by invitation.
+
+| Skill | What it does |
+| --- | --- |
+| [marso-unreal-setup](skills/unreal/marso-unreal-setup/SKILL.md) | Connect an agent to the Marso Unreal plugin, check it without spending credits, and fix connection faults. |
+| [marso-unreal-level](skills/unreal/marso-unreal-level/SKILL.md) | Open, save and inspect levels; move, group, hide and delete actors. |
+| [marso-unreal-library](skills/unreal/marso-unreal-library/SKILL.md) | Find, import and place library assets in a level, and switch a mesh's looks. |
+| [marso-unreal-set-piece](skills/unreal/marso-unreal-set-piece/SKILL.md) | Place a set piece from its placement list: one mesh per part, variants as looks, the same way round as in Blender. |
+| [marso-unreal-blockout](skills/unreal/marso-unreal-blockout/SKILL.md) | Greybox a level with blockouts, swap them for library assets, and suggest assets that suit the level. |
+| [marso-unreal-stage](skills/unreal/marso-unreal-stage/SKILL.md) | Light a level with a preset, set up a camera per shot, and render checked stills. |
+
+</details>
+
 See [compatibility and verification status](docs/compatibility.md) for required capabilities and testing limits across the collection.
 
 ## Help and contributing
@@ -366,4 +403,4 @@ Start with [installation](docs/installation.md), [Blender setup](docs/blender-se
 
 Skills use the shared `SKILL.md` format. Install each complete folder with its references and scripts. See [contributing](CONTRIBUTING.md) for authoring and validation.
 
-Most skills use [Apache-2.0](LICENSE). The four scene skills have their own proprietary `LICENSE.txt` files permitting installation and use with Marso. Blender, its MCP and the Marso add-on retain their own licences. [Demo and artwork notes](docs/assets/README.md) distinguish product demonstrations from installation or agent benchmarks.
+Most skills use [Apache-2.0](LICENSE). The four scene skills have their own proprietary `LICENSE.txt` files permitting installation and use with Marso. Blender, its MCP, the Marso add-on and the Marso Unreal plugin retain their own licences. [Demo and artwork notes](docs/assets/README.md) distinguish product demonstrations from installation or agent benchmarks.

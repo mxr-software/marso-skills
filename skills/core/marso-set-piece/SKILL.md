@@ -10,7 +10,7 @@ license: Apache-2.0
 
 A set piece is one object made of many parts, most of them repeated: a clothing stall, a stocked bookcase, a greengrocer's stand. This skill plans it. It writes a parts list that gives each part a route, a master and its variants, then a placement list with one row per instance. It names no application, so the same two files serve any tool that builds or places the parts.
 
-The saving comes from three rules:
+The saving comes from four rules:
 
 - **One master per shape.** Sixty T-shirts are one mesh. A difference in colour, print, label or wear is a variant of that master, never a new mesh.
 - **Split the structure too.** A stall is poles, a canopy, a table and drapes: each is its own master with its own look, never one block.
@@ -23,6 +23,7 @@ This skill makes no geometry, starts no Marso job and places nothing. Adjacent w
 - **Generated masters:** `marso-generate`. Without it, report the generated parts as not made.
 - **Variants:** `marso-blender-texture`, with UVs from `marso-blender-uv`. Without them, deliver the masters untextured and list the variants still to make.
 - **Readying masters and placing the instances in Blender:** `marso-blender-set-piece`. Without it, deliver the placement list for the user's own tool.
+- **Placing it in Unreal** (Marso Unreal plugin, closed beta): `marso-unreal-set-piece`. Without it, deliver the placement list.
 
 `scripts/set_piece.py` is a command-line script (Python 3.10 or later, standard library only). `check` validates the parts list and counts what it asks for; `place` writes the placement list.
 
@@ -33,7 +34,7 @@ This skill makes no geometry, starts no Marso job and places nothing. Adjacent w
 | An image or brief of a composite object | [Write the parts list](#write-the-parts-list) | [parts list](references/parts-list.md) |
 | Unsure whether a part is modelled or generated | [Choose each route](#choose-each-route) | nothing |
 | Unsure what the piece breaks into | Compare it with a worked case | [examples](references/examples.md) |
-| The masters and variants exist | [Write the placement list](#write-the-placement-list) | [placement](references/placement.md) |
+| The parts list passes `check` | [Write the placement list](#write-the-placement-list) from the listed sizes, before any variant is made | [placement](references/placement.md) |
 | One object with no repeated parts | Not a set piece: use `marso-blender-asset` when installed | nothing |
 | Parts that fit together in many arrangements | A kit: use `marso-blender-kit` when installed | nothing |
 | A whole room or environment | Use `marso-scene` when installed | nothing |
@@ -85,13 +86,14 @@ Done when every part has a route from this table, no two parts share a shape, an
 
 The structure is placed from the list like everything else, so its slots come first and the rest are measured from them.
 
-1. Work in the set piece's frame: metres, Z up, the front facing -Y, the origin on the ground under the centre.
+1. Work in the set piece's frame: metres, Z up, right-handed, the front facing -Y, the origin on the ground under the centre.
 2. Lay out the structure. Give each upright, rail, foot, canopy, table and drape a slot, from the sizes in the parts list. Read [placement](references/placement.md) for the four kinds (`single`, `row`, `grid`, `stack`) and their fields.
 3. Add the slots for what the structure holds. A row of hanging parts takes its `start` and `end` from the rail's own slot; a row on the table takes its height from the table's slot and thickness.
 4. Run `python "<skill>/scripts/set_piece.py" place set_piece.json --out placements.json`.
 5. Read its report. `per_part` gives the instances of each variant; `notes` names any variant no instance uses. Make only the variants the placement list uses.
 6. Hand `placements.json` to the placing skill.
 7. After the first placement, look at the render. If a master's real size differs from its `size_m`, correct the size and the slots that depend on it, then run `place` again with `--force`.
+8. When the placing skill reports the masters' Marso asset IDs and asset turns, record each on its variant in `set_piece.json` as `pbr_asset_id` and `asset_yaw_deg`, and run `place` again with `--force`. Nothing moves; the list now names each master's asset and how to turn it, so another application imports it by ID. The report `place` prints names the masters still without an ID under `without_pbr_asset_id`.
 
 `place` cycles each part's variants in a seeded order, so every variant appears before one repeats and neighbours differ. Change `seed` for another arrangement. To fix a look in one place, such as the white shirt facing the street, give that slot a `variants` list.
 
@@ -99,9 +101,9 @@ Done when `place` exits 0, and the instance count for each slot matches what the
 
 ## Hand off
 
-Report the parts by route, the variants of each, the instance count for each part, and where `set_piece.json` and `placements.json` are. Say which choices were inferred from the image, and which masters or variants are not made yet.
+Report the parts by route, the variants of each, the instance count for each part, and where `set_piece.json` and `placements.json` are. Say which choices were inferred from the image, which masters or variants are not made yet, and which masters have no asset ID.
 
-Done when the final message names both files and every inferred choice.
+Done when the final message names both files, every inferred choice and every master without an asset ID.
 
 ## Worked example: a market clothing stall from one image
 

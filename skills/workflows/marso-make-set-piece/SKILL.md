@@ -20,13 +20,13 @@ Takes a brief or an image to one assembled object made of many parts: a structur
 
 1. `marso-blender-setup`: only when the Marso commands cannot be reached.
 2. `marso-blender-reference`: only with an image or a real object to match. Carry forward the chosen reference and the dimensions.
-3. `marso-set-piece`: pass the set piece, the reference and the variants. Carry forward the parts list and its job count.
+3. `marso-set-piece`: pass the set piece, the reference and the variants. Carry forward the parts list, its job count and a first placement list from the listed sizes.
 4. `marso-blender-asset`: pass each part the list routes to modelling, one master for each, with the path signals and the dimensions. Carry forward the modelled masters and the review pack.
-5. `marso-generate`: pass each part the list routes to generation, one mesh for each. Carry forward the generated masters.
+5. `marso-generate`: pass every part the list routes to generation together, one mesh for each. Carry forward the generated masters.
 6. `marso-blender-uv`: pass each modelled master. Carry forward each UV report.
-7. `marso-blender-texture`: pass each master with its variants as text and the approval. Carry forward one textured object for each variant.
-8. `marso-blender-set-piece`: pass the masters, the variants and the parts list. It readies and tags them, and measures each master. Carry forward the real sizes.
-9. `marso-set-piece` again: pass the real sizes. Carry forward the placement list, structure included.
+7. `marso-blender-texture`: pass every master together, with the variants the placement list uses, as text, and the approval. Carry forward one textured object for each variant.
+8. `marso-blender-set-piece`: pass the masters, the variants and the parts list. It readies and tags them, and measures each master. Carry forward the real sizes and each master's asset ID and turn.
+9. `marso-set-piece` again: pass the real sizes and the asset IDs and turns. Carry forward the placement list, structure included, with each master's asset ID.
 10. `marso-blender-set-piece` again: pass the placement list. Carry forward the placed set piece, its report and the renders.
 
 ## Stops
@@ -37,4 +37,4 @@ Takes a brief or an image to one assembled object made of many parts: a structur
 
 ## Hand off
 
-Report the file, the set piece root, the masters and the variants of each, the instance count for each part, the renders, both list files, each inferred choice, and each stop that passed without a review.
+Report the file, the set piece root, the masters and the variants of each, the instance count for each part, the renders and both list files. Name the masters without an asset ID, each inferred choice, and each stop that passed without a review.

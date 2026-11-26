@@ -1,0 +1,3 @@
+interface:
+  display_name: "Marso Stage Set Piece"
+  short_description: "Make a set piece in Blender, stage it in Unreal"

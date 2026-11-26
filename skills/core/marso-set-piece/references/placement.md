@@ -4,12 +4,12 @@ A slot is a place on the structure where instances sit. `scripts/set_piece.py pl
 
 ## The frame
 
-- Metres, Z up.
+- Metres, Z up, right-handed.
 - The set piece's front faces -Y. Its origin is on the ground under its centre.
 - `yaw_deg` turns an instance anticlockwise about Z, seen from above. At 0 it faces -Y, like the piece.
 - A position is where the instance's anchor point goes: the centre of its base for `anchor: bottom`, the centre of its top for `anchor: top`.
 
-Build every master facing -Y, so a turn of 0 means the same for all of them.
+Build every master facing -Y, so a turn of 0 means the same for all of them. The placement list states this frame in `units`, `up`, `front` and `handedness`. A placing tool whose own frame differs converts from it; the list itself is never rewritten in another frame.
 
 ## Slot kinds
 
@@ -65,13 +65,24 @@ Give every structural piece its own slot. A modelled part with no slot is placed
   "schema": "marso/set-piece-placements@1",
   "set_piece": "Clothes rail",
   "seed": 7,
-  "units": "m", "up": "Z", "front": "-Y",
-  "masters": [{"part": "tee", "variant": "red", "route": "generate", "anchor": "top", "label": "T-shirt on a hanger", "size_m": [0.5, 0.08, 0.75]}],
+  "units": "m", "up": "Z", "front": "-Y", "handedness": "right",
+  "masters": [{"part": "tee", "variant": "red", "route": "generate", "anchor": "top", "label": "T-shirt on a hanger", "size_m": [0.5, 0.08, 0.75], "pbr_asset_id": "<Marso asset ID>", "asset_yaw_deg": 90.0}],
   "instances": [{"id": "top-rail-001", "slot": "top-rail", "part": "tee", "variant": "red", "position": [-1.054, 0.0, 2.05], "yaw_deg": 91.7}],
   "notes": []
 }
 ```
 
 `masters` lists each part and variant that at least one instance uses: these are the objects the placing tool needs. `notes` names any variant no instance uses and any part placed by default.
+
+A master has `pbr_asset_id` and `asset_yaw_deg` when its variant in the parts list has them. `pbr_asset_id` is the Marso asset ID of that part in that look. The asset keeps the front and size Marso gave it, not the turn or scale its master was given in another application. A placing tool that imports a master by ID therefore:
+
+1. imports it by `pbr_asset_id`, never by a search on its name;
+2. turns it by `asset_yaw_deg` about Z, so it faces -Y;
+3. scales it evenly so its height matches the master's `size_m`, where the master has one;
+4. places it like any other master.
+
+The report `place` prints lists the masters with no ID yet under `without_pbr_asset_id`.
+
+Each instance's `id` stays the same when the list is written again from the same parts list and seed, so a placing tool can move the instances it placed before instead of adding new ones.
 
 The script refuses to replace an existing file unless it is given `--force`.

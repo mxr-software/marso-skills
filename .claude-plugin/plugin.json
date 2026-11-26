@@ -1,7 +1,7 @@
 {
   "name": "marso",
   "version": "0.3.2",
-  "description": "Marso workflows for images, 3D generation, library reuse, Blender modelling, texturing, kits, complete scenes, lighting and cameras.",
+  "description": "Marso workflows for images, 3D generation, library reuse, Blender modelling, texturing, kits, complete scenes, lighting and cameras, and Unreal Engine levels (closed beta).",
   "author": {
     "name": "M-XR"
   },
@@ -10,6 +10,7 @@
   "skills": [
     "./skills/core/",
     "./skills/blender/",
+    "./skills/unreal/",
     "./skills/workflows/"
   ]
 }

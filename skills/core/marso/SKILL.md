@@ -6,7 +6,9 @@ license: Apache-2.0
 
 # Work with Marso
 
-Translate the requested outcome into the appropriate workflow. Every Marso operation runs through the Marso add-on inside Blender, reached through the Blender MCP tools. Inspect the add-on's capabilities first. If Blender or the add-on is missing, say that both are required and use `marso-blender-setup` when installed. If an operation is missing from the add-on, report the specific gap and continue supported work.
+Translate the requested outcome into the appropriate workflow. Marso runs inside an application. In Blender, every Marso operation runs through the Marso add-on, reached through the Blender MCP tools. In Unreal Engine, it runs through the Marso Unreal plugin's own MCP server; the plugin is in closed beta, by invitation, and no skill installs it or says where to get it. Inspect the connected application's capabilities first. If Blender or the add-on is missing, say that both are required and use `marso-blender-setup` when installed; for Unreal, use `marso-unreal-setup` when installed. If an operation is missing, report the specific gap and continue supported work.
+
+With both applications connected, act in the one the request or the open plan names. With neither named, ask once which; with nobody to answer, stop and report that the application was not named. Assets are made in Blender (generation, modelling, Retexture); the Unreal skills find, import, place and arrange them in a level.
 
 For a multi-stage task, name the workflow for each stage before executing it and load the applicable installed skill. This includes assets being built for a film, tutorial, demonstration or render. A custom builder or presentation recipe can create geometry or shots, but does not replace the Marso texture workflow's input validation, operation selection and result checks. Do not assume an installed skill was followed: retain the actual handoff and check results with the project.
 
@@ -18,7 +20,7 @@ An explicit request to generate or model takes precedence over the defaults belo
 | --- | --- |
 | A finished result end to end in Blender, or a workflow named by the user: a textured asset from a brief or image, a textured modular kit, a set piece built from many repeated parts, or a realistic look for an asset already in the scene | The matching workflow when installed: `marso-make-asset`, `marso-make-kit`, `marso-make-set-piece` or `marso-make-realistic`. Each orders the skills below and sets the stops. A request for one stage still goes to that stage's skill. |
 | Generate or edit an image, or author realistic appearance references and style images | `marso-image` when installed. Image work does not automatically authorize mesh generation or Retexture. |
-| Generate an asset from an image or description; organic or complex forms where approximate reconstruction is acceptable | `marso-generate` when installed: live model selection and reusable user preferences. |
+| Generate an asset from an image or description; organic or complex forms where approximate reconstruction is acceptable | `marso-generate` when installed: live model selection, reusable user preferences, and several meshes as one batch. |
 | Model editable structured geometry; controlled topology, animation preparation, articulation or precise modular interfaces | Agent modelling through the target application's control tools. In Blender, use `marso-blender-asset` or `marso-blender-kit` when installed, then `marso-blender-uv` for the shared UV atlas. Pass on any path signals: named poly path, triangle budget, platform, use or closest view. |
 | Find reference images for a realistic model, or check a model's proportions and shape against a reference | `marso-blender-reference` when installed; without it, the modelling skill's own reference step. |
 | Unwrap, repair or check UVs (seams, stretch, texel density, one shared atlas), or prepare a modelled asset's UVs for texturing | `marso-blender-uv` when installed; without it, the texture skill's automatic assembly preparation. |
@@ -40,6 +42,13 @@ An explicit request to generate or model takes precedence over the defaults belo
 | Light an existing scene realistically, composite, reduce render time/memory, or render a Blender scene | `marso-blender-render` when installed. |
 | Make a build film, asset breakdown, tutorial or showcase that needs new textured Blender assets | Model (`marso-blender-asset`/`marso-blender-kit`), unwrap (`marso-blender-uv`), finish (`marso-blender-texture`), then render. Reuse accepted assets when no new asset work was requested. |
 | Use something already in the library, or check for one before generating | `marso-library` when installed: resolve a selected asset directly, or search by description/image. Do not generate a replacement for an asset the user chose to reuse. |
+| Connect or check Marso in Unreal Engine (the Marso Unreal plugin, closed beta), or a request to install it | `marso-unreal-setup` when installed. Without it, say the Marso Unreal plugin is in closed beta, by invitation, and stop. |
+| Open, save or inspect an Unreal level; move, group, hide or delete its actors | `marso-unreal-level` when installed. Without it, name the skill and stop the Unreal step. |
+| Find, import or place library assets in an Unreal level, or switch an Unreal mesh's looks | `marso-unreal-library` when installed. Without it, name the skill and stop the Unreal step. A part the library lacks is made in Blender first. |
+| Place a planned set piece in an Unreal level, or move one already placed | `marso-unreal-set-piece` when installed, from the placement list `marso-set-piece` wrote. Without it, name the skill and stop the Unreal step. |
+| A finished Unreal result end to end, or an Unreal workflow named by the user: a set piece made in Blender and staged in a level, or a level dressed from the library and shot | `marso-stage-set-piece` or `marso-dress-level` when installed (closed beta). Without them, name the workflow and stop. A request for one stage still goes to that stage's skill. |
+| Greybox an Unreal level, swap its blockouts for library assets, or suggest library assets that suit it | `marso-unreal-blockout` when installed. Without it, name the skill and stop the Unreal step. |
+| Light an Unreal level, set up shots or render stills of it | `marso-unreal-stage` when installed; stills only. Without it, name the skill and stop the Unreal step. |
 
 Organic/complex forms favour generation as a starting point; structured, articulated or modular objects favour agent modelling. These are workflow defaults, not quality guarantees. Generated meshes can need retopology, part separation and scale correction; agent-built meshes still need topology and fit checks. A hybrid can generate decoration while modelling functional joints and mating surfaces. Preserve explicit user intent and explain a material tradeoff before substituting routes.
 
@@ -47,7 +56,7 @@ For an unspecified creation route, compare achievable visual quality and effort 
 
 ## Discover the connection
 
-Inspect the tools actually available: Blender control, and the Marso add-on's commands inside it. An installed skill supplies instructions, not a connection. For missing Blender setup, use `marso-blender-setup` when installed. Companion skills are separately installable; do not read assumed sibling paths. If a required specialist is absent, identify it or continue only through verified tools and their documented capabilities.
+Inspect the tools actually available: Blender control and the Marso add-on's commands inside it, or the Marso Unreal plugin's MCP tools. An installed skill supplies instructions, not a connection. For missing Blender setup, use `marso-blender-setup` when installed. Companion skills are separately installable; do not read assumed sibling paths. If a required specialist is absent, identify it or continue only through verified tools and their documented capabilities.
 
 Read runtime schemas and capabilities before using generation parameters. Use the installed tool prefix rather than inventing one. Do not change accounts, stored defaults or project destinations merely to establish a preferred route. Keep setup and capability discovery non-generating.
 

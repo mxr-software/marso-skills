@@ -10,7 +10,7 @@ First establish the source (description, one object image, or consistent views o
 
 Inspect the installed add-on's `generate_state` model catalogue and `create_3d_asset` schema. Refresh after a capability error. Model availability and option names can differ between versions. Use catalogue IDs, not guessed names. The catalogue's source support does not prove that a particular tool accepts that input directly.
 
-Apply [preferences and budgets](preferences.md): explicit task choice, recorded user preference, compatible panel state, then a supported advertised default. Establish an unknown preference once and retain user choices for later runs. A fallback is not a comparative quality claim. Do not run a model comparison unless requested.
+Apply the preference order from the skill's preferences and budgets reference: explicit task choice, recorded user preference, compatible panel state, then a supported advertised default. Establish an unknown preference once and retain user choices for later runs. A fallback is not a comparative quality claim. Do not run a model comparison unless requested.
 
 Filter polygon counts, source modes and texture options against the live catalogue and the chosen tool's schema. Do not rely on a saved catalogue or an example model ID as a current default. A higher polygon count does not establish cleaner topology or better articulation. Texture resolution/quality controls appearance sampling, not geometric accuracy. Do not infer "best for furniture" or "best for organics" rankings from version numbers or option lists; those preferences need representative tests or user-provided evidence.
 

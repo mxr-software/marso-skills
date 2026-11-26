@@ -18,8 +18,12 @@ A workflow is a short recipe you can ask for by name. It tells the agent which s
 | One object made of many repeated parts, from a description | `marso-make-set-piece` | "Use the make-set-piece workflow to make a bookcase full of books." |
 | A set piece from a picture | `marso-make-set-piece` | "Use the make-set-piece workflow to make the market stall in this image." |
 | A realistic look for an asset already in Blender | `marso-make-realistic` | "Use the make-realistic workflow on the selected chair." |
+| A set piece made in Blender, staged in an Unreal level (closed beta) | `marso-stage-set-piece` | "Use the stage-set-piece workflow to make a market stall and shoot it in my harbour level." |
+| An Unreal level dressed from your library (closed beta) | `marso-dress-level` | "Use the dress-level workflow to fill my blocked-out storeroom and give me three shots." |
 
-Each workflow models or checks the asset in Blender, prepares its UVs, runs Retexture, then adds PBR. The set piece workflow also generates one mesh for each soft or organic part, makes the looks as variants of that mesh, and places every instance. It stops for you to approve the model, choose the look and review the Retexture result. To run without stopping, say so: "I approve the model unseen; choose the look yourself and run to the end."
+The two Unreal workflows need the Marso Unreal plugin, which is in closed beta, by invitation. The stage-set-piece workflow stops at the same points in Blender as the make-set-piece workflow, then shows you the placed piece before shooting it. The dress-level workflow uses only assets already in your library: an item it cannot fill stays a grey box and is listed, to be made in Blender.
+
+Each Blender workflow models or checks the asset in Blender, prepares its UVs, runs Retexture, then adds PBR. The set piece workflow also generates one mesh for each soft or organic part, makes the looks as variants of that mesh, and places every instance. It stops for you to approve the model, choose the look and review the Retexture result. To run without stopping, say so: "I approve the model unseen; choose the look yourself and run to the end."
 
 ## Start here: generate your first asset
 

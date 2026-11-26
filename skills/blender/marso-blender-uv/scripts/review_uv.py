@@ -12,13 +12,14 @@ import math
 from pathlib import Path
 import sys
 import tempfile
+import time
 
 import bpy
 import numpy as np
 from mathutils import Vector
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from uv_atlas import UV, asset_meshes, face_metrics, report as atlas_report  # noqa: E402
+from uv_atlas import UV, _evaluated, asset_meshes, face_metrics, marks as atlas_marks, report as atlas_report  # noqa: E402
 
 VIEWS = ((1.0, -1.2, 0.7), (-1.0, 1.2, 0.45))
 OUTPUTS = ('checker.png', 'uv.png', 'stretch.png', 'uv-metrics.json')
@@ -26,6 +27,7 @@ PATCH = 'worst-patch.png'
 STRETCH_SCALE = ((1.0, (0.10, 0.55, 0.20)), (1.5, (0.95, 0.85, 0.15)), (2.5, (0.95, 0.45, 0.05)),
                  (4.0, (0.80, 0.05, 0.05)))
 INVALID = (0.85, 0.0, 0.85)
+PACK_VERSION = 1
 
 
 def stretch_colour(ratio):
@@ -40,6 +42,10 @@ def stretch_colour(ratio):
     for channel in range(3):
         colours[finite, channel] = np.interp(clipped, stops, palette[:, channel])
     return colours
+
+
+def _lap(since):
+    return round(time.perf_counter() - since, 3)
 
 
 def _bounds(objects):
@@ -225,24 +231,33 @@ def _stretch_attribute(mesh, uv_name, obj):
     mesh.polygons.foreach_get('loop_start', starts)
     mesh.polygons.foreach_get('loop_total', sizes)
     corner = np.ones((len(mesh.loops), 4), dtype=np.float32)
-    for start, total, colour in zip(starts, sizes, colours):
-        corner[start:start + total, :3] = colour
+    owner = np.repeat(np.arange(len(sizes)), sizes)
+    within = np.arange(len(owner)) - np.repeat(np.cumsum(sizes) - sizes, sizes)
+    corner[np.repeat(starts, sizes) + within, :3] = colours[owner]
     attribute = mesh.color_attributes.new('MarsoStretch', 'FLOAT_COLOR', 'CORNER')
     attribute.data.foreach_set('color', corner.ravel())
     mesh.color_attributes.active_color = attribute
 
 
-def uv_layout(objects, path, *, uv_name=UV, size=1024):
-    """Rasterise every part's charts into one square image: tinted fill, dark polygon edges, tile border."""
-    depsgraph = bpy.context.evaluated_depsgraph_get()
+def uv_layout(objects, path, *, uv_name=UV, size=1024, meshes=None):
+    """Rasterise every part's charts into one square image: tinted fill, dark polygon edges, tile border.
+
+    `meshes` maps part names to evaluated meshes that already exist, read instead of converting each part.
+    """
+    depsgraph = None
     canvas = np.ones((size, size, 3), dtype=np.float32)
     lines = np.linspace(0, size - 1, 9).astype(int)
     canvas[lines, :] = canvas[:, lines] = 0.85
     rng = np.random.default_rng(7)
     edges = []
     for index, obj in enumerate(objects):
-        evaluated = obj.evaluated_get(depsgraph)
-        mesh = evaluated.to_mesh()
+        evaluated = None
+        if meshes is not None:
+            mesh = meshes[obj.name]
+        else:
+            depsgraph = depsgraph or bpy.context.evaluated_depsgraph_get()
+            evaluated = obj.evaluated_get(depsgraph)
+            mesh = evaluated.to_mesh()
         try:
             layer = mesh.uv_layers.get(uv_name)
             if layer is None:
@@ -271,7 +286,8 @@ def uv_layout(objects, path, *, uv_name=UV, size=1024):
             following[starts + sizes - 1] = starts
             edges.append((uv, following))
         finally:
-            evaluated.to_mesh_clear()
+            if evaluated is not None:
+                evaluated.to_mesh_clear()
     for uv, following in edges:
         a, b = uv, uv[following]
         steps = np.minimum(np.ceil(np.linalg.norm(b - a, axis=1)).astype(np.int64) + 1, 4 * size)
@@ -290,12 +306,76 @@ def _plot(canvas, points, colour, size):
     canvas[pixels[keep, 1], pixels[keep, 0]] = colour
 
 
+def _stamp(folder):
+    """The stamp `review` left in uv-metrics.json, or None when the file is absent, unreadable or has none."""
+    try:
+        pack = json.loads((folder / 'uv-metrics.json').read_text(encoding='utf-8')).get('pack')
+    except (OSError, ValueError, AttributeError):
+        return None
+    if not isinstance(pack, dict) or pack.get('v') != PACK_VERSION or not isinstance(pack.get('files'), list):
+        return None
+    return pack
+
+
+def pack_state(out_dir, marks, *, reason=None):
+    """Whether the review images in `out_dir` show the atlas as it is now.
+
+    `marks` is the result of `uv_atlas.marks(root)`. Returns `current` when the images carry this script's
+    stamp for the same marks and all exist; `stale` when the stamp is for other marks or a stamped file is
+    gone; `missing` when the folder holds none of the files; `foreign` when it holds some without a stamp,
+    so this script cannot say what they show. A list passed as `reason` receives one sentence saying why.
+    """
+    folder = Path(out_dir)
+    why = [] if reason is None else reason
+    if not any((folder / name).exists() for name in OUTPUTS + (PATCH,)):
+        why.append('the folder holds no UV review images')
+        return 'missing'
+    pack = _stamp(folder)
+    if pack is None:
+        why.append('the review images carry no stamp from review_uv.review, so they cannot be matched to the atlas')
+        return 'foreign'
+    if pack.get('asset') != marks['asset']:
+        changed = sorted(name for name, mark in marks['parts'].items() if (pack.get('parts') or {}).get(name) != mark)
+        why.append('the review images were rendered before the UVs or geometry last changed' + (
+            ' ({}{})'.format(', '.join(changed[:6]), ' ...' if len(changed) > 6 else '') if changed else ''))
+        return 'stale'
+    gone = [name for name in pack['files'] if not (folder / name).is_file()]
+    if gone:
+        why.append('review images are gone: ' + ', '.join(gone))
+        return 'stale'
+    return 'current'
+
+
+def update_report(out_dir, report):
+    """Write a newer report into a folder whose images are still current, keeping its stamp. Returns whether
+    uv-metrics.json changed. A folder without this script's stamp is left alone."""
+    folder = Path(out_dir)
+    pack = _stamp(folder)
+    if pack is None:
+        return False
+    path = folder / 'uv-metrics.json'
+    held = json.loads(path.read_text(encoding='utf-8'))
+    report = {key: value for key, value in report.items() if key not in ('timings', 'pack')}
+    if {key: value for key, value in held.items() if key not in ('timings', 'pack')} == json.loads(json.dumps(report)):
+        return False
+    path.write_text(json.dumps(dict(report, timings=held.get('timings', {}), pack=pack), indent=2), encoding='utf-8')
+    return True
+
+
 def review(root_or_objects, out_dir, *, uv_name=UV, resolution=None, padding_px=None, size=1024,
-           addon_module=None, limits=None, overwrite=False):
+           addon_module=None, limits=None, overwrite=False, report=None, marks=None):
     """Write checker.png, uv.png, stretch.png and uv-metrics.json; returns their paths and the report.
 
     Also writes worst-patch.png: the checker seen straight on at the report's `worst_patch`, so stretch
-    there is not confused with perspective. Resolution and padding default to the recorded pack."""
+    there is not confused with perspective. Resolution and padding default to the recorded pack.
+    `report` is a `uv_atlas.report` result already measured on these parts and this layer; it is written as
+    given instead of being measured again. The result's `timings` give the seconds each stage took.
+
+    uv-metrics.json also gets a `pack` stamp: the change marks of the parts, the size and the files written.
+    `pack_state` reads it to say whether the images still show the atlas. `marks` is the result of
+    `uv_atlas.marks(root)` when the caller has it already."""
+    started = time.perf_counter()
+    timings = {}
     objects = asset_meshes(root_or_objects)
     if size < 128:
         raise ValueError('Use a render size of at least 128 pixels')
@@ -304,12 +384,23 @@ def review(root_or_objects, out_dir, *, uv_name=UV, resolution=None, padding_px=
     existing = [name for name in OUTPUTS + (PATCH,) if (out / name).exists()]
     if existing and not overwrite:
         raise FileExistsError('Already present (pass overwrite=True to replace): ' + ', '.join(existing))
-    metrics = atlas_report(objects, uv_name=uv_name, resolution=resolution, padding_px=padding_px,
-                           addon_module=addon_module, limits=limits)
+    if report is not None:
+        if report.get('uv_name') != uv_name or not set(report.get('parts', ())) <= {o.name for o in objects}:
+            raise ValueError('The report does not describe these parts and this layer; measure them again')
+        metrics = {key: value for key, value in report.items() if key not in ('timings', 'pack')}
+    if report is None or marks is None:
+        with _evaluated(objects) as meshes:
+            if report is None:
+                metrics = atlas_report(objects, uv_name=uv_name, resolution=resolution, padding_px=padding_px,
+                                       addon_module=addon_module, limits=limits, meshes=meshes)
+            if marks is None:
+                marks = atlas_marks(objects, uv_name=uv_name, meshes=meshes)
+    timings['measure'] = _lap(started)
     resolution = metrics['resolution']
     framing = _bounds(objects)
     patch = metrics.get('worst_patch')
     shading = bpy.context.scene.display.shading
+    lap = time.perf_counter()
     copies = _copies(objects)
     image = material = None
     try:
@@ -322,23 +413,34 @@ def review(root_or_objects, out_dir, *, uv_name=UV, resolution=None, padding_px=
                 if copy.data.uv_layers.get(uv_name):
                     copy.data.uv_layers.active = copy.data.uv_layers[uv_name]
             shading.color_type = 'TEXTURE'
+            timings['prepare'], lap = _lap(lap), time.perf_counter()
             _render_views(framing, out / 'checker.png')
+            timings['checker'], lap = _lap(lap), time.perf_counter()
             if patch:
                 _render_views((Vector(patch['centre']), framing[1] / 5), out / PATCH,
                               views=(Vector(patch['normal']),), near=framing[1] / 5)
+                timings['worst_patch'], lap = _lap(lap), time.perf_counter()
             for obj, copy in copies:
                 _stretch_attribute(copy.data, uv_name, copy)
             shading.color_type = 'VERTEX'
             _render_views(framing, out / 'stretch.png')
+            timings['stretch'], lap = _lap(lap), time.perf_counter()
+        # The copies hold the evaluated meshes, so the layout reads them instead of converting again.
+        uv_layout(objects, out / 'uv.png', uv_name=uv_name, size=size,
+                  meshes={obj.name: copy.data for obj, copy in copies})
+        timings['uv_layout'] = _lap(lap)
     finally:
         _remove(copies)
         if material is not None:
             bpy.data.materials.remove(material)
         if image is not None:
             bpy.data.images.remove(image)
-    uv_layout(objects, out / 'uv.png', uv_name=uv_name, size=size)
-    (out / 'uv-metrics.json').write_text(json.dumps(metrics, indent=2), encoding='utf-8')
+    timings['total'] = _lap(started)
+    pack = {'v': PACK_VERSION, 'asset': marks['asset'], 'parts': marks['parts'], 'size': size, 'joints': [],
+            'files': list(OUTPUTS) + ([PATCH] if patch else [])}
+    (out / 'uv-metrics.json').write_text(json.dumps(dict(metrics, timings=timings, pack=pack), indent=2),
+                                         encoding='utf-8')
     paths = {name.split('.')[0].replace('-', '_'): str(out / name) for name in OUTPUTS}
     if patch:
         paths['worst_patch'] = str(out / PATCH)
-    return paths | {'report': metrics}
+    return paths | {'report': metrics, 'timings': timings, 'pack': pack}

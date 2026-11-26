@@ -1,0 +1,3 @@
+interface:
+  display_name: "Marso Unreal Library"
+  short_description: "Find, import and place Marso assets in Unreal"
